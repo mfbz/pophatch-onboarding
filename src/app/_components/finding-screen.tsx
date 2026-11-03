@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { resolveLink, searchPlatforms } from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
@@ -25,7 +25,8 @@ const DELAYS = [
 
 // Step 2 moves on by itself: it resolves the link, reports each platform as the search finds it,
 // then replaces itself with step 3, so going back from step 3 skips the search. A link that finds
-// no one returns to step 1 with a line saying so.
+// no one returns to step 1 with a line saying so. The list empties when Next hides this page
+// (Activity) and each run rebuilds it from the start, so a second search never shows the first.
 function FindingScreen() {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
@@ -33,9 +34,12 @@ function FindingScreen() {
   const [found, setFound] = useState<Platform[]>([]);
   const link = state.link;
 
+  useLayoutEffect(() => () => setFound([]), []);
+
   useEffect(() => {
     if (!allowed || link === null) return;
     let cancelled = false;
+    const reported: Platform[] = [];
 
     async function search(url: string) {
       const result = await resolveLink(url);
@@ -47,7 +51,8 @@ function FindingScreen() {
       }
       for await (const platform of searchPlatforms(result.artist.id)) {
         if (cancelled) return;
-        setFound((current) => [...current, platform]);
+        reported.push(platform);
+        setFound([...reported]);
       }
       if (cancelled) return;
       dispatch({ type: "found", artist: result.artist });
@@ -82,15 +87,13 @@ function FindingScreen() {
         <h1 className="mt-14 font-display text-page-title font-bold text-fg max-tablet:mt-10 max-tablet:text-page-title-phone">
           Getting to know you.
         </h1>
-        <ul
-          role="status"
-          aria-live="polite"
-          className="mt-5 flex min-h-32 flex-col items-center gap-1.5 text-lg text-mist"
-        >
-          {found.map((platform) => (
-            <li key={platform}>Found you on {PLATFORM_NAMES[platform]}.</li>
-          ))}
-        </ul>
+        <div role="status" aria-live="polite" className="mt-5 min-h-32">
+          <ul className="flex flex-col items-center gap-1.5 text-lg text-mist">
+            {found.map((platform) => (
+              <li key={platform}>Found you on {PLATFORM_NAMES[platform]}.</li>
+            ))}
+          </ul>
+        </div>
       </main>
     </Stage>
   );

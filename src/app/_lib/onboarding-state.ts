@@ -56,6 +56,8 @@ const OnboardingStateSchema = z.object({
   path: z.enum(["link", "manual"]),
   link: z.string().nullable(),
   notice: z.enum(["not-me", "not-found"]).nullable(),
+  // Counts the returns to step 1, so its form starts over on each return and only then.
+  returns: z.number(),
   artist: ArtistSchema.nullable(),
   confirmed: z.boolean(),
   accounts: z.partialRecord(ConnectPlatformKey, ConnectionSchema),
@@ -73,6 +75,7 @@ const initialState: OnboardingState = {
   path: "link",
   link: null,
   notice: null,
+  returns: 0,
   artist: null,
   confirmed: false,
   accounts: {},
@@ -114,13 +117,20 @@ function onboardingReducer(
         ...state,
         link: null,
         notice: "not-me",
+        returns: state.returns + 1,
         artist: null,
         confirmed: false,
       };
     case "notFound":
-      return { ...state, link: null, notice: "not-found", artist: null };
+      return {
+        ...state,
+        link: null,
+        notice: "not-found",
+        returns: state.returns + 1,
+        artist: null,
+      };
     case "startManual":
-      return { ...initialState, path: "manual" };
+      return { ...initialState, path: "manual", returns: state.returns };
     case "account":
       return {
         ...state,

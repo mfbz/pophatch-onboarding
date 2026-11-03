@@ -104,7 +104,7 @@ function LinkForm({ notice }: LinkFormProps) {
   }
 
   return (
-    <form noValidate onSubmit={submit} className="mt-10 max-w-[894px]">
+    <form noValidate onSubmit={submit} className="mt-10 max-w-4xl">
       <label htmlFor="artist-link" className="sr-only">
         Your link
       </label>
@@ -184,10 +184,10 @@ function LinkScreen() {
         <p className="mt-6 text-xl text-mist max-tablet:mt-4 max-tablet:text-lg">
           One link to start. PopHatch finds the rest.
         </p>
-        {/* Remounted once saved progress is read, and on each return with a notice, so the field
-            starts from the right state. */}
+        {/* Remounted once saved progress is read, and on each return to step 1 with a notice, so
+            the field starts from the right state. */}
         <LinkForm
-          key={ready ? (state.notice ?? "fresh") : "loading"}
+          key={ready ? `returns-${state.returns}` : "loading"}
           notice={state.notice}
         />
         <ul className="mt-14 grid gap-x-10 gap-y-6 max-tablet:mt-10 tablet:grid-cols-3">

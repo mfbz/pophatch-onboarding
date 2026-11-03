@@ -14,13 +14,14 @@ const STAGES: ReadonlyArray<{ id: FlowStage; label: string }> = [
 // Built from the Stage System's "Steps in a Plan" (DESIGN.md, Decisions): done is a white circle with
 // a Klein check, current a lime circle, upcoming an outline at 50%. Progress, never buttons. On a
 // phone the labels give way to one line naming the current stage. On arrival nothing is current
-// and every stage is done.
+// and every stage is done. It sits on a pill of the stage's own Klein, invisible on the stage, so
+// rings centered on a screen's subject pass behind its labels instead of through them.
 function Stepper({ current, done }: StepperProps) {
   const position = STAGES.findIndex((stage) => stage.id === current) + 1;
   const currentLabel = STAGES[position - 1]?.label;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="-mr-3 flex items-center gap-3 rounded-pill bg-klein/85 px-3 py-2">
       <ol aria-label="Onboarding progress" className="flex items-center">
         {STAGES.map((stage, index) => {
           const isDone = done.includes(stage.id) && stage.id !== current;

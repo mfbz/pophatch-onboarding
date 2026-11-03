@@ -34,35 +34,52 @@ const EXAMPLE_LINKS: Record<Platform, string> = {
 
 const HOSTS: Record<string, Platform> = {
   "open.spotify.com": "spotify",
+  "spotify.link": "spotify",
   "instagram.com": "instagram",
   "tiktok.com": "tiktok",
+  "vm.tiktok.com": "tiktok",
   "youtube.com": "youtube",
   "youtu.be": "youtube",
+  "music.youtube.com": "youtube",
   "music.apple.com": "apple-music",
   "soundcloud.com": "soundcloud",
+  "on.soundcloud.com": "soundcloud",
   "linktr.ee": "linktree",
 };
 
-// Artists paste links copied from an app, often without the scheme and with "www." or the
-// mobile "m." in front; all of those name the same profile.
+const SPOTIFY_URI = /^spotify:(artist|album|track|playlist):(\w+)$/i;
+
+// Artists paste what an app's share button gives them: a link without the scheme, with "www." or
+// the mobile "m." in front, a short share link, a Spotify URI, or a sentence with the link in it.
+// All of those name the same profile. Anything with another scheme (mailto:, javascript:) or a
+// user name before the host is not a profile link.
 function parseArtistLink(input: string): ParsedLink {
-  const text = input.trim();
+  let text = input.trim();
   if (text === "") return { ok: false, reason: "empty" };
 
-  const withScheme = /^[a-z][a-z\d+.-]*:\/\//i.test(text)
-    ? text
-    : `https://${text}`;
+  const uri = SPOTIFY_URI.exec(text);
+  if (uri) text = `https://open.spotify.com/${uri[1]?.toLowerCase()}/${uri[2]}`;
+  if (/\s/.test(text)) {
+    const inText = /https?:\/\/\S+/i.exec(text);
+    if (!inText) return { ok: false, reason: "not-a-link" };
+    text = inText[0];
+  }
+
+  const hasScheme = /^[a-z][a-z\d+.-]*:/i.test(text);
+  if (hasScheme && !/^https?:\/\//i.test(text)) {
+    return { ok: false, reason: "not-a-link" };
+  }
   let url: URL;
   try {
-    url = new URL(withScheme);
+    url = new URL(hasScheme ? text : `https://${text}`);
   } catch {
     return { ok: false, reason: "not-a-link" };
   }
-  if (!/^https?:$/.test(url.protocol) || !url.hostname.includes(".")) {
+  if (!url.hostname.includes(".") || url.username || url.password) {
     return { ok: false, reason: "not-a-link" };
   }
 
-  const host = url.hostname.replace(/^(www|m)\./, "");
+  const host = url.hostname.replace(/\.$/, "").replace(/^((www|m)\.)+/, "");
   const platform = HOSTS[host];
   if (!platform) return { ok: false, reason: "unsupported" };
 

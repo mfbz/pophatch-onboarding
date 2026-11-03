@@ -1,4 +1,5 @@
 import { act, render, screen } from "@testing-library/react";
+import { Activity } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { OnboardingProvider } from "@/app/_lib/onboarding-provider";
@@ -68,6 +69,36 @@ describe("FindingScreen", () => {
     );
     expect(saved().artist?.name).toBe("Noor Adeyemi");
     expect(replace).toHaveBeenCalledWith("/found");
+  });
+
+  it("starts the list over when the screen is shown again", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({
+        ...initialState,
+        link: "https://open.spotify.com/artist/5kZ2nooradeyemi",
+      })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <FindingScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2500);
+    });
+    rerender(tree("hidden"));
+    rerender(tree("visible"));
+    expect(screen.getByRole("status")).toHaveTextContent("");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6000);
+    });
+    expect(screen.getByRole("status").textContent).toBe(
+      "Found you on Spotify.Found you on Instagram.Found you on YouTube.Found you on TikTok."
+    );
   });
 
   it("sends the artist back to the start when the link finds no one", async () => {

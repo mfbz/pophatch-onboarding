@@ -172,7 +172,7 @@ The prototype opens on a 132px headline ("Noor, let's run your business."), far 
 
 ### The rings follow the subject
 
-On steps 1 and 4 to 6 the rings sit in the top-right corner like every stage. On "Getting to know you" and "Found you" there is one subject, the logo searching and then the artist's photo, so the rings and the two growing circles center on it, as in the prototype. Both are the same `Rings` drawing (`components/stage.tsx`).
+On steps 1 and 4 to 6 the rings sit in the top-right corner like every stage. On "Getting to know you" and "Found you" there is one subject, the logo searching and then the artist's photo, so the rings and the two growing circles center on it, as in the prototype. Both are the same `Rings` drawing (`components/stage.tsx`). The stepper sits on a pill of the stage's own Klein, invisible on the stage, so centered rings pass behind its labels.
 
 ### Example links behind the platform names
 
