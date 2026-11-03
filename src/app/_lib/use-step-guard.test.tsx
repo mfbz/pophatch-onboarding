@@ -7,7 +7,9 @@ import { useStepGuard } from "./use-step-guard";
 const replace = vi.fn();
 const onboarding = { state: initialState, dispatch: vi.fn(), ready: true };
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
+const router = { replace };
+
+vi.mock("next/navigation", () => ({ useRouter: () => router }));
 vi.mock("./onboarding-provider", () => ({ useOnboarding: () => onboarding }));
 
 describe("useStepGuard", () => {

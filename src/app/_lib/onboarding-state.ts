@@ -19,6 +19,7 @@ type OnboardingAction =
   | { type: "found"; artist: z.infer<typeof ArtistSchema> }
   | { type: "confirmed" }
   | { type: "rejected" }
+  | { type: "notFound" }
   | { type: "startManual" }
   | { type: "account"; platform: ConnectPlatform; connection: Connection }
   | { type: "folder"; provider: FolderProvider; connection: Connection }
@@ -54,6 +55,7 @@ const FolderProviderKey = z.enum(["google-drive", "onedrive"]);
 const OnboardingStateSchema = z.object({
   path: z.enum(["link", "manual"]),
   link: z.string().nullable(),
+  notice: z.enum(["not-me", "not-found"]).nullable(),
   artist: ArtistSchema.nullable(),
   confirmed: z.boolean(),
   accounts: z.partialRecord(ConnectPlatformKey, ConnectionSchema),
@@ -70,6 +72,7 @@ const OnboardingStateSchema = z.object({
 const initialState: OnboardingState = {
   path: "link",
   link: null,
+  notice: null,
   artist: null,
   confirmed: false,
   accounts: {},
@@ -95,13 +98,27 @@ function onboardingReducer(
 ): OnboardingState {
   switch (action.type) {
     case "linkEntered":
-      return { ...state, path: "link", link: action.link, artist: null };
+      return {
+        ...state,
+        path: "link",
+        link: action.link,
+        notice: null,
+        artist: null,
+      };
     case "found":
       return { ...state, artist: action.artist };
     case "confirmed":
       return { ...state, confirmed: true };
     case "rejected":
-      return { ...state, link: null, artist: null, confirmed: false };
+      return {
+        ...state,
+        link: null,
+        notice: "not-me",
+        artist: null,
+        confirmed: false,
+      };
+    case "notFound":
+      return { ...state, link: null, notice: "not-found", artist: null };
     case "startManual":
       return { ...initialState, path: "manual" };
     case "account":
@@ -157,15 +174,17 @@ function connectedCount(state: OnboardingState): number {
   return connectedSources(state).length;
 }
 
-// The one-by-one path reaches Connect without finding or confirming, and still shows both done:
-// the first connected account is how PopHatch finds the artist there.
+// The one-by-one path reaches Connect without finding or confirming; both count as done once the
+// first connected account has found the artist.
 function stageProgress(
   state: OnboardingState,
   route: FlowRoute
 ): { current: FlowStage | null; done: FlowStage[] } {
-  void state;
   const current = ROUTE_STAGES[route];
   if (current === null) return { current, done: ORDER };
+  if (state.path === "manual" && state.artist === null) {
+    return { current, done: [] };
+  }
   return { current, done: ORDER.slice(0, ORDER.indexOf(current)) };
 }
 

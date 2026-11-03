@@ -25,6 +25,9 @@
   --breakpoint-tablet: 860px;
   --breakpoint-desktop: 1300px;
 
+  --text-display: clamp(54px, 9.2vw, 132px);
+  --text-display--line-height: 0.92;
+  --text-display--letter-spacing: -0.05em;
   --text-page-title: 56px;
   --text-page-title--line-height: 0.95;
   --text-page-title--letter-spacing: -0.045em;
@@ -45,6 +48,21 @@
   --text-label--letter-spacing: 0.1em;
 
   --animate-stage-pulse: stage-pulse 7.5s ease-out infinite;
+  --animate-logo-cycle: logo-cycle 12s linear infinite;
+
+  @keyframes logo-cycle {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    4%,
+    16.67% {
+      opacity: 1;
+    }
+    20.67% {
+      opacity: 0;
+    }
+  }
 
   @keyframes stage-pulse {
     0% {

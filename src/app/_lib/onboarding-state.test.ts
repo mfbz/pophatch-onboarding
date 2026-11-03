@@ -29,6 +29,24 @@ describe("the onboarding reducer", () => {
     expect(state.confirmed).toBe(false);
   });
 
+  it("explains why the artist is back at the start", () => {
+    expect(run({ type: "found", artist }, { type: "rejected" }).notice).toBe(
+      "not-me"
+    );
+    const notFound = run(
+      {
+        type: "linkEntered",
+        link: "https://open.spotify.com/artist/not-found",
+      },
+      { type: "notFound" }
+    );
+    expect(notFound.notice).toBe("not-found");
+    expect(notFound.link).toBeNull();
+    expect(
+      onboardingReducer(notFound, { type: "linkEntered", link: "x" }).notice
+    ).toBeNull();
+  });
+
   it("starts the one-by-one path", () => {
     expect(run({ type: "startManual" }).path).toBe("manual");
   });
@@ -88,12 +106,18 @@ describe("the onboarding reducer", () => {
 });
 
 describe("stageProgress", () => {
-  it("marks find and confirm done on the one-by-one path", () => {
+  it("marks nothing done on the one-by-one path until an account finds the artist", () => {
     const state = run({ type: "startManual" });
     expect(stageProgress(state, "/connect")).toEqual({
       current: "connect",
-      done: ["find", "confirm"],
+      done: [],
     });
+    expect(
+      stageProgress(
+        onboardingReducer(state, { type: "found", artist }),
+        "/connect"
+      )
+    ).toEqual({ current: "connect", done: ["find", "confirm"] });
   });
 
   it("marks every stage done on arrival", () => {
