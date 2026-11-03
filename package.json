@@ -1,0 +1,30 @@
+{
+  "name": "pophatch-onboarding",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "prepare": "node -e \"try { require('node:child_process').execFileSync('git', ['config', 'core.hooksPath', '.githooks'], { stdio: 'ignore' }) } catch {}\"",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "reference:unpack": "tsx scripts/unpack-reference.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "eslint": "^9.39.5",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5",
+    "yaml": "^2.9.1"
+  }
+}

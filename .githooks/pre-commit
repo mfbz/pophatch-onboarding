@@ -1,0 +1,9 @@
+#!/bin/sh
+# The repo's guards (checks/hook.ts), switched on by `npm install` (core.hooksPath).
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TSX="$ROOT/node_modules/.bin/tsx"
+if [ ! -x "$TSX" ]; then
+  echo "Guards: run npm install first" >&2
+  exit 1
+fi
+exec "$TSX" "$ROOT/checks/hook.ts" pre-commit "$@"

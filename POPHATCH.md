@@ -1,0 +1,38 @@
+# PopHatch onboarding
+
+The product spec: what the onboarding is, who it is for, the flow, and every decision with its reasoning. Decision records say what was chosen, what was rejected and why, never when. A reversed decision keeps its record, so nothing gets re-argued from a stale premise.
+
+## What PopHatch is
+
+A manager for musical artists. It **knows the business** (how labels, playlists, press and bookers work), **knows the artist** (their streams, fans, releases and money, read from their own accounts), and **decides what's next** (what to do this week, and whether last week's move worked).
+
+## Who the onboarding is for
+
+An independent or early-career musical artist signing up for the first time. They have a Spotify profile or an Instagram before they have a team; they are often on a phone; they are wary of anything that feels like admin or like a label's dashboard. The onboarding has to earn trust fast: show that PopHatch already knows who they are, then ask for as little as possible.
+
+## The flow
+
+Four stages, shown as a progress rail: **Find you → Confirm → Connect → Enter**.
+
+1. **Your link.** One field: paste any link that is yours (Spotify, Instagram, TikTok, YouTube, Apple Music, SoundCloud, Linktree). "One link to start. PopHatch finds the rest." Three promises under it: knows the business, knows you, decides what's next. A secondary path connects pages one by one for an artist without a link to hand.
+2. **Getting to know you.** The search, made visible: PopHatch reports each platform it finds the artist on as it finds it.
+3. **Found you.** The artist's profile as PopHatch found it: name, city, artwork of recent releases, and the numbers (releases, monthly listeners, followers). Two answers: "That's me" or "Not me".
+4. **Connect your pages.** The accounts found from the first link, each to connect or skip; one is enough to continue. Spotify, Apple Music and distributor reports come in as files (a cloud folder or an upload).
+5. **Putting it together.** One question while PopHatch reads the connected accounts: what would make the next three months a win (a release landing, more shows, a bigger fanbase, making money, getting noticed, or the artist's own words). The reading progress runs beside it, then the artist enters the app.
+
+## Design references
+
+`docs/design/reference/` holds the two inputs:
+
+- `stage-system.html`, **the Stage System**: the design system PopHatch is moving to (color, type, components, layouts, phone rules, motion, tokens).
+- `onboarding-prototype.html`, **the prototype**: the five screens above at 1440×1000. It predates part of the Stage System.
+
+Where they disagree, the Stage System sets tokens and components and the prototype sets the flow and copy. Where the build departs from either, the reason is recorded under Decisions.
+
+## Backend
+
+There is no backend. A typed client in the app stands in for one: it answers the onboarding's calls (resolve a link, search platforms, connect an account, read history) from mock data, with realistic latency and the failures a real service has (an unknown link, a profile that is not the artist, a connection that is refused), so every waiting, empty and wrong state is built and visible. Mock artists are invented; their links and addresses use example domains.
+
+## Decisions
+
+- **The backend is mocked in the browser, behind the same typed contract a real API would have.** Rejected: a mock server (more moving parts, no change in what the artist sees) and hard-coded screen states (the waiting and failure states would never be exercised).

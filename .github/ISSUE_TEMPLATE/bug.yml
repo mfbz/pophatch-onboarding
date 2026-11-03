@@ -1,0 +1,16 @@
+name: Bug
+description: Something doesn't work as POPHATCH.md says it should.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Steps, what you expected, what you saw. Name the screen, the width and the browser.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output
+      render: text

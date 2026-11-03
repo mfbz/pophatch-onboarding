@@ -1,0 +1,26 @@
+name: Task
+description: One change, ready for a person or a coding agent.
+labels: ["task"]
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What to change, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: Checkable statements, each proven by a test, a command or a named manual check.
+      value: |
+        - [ ] `npm run check` passes
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes for the agent
+      description: Files to read first, constraints, anything not obvious.

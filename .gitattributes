@@ -1,0 +1,4 @@
+# The design references are exported, generated files: kept for agents and people to open, never
+# diffed in a review or counted as source.
+docs/design/reference/*.html linguist-generated=true -diff
+package-lock.json linguist-generated=true

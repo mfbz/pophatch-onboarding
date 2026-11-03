@@ -1,0 +1,7 @@
+# Prettier 3 reads .gitignore too, so only tracked files it must not touch
+# are listed here.
+package-lock.json
+.agents/skills/vercel-react-best-practices
+.agents/skills/web-design-guidelines
+docs/design/reference
+.superpowers
