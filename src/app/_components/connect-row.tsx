@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { type MouseEvent, useEffect, useId, useRef, useState } from "react";
 
 import type { Connection } from "@/app/_lib/onboarding-state";
 import { Button } from "@/components/button";
@@ -14,9 +14,10 @@ type ConnectRowProps = {
   connect: () => Promise<void>;
 };
 
-// One account in the list (DESIGN.md, Sources). The row says "Connecting…" while it waits, since
-// nothing spins; that waiting lives here rather than in the flow state, so a reload never leaves a
-// row stuck waiting for an answer that will not come.
+// One account in the list (DESIGN.md, Account rows). One button carries Connect, Connecting… and Try
+// again, so keyboard focus stays on it while it waits; once connected, focus moves to the line that
+// says so, and every result is announced. The waiting lives here rather than in the flow state, so a
+// reload never leaves a row stuck waiting for an answer that will not come.
 function ConnectRow({
   name,
   handle,
@@ -26,9 +27,21 @@ function ConnectRow({
 }: ConnectRowProps) {
   const [pending, setPending] = useState(false);
   const titleId = useId();
+  const pressedWithFocus = useRef(false);
+  const status = useRef<HTMLParagraphElement>(null);
+  const connected = connection?.status === "connected";
+  const failed = connection?.status === "failed" && !pending;
 
-  async function press() {
+  useEffect(() => {
+    if (connected && pressedWithFocus.current) {
+      pressedWithFocus.current = false;
+      status.current?.focus();
+    }
+  }, [connected]);
+
+  async function press(event: MouseEvent<HTMLButtonElement>) {
     if (pending) return;
+    pressedWithFocus.current = document.activeElement === event.currentTarget;
     setPending(true);
     try {
       await connect();
@@ -52,8 +65,11 @@ function ConnectRow({
         {handle && (
           <p className="truncate text-caption text-periwinkle">{handle}</p>
         )}
-        {connection?.status === "failed" && !pending && (
-          <p className="mt-1 flex items-center gap-2 text-caption text-fg">
+        {failed && (
+          <p
+            role="status"
+            className="mt-1 flex items-center gap-2 text-caption text-fg"
+          >
             <StatusDot tone="pink" />
             {connection.message}
           </p>
@@ -63,31 +79,30 @@ function ConnectRow({
         <p className="text-caption font-semibold text-periwinkle">
           Coming soon
         </p>
-      ) : connection?.status === "connected" ? (
-        <p className="flex items-center gap-2 text-sm font-semibold text-fg">
+      ) : connected ? (
+        <p
+          ref={status}
+          role="status"
+          tabIndex={-1}
+          className="flex items-center gap-2 text-sm font-semibold text-fg outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid"
+        >
           <StatusDot tone="lime" />
           <span aria-hidden>✓</span>
           <span>Connected</span>
         </p>
-      ) : pending ? (
-        <Button variant="secondary" disabled>
-          Connecting…
-        </Button>
-      ) : connection?.status === "failed" ? (
-        <Button
-          variant="secondary"
-          aria-label={`Try ${name} again`}
-          onClick={press}
-        >
-          Try again
-        </Button>
       ) : (
         <Button
           variant="secondary"
-          aria-label={`Connect ${name}`}
+          aria-disabled={pending || undefined}
+          aria-label={
+            pending
+              ? undefined
+              : `${failed ? "Try" : "Connect"} ${name}${failed ? " again" : ""}`
+          }
           onClick={press}
+          className="aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
         >
-          Connect
+          {pending ? "Connecting…" : failed ? "Try again" : "Connect"}
         </Button>
       )}
     </li>

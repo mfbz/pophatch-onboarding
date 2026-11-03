@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { type ReadLine, readSources } from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
@@ -30,25 +30,26 @@ const GOALS = [
 
 const GOAL_LIMIT = 140;
 
-// Reads the connected sources once per set of sources. Each run rebuilds the list from the start,
-// so a page Next shows again after hiding it (Activity) never repeats a line.
+// Reads the connected sources once per set of sources. The reading lives in the flow state, so a
+// finished one stays finished when Next shows this page again (Activity) and "Start over" clears it;
+// a reading cut short starts over from its first line.
 function useReading(enabled: boolean, sourcesKey: string): Reading {
-  const { state } = useOnboarding();
-  const [reading, setReading] = useState<Reading>({ lines: [], done: false });
+  const { state, dispatch } = useOnboarding();
+  const reading = state.reading?.sources === sourcesKey ? state.reading : null;
+  const finished = reading?.done === true;
   const sources = connectedSources(state);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || finished) return;
     let cancelled = false;
-    const lines: ReadLine[] = [];
+    dispatch({ type: "readingStarted", sources: sourcesKey });
 
     async function read() {
       for await (const line of readSources(sources)) {
         if (cancelled) return;
-        lines.push(line);
-        setReading({ lines: [...lines], done: false });
+        dispatch({ type: "readingLine", line });
       }
-      if (!cancelled) setReading({ lines: [...lines], done: true });
+      if (!cancelled) dispatch({ type: "readingDone" });
     }
 
     void read();
@@ -57,9 +58,9 @@ function useReading(enabled: boolean, sourcesKey: string): Reading {
     };
     // `sourcesKey` stands for `sources`, which is a new array on every render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, sourcesKey]);
+  }, [enabled, sourcesKey, finished, dispatch]);
 
-  return reading;
+  return { lines: reading?.lines ?? [], done: finished };
 }
 
 // Step 5: one question while PopHatch reads what the artist connected. Enter waits for both, and

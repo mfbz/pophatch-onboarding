@@ -4,6 +4,8 @@ import {
   ArtistSchema,
   type ConnectPlatform,
   type FolderProvider,
+  type ReadLine,
+  ReadLineSchema,
   type Source,
 } from "@/app/_lib/mock-api";
 import type { FlowStage } from "@/components/stepper";
@@ -25,6 +27,9 @@ type OnboardingAction =
   | { type: "folder"; provider: FolderProvider; connection: Connection }
   | { type: "files"; names: string[] }
   | { type: "goal"; goal: Goal }
+  | { type: "readingStarted"; sources: string }
+  | { type: "readingLine"; line: ReadLine }
+  | { type: "readingDone" }
   | { type: "reset" };
 
 type FlowRoute =
@@ -69,6 +74,14 @@ const OnboardingStateSchema = z.object({
       z.object({ kind: z.literal("written"), value: z.string() }),
     ])
     .nullable(),
+  // What step 5 has read, and for which sources, so a finished reading is not repeated.
+  reading: z
+    .object({
+      sources: z.string(),
+      lines: z.array(ReadLineSchema),
+      done: z.boolean(),
+    })
+    .nullable(),
 });
 
 const initialState: OnboardingState = {
@@ -82,6 +95,7 @@ const initialState: OnboardingState = {
   folders: {},
   files: [],
   goal: null,
+  reading: null,
 };
 
 const ROUTE_STAGES: Record<FlowRoute, FlowStage | null> = {
@@ -101,13 +115,7 @@ function onboardingReducer(
 ): OnboardingState {
   switch (action.type) {
     case "linkEntered":
-      return {
-        ...state,
-        path: "link",
-        link: action.link,
-        notice: null,
-        artist: null,
-      };
+      return { ...initialState, link: action.link, returns: state.returns };
     case "found":
       return { ...state, artist: action.artist };
     case "confirmed":
@@ -145,8 +153,27 @@ function onboardingReducer(
       return { ...state, files: action.names };
     case "goal":
       return { ...state, goal: action.goal };
+    case "readingStarted":
+      return {
+        ...state,
+        reading: { sources: action.sources, lines: [], done: false },
+      };
+    case "readingLine":
+      return state.reading
+        ? {
+            ...state,
+            reading: {
+              ...state.reading,
+              lines: [...state.reading.lines, action.line],
+            },
+          }
+        : state;
+    case "readingDone":
+      return state.reading
+        ? { ...state, reading: { ...state.reading, done: true } }
+        : state;
     case "reset":
-      return initialState;
+      return { ...initialState, returns: state.returns + 1 };
   }
 }
 

@@ -171,6 +171,7 @@ async function resolveFromAccount(platform: ConnectPlatform): Promise<Artist> {
 
 export {
   ArtistSchema,
+  ReadLineSchema,
   FOLDER_NAMES,
   CONNECT_NAMES,
   CONNECT_PLATFORMS,

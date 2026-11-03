@@ -15,19 +15,21 @@ import { TopBar } from "@/components/top-bar";
 function WelcomeScreen() {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
-  const allowed = useStepGuard((current) => current.goal !== null);
+  const allowed = useStepGuard(
+    (current) => current.goal !== null && current.artist !== null
+  );
   const progress = stageProgress(state, "/welcome");
-  const firstName = state.artist?.name.split(" ")[0] ?? "Noor";
+  const firstName = state.artist?.name.split(" ")[0];
 
   function startOver() {
-    router.push("/");
     dispatch({ type: "reset" });
+    router.push("/");
   }
 
   return (
     <Stage rings="none">
       <TopBar current={progress.current} done={progress.done} />
-      {allowed && (
+      {allowed && firstName && (
         <main className="flex flex-1 flex-col items-center justify-center pb-10 text-center">
           <div className="relative grid size-70 place-items-center max-tablet:size-44">
             <Rings className="absolute top-1/2 left-1/2 -z-10 -translate-1/2 max-tablet:scale-75" />

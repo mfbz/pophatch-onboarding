@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { Activity } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArtistSchema } from "@/app/_lib/mock-api";
@@ -125,6 +126,31 @@ describe("TogetherScreen", () => {
     await wait(3500);
     fireEvent.click(screen.getByRole("button", { name: "Enter" }));
     expect(push).toHaveBeenCalledWith("/welcome");
+  });
+
+  it("keeps a finished reading when the artist comes back to it", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, ...connected })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <TogetherScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await wait(0);
+    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
+    await wait(3500);
+    rerender(tree("hidden"));
+    rerender(tree("visible"));
+    await wait(1200);
+    expect(screen.getByRole("button", { name: "Enter" })).toBeEnabled();
+    expect(
+      screen.getByRole("list", { name: "Putting it together" })
+    ).toHaveTextContent("Reading your reports");
   });
 
   it("sends the artist to the start with nothing connected", async () => {

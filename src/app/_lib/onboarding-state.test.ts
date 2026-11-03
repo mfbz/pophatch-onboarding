@@ -47,6 +47,45 @@ describe("the onboarding reducer", () => {
     ).toBeNull();
   });
 
+  it("starts a new link from nothing but the count of returns", () => {
+    const state = run(
+      { type: "linkEntered", link: "https://open.spotify.com/artist/x" },
+      { type: "found", artist },
+      { type: "confirmed" },
+      {
+        type: "account",
+        platform: "instagram",
+        connection: { status: "connected", handle: "@x" },
+      },
+      { type: "goal", goal: { kind: "preset", value: "A bigger fanbase" } },
+      { type: "rejected" },
+      { type: "linkEntered", link: "https://www.tiktok.com/@y" }
+    );
+    expect(state).toEqual({
+      ...initialState,
+      link: "https://www.tiktok.com/@y",
+      returns: 1,
+    });
+  });
+
+  it("counts starting over as a return, so step 1 starts fresh", () => {
+    const state = run({ type: "rejected" }, { type: "reset" });
+    expect(state).toEqual({ ...initialState, returns: 2 });
+  });
+
+  it("keeps a finished reading only for the sources it read", () => {
+    const line = { label: "Reading SoundCharts", detail: "11 releases" };
+    const state = run(
+      { type: "readingStarted", sources: "a" },
+      { type: "readingLine", line },
+      { type: "readingDone" }
+    );
+    expect(state.reading).toEqual({ sources: "a", lines: [line], done: true });
+    expect(
+      onboardingReducer(state, { type: "readingStarted", sources: "b" }).reading
+    ).toEqual({ sources: "b", lines: [], done: false });
+  });
+
   it("starts the one-by-one path", () => {
     expect(run({ type: "startManual" }).path).toBe("manual");
   });
@@ -101,7 +140,7 @@ describe("the onboarding reducer", () => {
       { type: "confirmed" },
       { type: "reset" }
     );
-    expect(state).toEqual(initialState);
+    expect(state).toEqual({ ...initialState, returns: 1 });
   });
 });
 

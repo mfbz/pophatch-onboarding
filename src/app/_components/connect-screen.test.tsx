@@ -90,17 +90,21 @@ describe("ConnectScreen", () => {
     ).toBeDisabled();
   });
 
-  it("connects an account and counts it", async () => {
+  it("connects an account, keeps focus in the row and counts it", async () => {
     await renderWith(confirmed);
-    fireEvent.click(
-      row("Instagram").getByRole("button", { name: "Connect Instagram" })
-    );
+    const connect = row("Instagram").getByRole("button", {
+      name: "Connect Instagram",
+    });
+    connect.focus();
+    fireEvent.click(connect);
     const pending = row("Instagram").getByRole("button", {
       name: "Connecting…",
     });
-    expect(pending).toBeDisabled();
+    expect(pending).toHaveAttribute("aria-disabled", "true");
+    expect(pending).toHaveFocus();
     await wait(1300);
     expect(row("Instagram").getByText("Connected")).toBeInTheDocument();
+    expect(row("Instagram").getByRole("status")).toHaveFocus();
     fireEvent.click(
       screen.getByRole("button", { name: "Continue with 1 connected" })
     );
@@ -109,16 +113,20 @@ describe("ConnectScreen", () => {
 
   it("says when Facebook fails, and connects it on a second try", async () => {
     await renderWith(confirmed);
-    fireEvent.click(
-      row("Facebook").getByRole("button", { name: "Connect Facebook" })
-    );
+    const connect = row("Facebook").getByRole("button", {
+      name: "Connect Facebook",
+    });
+    connect.focus();
+    fireEvent.click(connect);
     await wait(1300);
     expect(
       row("Facebook").getByText("Facebook didn't answer. Try again.")
     ).toBeInTheDocument();
-    fireEvent.click(
-      row("Facebook").getByRole("button", { name: "Try Facebook again" })
-    );
+    const retry = row("Facebook").getByRole("button", {
+      name: "Try Facebook again",
+    });
+    expect(retry).toHaveFocus();
+    fireEvent.click(retry);
     await wait(1300);
     expect(row("Facebook").getByText("Connected")).toBeInTheDocument();
   });
@@ -130,7 +138,13 @@ describe("ConnectScreen", () => {
         files: [new File(["x"], "royalties-2025.csv", { type: "text/csv" })],
       },
     });
+    fireEvent.change(screen.getByLabelText("Upload files"), {
+      target: {
+        files: [new File(["x"], "shows.pdf", { type: "application/pdf" })],
+      },
+    });
     expect(screen.getByText("royalties-2025.csv")).toBeInTheDocument();
+    expect(screen.getByText("shows.pdf")).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("button", { name: "Connect Google Drive" })
     );
@@ -139,6 +153,15 @@ describe("ConnectScreen", () => {
     expect(
       screen.getByRole("button", { name: "Continue with 2 connected" })
     ).toBeEnabled();
+  });
+
+  it("names the platform the link came from", async () => {
+    await renderWith({ ...confirmed, link: "https://linktr.ee/nooradeyemi" });
+    expect(
+      screen.getByText(
+        "PopHatch found these from your Linktree. Connect what you have; one is enough to start."
+      )
+    ).toBeInTheDocument();
   });
 
   it("goes back to try another link", async () => {

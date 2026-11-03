@@ -68,7 +68,7 @@ describe("WelcomeScreen", () => {
     const user = userEvent.setup();
     renderWith(arrived);
     await user.click(await screen.findByRole("button", { name: "Start over" }));
-    expect(saved()).toEqual(initialState);
+    expect(saved()).toEqual({ ...initialState, returns: 1 });
     expect(push).toHaveBeenCalledWith("/");
   });
 

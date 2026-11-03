@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type MouseEvent, useEffect, useRef, useState } from "react";
 
 import { ConnectRow } from "@/app/_components/connect-row";
 import {
@@ -15,6 +15,7 @@ import {
   resolveFromAccount,
 } from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
+import { parseArtistLink, PLATFORM_NAMES } from "@/app/_lib/parse-link";
 import { connectedCount, stageProgress } from "@/app/_lib/onboarding-state";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button, buttonVariants } from "@/components/button";
@@ -31,10 +32,21 @@ const REPORT_TYPES = ".csv,.xlsx,.xls,.pdf,.zip";
 function FolderButton({ provider }: FolderButtonProps) {
   const { state, dispatch } = useOnboarding();
   const [pending, setPending] = useState(false);
+  const pressedWithFocus = useRef(false);
+  const status = useRef<HTMLParagraphElement>(null);
   const name = FOLDER_NAMES[provider];
+  const connected = state.folders[provider]?.status === "connected";
 
-  async function press() {
+  useEffect(() => {
+    if (connected && pressedWithFocus.current) {
+      pressedWithFocus.current = false;
+      status.current?.focus();
+    }
+  }, [connected]);
+
+  async function press(event: MouseEvent<HTMLButtonElement>) {
     if (pending) return;
+    pressedWithFocus.current = document.activeElement === event.currentTarget;
     setPending(true);
     try {
       const result = await connectFolder(provider);
@@ -44,16 +56,26 @@ function FolderButton({ provider }: FolderButtonProps) {
     }
   }
 
-  if (state.folders[provider]?.status === "connected") {
+  if (connected) {
     return (
-      <p className="flex min-h-10 items-center gap-2 text-sm font-semibold text-fg">
+      <p
+        ref={status}
+        role="status"
+        tabIndex={-1}
+        className="flex min-h-10 items-center gap-2 text-sm font-semibold text-fg outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid"
+      >
         <StatusDot tone="lime" />
         {name} connected
       </p>
     );
   }
   return (
-    <Button variant="secondary" disabled={pending} onClick={press}>
+    <Button
+      variant="secondary"
+      aria-disabled={pending || undefined}
+      onClick={press}
+      className="aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
+    >
       {pending ? "Connecting…" : `Connect ${name}`}
     </Button>
   );
@@ -70,6 +92,12 @@ function ConnectScreen() {
   const progress = stageProgress(state, "/connect");
   const count = connectedCount(state);
   const manual = state.path === "manual";
+  const parsedLink = state.link ? parseArtistLink(state.link) : null;
+  const linkPlatform = parsedLink?.ok
+    ? PLATFORM_NAMES[parsedLink.platform]
+    : "link";
+  // On the one-by-one path the artist is found from the first account, so Continue waits for that.
+  const ready = count > 0 && state.artist !== null;
 
   function handleFor(platform: ConnectPlatform): string | undefined {
     const connection = state.accounts[platform];
@@ -111,7 +139,7 @@ function ConnectScreen() {
           <p className="mt-4 max-w-2xl text-lg text-mist">
             {manual
               ? "Connect what you have; one is enough to start."
-              : "PopHatch found these from your Spotify. Connect what you have; one is enough to start."}
+              : `PopHatch found these from your ${linkPlatform}. Connect what you have; one is enough to start.`}
           </p>
           <ul className="mt-8 max-w-3xl border-t border-hair">
             {CONNECT_PLATFORMS.map(({ platform, available }) => (
@@ -158,7 +186,14 @@ function ConnectScreen() {
                       event.target.files ?? [],
                       (file) => file.name
                     );
-                    if (names.length > 0) dispatch({ type: "files", names });
+                    // Cleared so choosing the same file again still counts as a choice.
+                    event.target.value = "";
+                    if (names.length > 0) {
+                      dispatch({
+                        type: "files",
+                        names: [...new Set([...state.files, ...names])],
+                      });
+                    }
                   }}
                 />
               </label>
@@ -182,7 +217,7 @@ function ConnectScreen() {
               Try another link
             </Button>
             <Button
-              disabled={count === 0}
+              disabled={!ready}
               onClick={() => router.push("/together")}
               className="min-h-12 px-7 max-tablet:w-full"
             >
