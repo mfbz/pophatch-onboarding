@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Familjen_Grotesk } from "next/font/google";
 
+import { OnboardingProvider } from "@/app/_lib/onboarding-provider";
+
 import "./globals.css";
 
 // The Stage System's two faces, self-hosted by next/font so the page makes no font request at
@@ -29,7 +31,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${body.variable} ${display.variable} h-full antialiased`}
     >
-      <body className="flex min-h-dvh flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">
+        <OnboardingProvider>{children}</OnboardingProvider>
+      </body>
     </html>
   );
 }

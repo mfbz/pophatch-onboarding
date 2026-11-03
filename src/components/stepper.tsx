@@ -2,7 +2,7 @@ import { cn } from "cn";
 
 type FlowStage = "find" | "confirm" | "connect" | "enter";
 
-type StepperProps = { current: FlowStage; done: FlowStage[] };
+type StepperProps = { current: FlowStage | null; done: FlowStage[] };
 
 const STAGES: ReadonlyArray<{ id: FlowStage; label: string }> = [
   { id: "find", label: "Find you" },
@@ -13,10 +13,11 @@ const STAGES: ReadonlyArray<{ id: FlowStage; label: string }> = [
 
 // Built from the Stage System's "Steps in a Plan" (DESIGN.md, Decisions): done is a white circle with
 // a Klein check, current a lime circle, upcoming an outline at 50%. Progress, never buttons. On a
-// phone the labels give way to one line naming the current stage.
+// phone the labels give way to one line naming the current stage. On arrival nothing is current
+// and every stage is done.
 function Stepper({ current, done }: StepperProps) {
   const position = STAGES.findIndex((stage) => stage.id === current) + 1;
-  const currentLabel = STAGES[position - 1]?.label ?? "";
+  const currentLabel = STAGES[position - 1]?.label;
 
   return (
     <div className="flex items-center gap-3">
@@ -66,7 +67,9 @@ function Stepper({ current, done }: StepperProps) {
         aria-hidden
         className="text-caption font-semibold whitespace-nowrap text-fg tablet:hidden"
       >
-        {currentLabel} · {position} of {STAGES.length}
+        {currentLabel
+          ? `${currentLabel} · ${position} of ${STAGES.length}`
+          : "All done"}
       </span>
     </div>
   );
