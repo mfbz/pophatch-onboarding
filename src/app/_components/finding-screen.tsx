@@ -95,7 +95,7 @@ function FindingScreen() {
             className={
               found.length > 0
                 ? "sr-only"
-                : "col-start-1 row-start-1 animate-line-in px-14 py-3 bg-halo"
+                : "col-start-1 row-start-1 animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
             }
           >
             Getting to know you.
@@ -111,7 +111,7 @@ function FindingScreen() {
                   key={platform}
                   className={
                     index === found.length - 1
-                      ? "animate-line-in px-14 py-3 bg-halo"
+                      ? "animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
                       : "sr-only"
                   }
                 >

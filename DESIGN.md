@@ -185,7 +185,7 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 
 ## Components
 
-- **Buttons** (`components/button.tsx`): primary is lime with navy text, 14px weight 700, 10px by 18px; secondary has no background, white text and a 1.5px border at 70% white; link is Mist and underlined; on a white card, `ink` is Klein filled and `outline` a 2px Klein outline. On hover the lime goes to 90% and the secondary border to 100%; pressed, any button shrinks to 96%. Nothing else changes on hover.
+- **Buttons** (`components/button.tsx`): primary is lime with navy text, 14px weight 700, 10px by 18px, and 17px weight 800 for a screen's main action; secondary has no background, white text and a 1.5px border at 70% white; link is Mist and underlined; on a white card, `ink` is Klein filled and `outline` a 2px Klein outline. On hover the lime goes to 90% and the secondary border to 100%; pressed, any button shrinks to 96%. Nothing else changes on hover.
 - **Focus**: everything the artist can press is reachable with Tab in reading order and shows a 2px white outline 3px outside its edge.
 - **Status dots**: 8px. Lime working, amber quiet, pink needs the artist, white at 35% not connected.
 - **Something not available yet** is shown at 60% opacity, in its place, with nothing to press.

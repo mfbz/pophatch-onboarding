@@ -16,4 +16,10 @@ describe("cn", () => {
   it("still lets a later size replace an earlier one", () => {
     expect(cn("text-caption", "text-body")).toBe("text-body");
   });
+
+  it("knows the theme's shadows, radii and halo patch", () => {
+    expect(cn("shadow-card", "shadow-navy")).toBe("shadow-card shadow-navy");
+    expect(cn("bg-halo", "bg-klein")).toBe("bg-halo bg-klein");
+    expect(cn("rounded-pill", "rounded-card")).toBe("rounded-card");
+  });
 });

@@ -146,7 +146,10 @@ function TogetherScreen() {
               className="space-y-4.5 empty:hidden"
             >
               {reading.lines.map((line) => (
-                <li key={line.label} className="animate-line-in">
+                <li
+                  key={line.label}
+                  className="animate-line-in motion-reduce:animate-none"
+                >
                   <span className="block text-base font-bold">
                     {line.label}
                   </span>

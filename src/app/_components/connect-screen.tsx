@@ -22,6 +22,7 @@ import { Button, buttonVariants } from "@/components/button";
 import { Stage } from "@/components/stage";
 import { StatusDot } from "@/components/status-dot";
 import { TopBar } from "@/components/top-bar";
+import { cn } from "@/lib/cn";
 
 type FolderButtonProps = { provider: FolderProvider };
 
@@ -187,11 +188,13 @@ function ConnectScreen() {
                 <FolderButton key={provider} provider={provider} />
               ))}
               <label
-                className={buttonVariants({
-                  variant: "primary",
-                  className:
-                    "min-h-11 px-5 py-3 text-body has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-navy has-focus-visible:outline-solid",
-                })}
+                className={cn(
+                  buttonVariants({
+                    variant: "primary",
+                    className:
+                      "min-h-11 px-5 py-3 text-body has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-navy has-focus-visible:outline-solid",
+                  })
+                )}
               >
                 Upload files
                 <input

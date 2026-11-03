@@ -1,7 +1,7 @@
 import { createCn } from "cn/config";
 
-// The class merger, taught the theme's own type sizes (globals.css). Without them `text-caption`
-// reads as a color, and a later `text-navy` silently drops the size.
+// The class merger, taught the theme's own sizes, shadows, radii and utilities (globals.css).
+// Without them `text-caption` reads as a color, and a later `text-navy` silently drops the size.
 const cn = createCn({
   extend: {
     classGroups: {
@@ -28,6 +28,11 @@ const cn = createCn({
         },
       ],
       halo: ["text-halo"],
+      "bg-image": [{ bg: ["halo"] }],
+      shadow: [{ shadow: ["cover", "card"] }],
+      rounded: [
+        { rounded: ["pill", "bubble", "image", "thumb", "cover", "card"] },
+      ],
     },
   },
 });

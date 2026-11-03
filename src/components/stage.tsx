@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { useId } from "react";
 import type * as React from "react";
 
 type StageProps = {
@@ -26,7 +27,8 @@ const RINGS = [0.9, 0.76, 0.62, 0.48, 0.34, 0.2].map((opacity, index) => ({
 function Rings({ className, hole = 0, pulse = "loop" }: RingsProps) {
   const circle =
     pulse === "loop" ? "animate-stage-pulse" : "animate-ring-burst opacity-0";
-  const mask = hole > 0 ? `rings-hole-${hole}` : undefined;
+  const id = useId();
+  const mask = hole > 0 ? `rings-hole${id}` : undefined;
   return (
     <svg
       aria-hidden

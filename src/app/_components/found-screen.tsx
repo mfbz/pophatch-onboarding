@@ -20,10 +20,10 @@ function ArtistCard({ artist }: ArtistCardProps) {
   const { stats } = artist;
   return (
     <>
-      <p className="mt-1 px-12 py-1.5 font-display text-name font-bold text-fg bg-halo text-halo max-tablet:text-headline">
+      <p className="mt-1 bg-halo px-12 py-1.5 font-display text-name font-bold text-fg text-halo max-tablet:text-headline">
         {artist.name}
       </p>
-      <p className="mt-1 px-12 py-1.5 text-lead text-mist bg-halo text-halo max-tablet:text-xl">
+      <p className="mt-1 bg-halo px-12 py-1.5 text-lead text-mist text-halo max-tablet:text-xl">
         {artist.city}
       </p>
       <ul
@@ -94,7 +94,7 @@ function FoundScreen() {
               />
             </div>
           </div>
-          <h1 className="mt-1 px-14 py-2.5 font-display text-hero font-bold text-fg bg-halo text-halo max-tablet:text-page-title">
+          <h1 className="mt-1 bg-halo px-14 py-2.5 font-display text-hero font-bold text-fg text-halo max-tablet:text-page-title">
             Found <span className="text-lime">you.</span>
           </h1>
           <ArtistCard artist={artist} />

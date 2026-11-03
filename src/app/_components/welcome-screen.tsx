@@ -73,10 +73,10 @@ function WelcomeScreen() {
               />
             </div>
           </div>
-          <h1 className="mt-6 animate-line-in px-14 py-3 font-display text-title font-bold text-fg [animation-delay:1.9s] bg-halo text-halo motion-reduce:animate-none max-tablet:mt-4 max-tablet:px-4 max-tablet:text-page-title-phone">
+          <h1 className="mt-6 animate-line-in bg-halo px-14 py-3 font-display text-title font-bold text-fg [animation-delay:1.9s] text-halo motion-reduce:animate-none max-tablet:mt-4 max-tablet:px-4 max-tablet:text-page-title-phone">
             You&apos;re in, <span className="text-lime">{firstName}.</span>
           </h1>
-          <p className="mt-1 animate-line-in px-14 py-3 text-lead text-mist [animation-delay:2.15s] bg-halo text-halo motion-reduce:animate-none max-tablet:px-4 max-tablet:text-lg">
+          <p className="mt-1 animate-line-in bg-halo px-14 py-3 text-lead text-mist [animation-delay:2.15s] text-halo motion-reduce:animate-none max-tablet:px-4 max-tablet:text-lg">
             Your first plan is on its way.
           </p>
           <Button

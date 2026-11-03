@@ -187,7 +187,7 @@
 
 /* A patch of the stage's Klein behind a block of centered text, so the rings fade out around it. */
 @utility bg-halo {
-  background: radial-gradient(
+  background-image: radial-gradient(
     closest-side,
     var(--color-klein) 55%,
     transparent
