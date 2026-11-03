@@ -14,7 +14,7 @@ type ConnectRowProps = {
   connect: () => Promise<void>;
 };
 
-// One account in the list (DESIGN.md, Account rows). One button carries Connect, Connecting… and Try
+// One account card (DESIGN.md, Account cards). One button carries Connect, Connecting… and Try
 // again, so keyboard focus stays on it while it waits; once connected, focus moves to the line that
 // says so, and every result is announced. The waiting lives here rather than in the flow state, so a
 // reload never leaves a row stuck waiting for an answer that will not come.
@@ -53,58 +53,51 @@ function ConnectRow({
   return (
     <li
       aria-labelledby={titleId}
-      className={`flex min-h-20 items-center gap-4 border-b border-hair py-4 ${available ? "" : "opacity-60"}`}
+      className="flex min-h-47.5 flex-col gap-2 rounded-card bg-fg px-7 py-6.5 text-navy shadow-card max-tablet:min-h-0 max-tablet:flex-row max-tablet:items-center max-tablet:gap-4 max-tablet:px-5 max-tablet:py-5"
     >
-      <div className="min-w-0 flex-1">
-        <h2
-          id={titleId}
-          className="font-display text-row-title font-semibold text-fg"
-        >
+      <div className="flex min-w-0 flex-col gap-2 max-tablet:flex-1">
+        <h2 id={titleId} className="font-display text-tile font-bold">
           {name}
         </h2>
         {handle && (
-          <p className="truncate text-caption text-periwinkle">{handle}</p>
+          <p className="text-caption wrap-anywhere opacity-80">{handle}</p>
         )}
         {failed && (
-          <p
-            role="status"
-            className="mt-1 flex items-center gap-2 text-caption text-fg"
-          >
+          <p role="status" className="flex items-center gap-2 text-caption">
             <StatusDot tone="pink" />
             {connection.message}
           </p>
         )}
       </div>
-      {!available ? (
-        <p className="text-caption font-semibold text-periwinkle">
-          Coming soon
-        </p>
-      ) : connected ? (
-        <p
-          ref={status}
-          role="status"
-          tabIndex={-1}
-          className="flex items-center gap-2 text-sm font-semibold text-fg outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid"
-        >
-          <StatusDot tone="lime" />
-          <span aria-hidden>✓</span>
-          <span>Connected</span>
-        </p>
-      ) : (
-        <Button
-          variant="secondary"
-          aria-disabled={pending || undefined}
-          aria-label={
-            pending
-              ? undefined
-              : `${failed ? "Try" : "Connect"} ${name}${failed ? " again" : ""}`
-          }
-          onClick={press}
-          className="aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
-        >
-          {pending ? "Connecting…" : failed ? "Try again" : "Connect"}
-        </Button>
-      )}
+      <div className="mt-auto max-tablet:mt-0 max-tablet:shrink-0">
+        {!available ? (
+          <p className="text-sm font-bold text-navy/70">Coming soon</p>
+        ) : connected ? (
+          <p
+            ref={status}
+            role="status"
+            tabIndex={-1}
+            className="inline-flex items-center gap-2 rounded-pill bg-lime px-4 py-2.5 text-sm font-extrabold text-navy outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-navy focus-visible:outline-solid"
+          >
+            <span aria-hidden>✓</span>
+            <span>Connected</span>
+          </p>
+        ) : (
+          <Button
+            variant="ink"
+            aria-disabled={pending || undefined}
+            aria-label={
+              pending
+                ? undefined
+                : `${failed ? "Try" : "Connect"} ${name}${failed ? " again" : ""}`
+            }
+            onClick={press}
+            className="focus-visible:outline-navy aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
+          >
+            {pending ? "Connecting…" : failed ? "Try again" : "Connect"}
+          </Button>
+        )}
+      </div>
     </li>
   );
 }

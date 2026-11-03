@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/cn";
 import { Slot } from "radix-ui";
 import type * as React from "react";
 
@@ -14,7 +14,11 @@ const buttonVariants = cva(
         primary: "bg-lime px-4.5 py-2.5 text-navy enabled:hover:bg-lime/90",
         secondary:
           "border-[1.5px] border-fg/70 px-4.5 py-2.5 text-fg enabled:hover:border-fg",
-        link: "px-1 text-periwinkle underline underline-offset-4",
+        // On a white card: Klein filled, or a Klein outline.
+        ink: "bg-klein px-5 py-3 text-body font-bold text-fg enabled:hover:bg-klein/90",
+        outline:
+          "border-2 border-klein px-4.5 py-2.5 text-body font-bold text-klein enabled:hover:bg-klein/8",
+        link: "px-1 text-body font-normal text-mist underline underline-offset-3",
       },
       size: {
         default: "",

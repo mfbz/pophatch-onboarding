@@ -4,13 +4,25 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
-import { stageProgress } from "@/app/_lib/onboarding-state";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button } from "@/components/button";
 import { Rings, Stage } from "@/components/stage";
 import { TopBar } from "@/components/top-bar";
 
-// The arrival: the flat PopHatch mark large at the center of the rings, where the app would open.
+// The five other finishes the logo flashes through before it lands on pearl, 0.3s apart.
+const FINISHES = ["violet", "blue", "halftone", "chrome", "silver"];
+
+const FLASH_DELAYS = [
+  "[animation-delay:0s]",
+  "[animation-delay:0.3s]",
+  "[animation-delay:0.6s]",
+  "[animation-delay:0.9s]",
+  "[animation-delay:1.2s]",
+];
+
+// The arrival, where the app would open: the logo pops in and runs through its finishes once while
+// the rings burst out from it, then it lands on pearl and the welcome and "Start over" rise in.
+// Then everything stays still. Under reduced motion it all simply appears, on pearl.
 // "Start over" clears the flow so anyone trying it can run it again.
 function WelcomeScreen() {
   const { state, dispatch } = useOnboarding();
@@ -18,7 +30,6 @@ function WelcomeScreen() {
   const allowed = useStepGuard(
     (current) => current.goal !== null && current.artist !== null
   );
-  const progress = stageProgress(state, "/welcome");
   const firstName = state.artist?.name.split(" ")[0];
 
   function startOver() {
@@ -28,28 +39,50 @@ function WelcomeScreen() {
 
   return (
     <Stage rings="none">
-      <TopBar current={progress.current} done={progress.done} />
+      <TopBar />
       {allowed && firstName && (
-        <main className="flex flex-1 flex-col items-center justify-center pb-10 text-center">
-          <div className="relative grid size-70 place-items-center max-tablet:size-44">
-            <Rings className="absolute top-1/2 left-1/2 -z-10 -translate-1/2 max-tablet:scale-75" />
-            <Image
-              src="/brand/mark.svg"
-              alt="PopHatch"
-              width={280}
-              height={282}
-              preload
-              unoptimized
-              className="size-full object-contain"
-            />
+        <main className="flex flex-1 flex-col items-center justify-center pb-16 text-center">
+          <div className="relative grid size-110 place-items-center max-tablet:size-72">
+            <div className="absolute top-1/2 left-1/2 -z-10 -translate-1/2">
+              <div className="animate-rings-in motion-reduce:animate-none">
+                <Rings
+                  hole={220}
+                  pulse="once"
+                  className="max-tablet:scale-[0.6545]"
+                />
+              </div>
+            </div>
+            <div className="relative size-90 animate-pop motion-reduce:animate-none max-tablet:size-58">
+              {FINISHES.map((logo, index) => (
+                <Image
+                  key={logo}
+                  src={`/brand/logo-${logo}.png`}
+                  alt=""
+                  width={360}
+                  height={360}
+                  className={`absolute inset-0 size-full animate-flash object-contain opacity-0 ${FLASH_DELAYS[index]} motion-reduce:animate-none`}
+                />
+              ))}
+              <Image
+                src="/brand/logo-pearl.png"
+                alt="PopHatch"
+                width={360}
+                height={360}
+                preload
+                className="absolute inset-0 size-full animate-fade-in object-contain [animation-delay:1.45s] motion-reduce:animate-none"
+              />
+            </div>
           </div>
-          <h1 className="mt-14 font-display text-page-title font-bold text-fg max-tablet:mt-10 max-tablet:text-page-title-phone">
+          <h1 className="mt-6 animate-line-in px-14 py-3 font-display text-title font-bold text-fg [animation-delay:1.9s] bg-halo text-halo motion-reduce:animate-none max-tablet:mt-4 max-tablet:px-4 max-tablet:text-page-title-phone">
             You&apos;re in, <span className="text-lime">{firstName}.</span>
           </h1>
-          <p className="mt-4 text-xl text-mist max-tablet:text-lg">
+          <p className="mt-1 animate-line-in px-14 py-3 text-lead text-mist [animation-delay:2.15s] bg-halo text-halo motion-reduce:animate-none max-tablet:px-4 max-tablet:text-lg">
             Your first plan is on its way.
           </p>
-          <Button variant="link" onClick={startOver} className="mt-10">
+          <Button
+            onClick={startOver}
+            className="mt-8 min-h-13.5 min-w-60 animate-line-in px-7 text-[17px] font-extrabold [animation-delay:2.4s] motion-reduce:animate-none max-tablet:min-h-12 max-tablet:text-base"
+          >
             Start over
           </Button>
         </main>

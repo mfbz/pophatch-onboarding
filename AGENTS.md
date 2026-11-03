@@ -15,7 +15,8 @@ Other reference files: `DESIGN.md` (the design system in Google's DESIGN.md form
 | ----------------------- | --------------------------------------------------------------------------------------- |
 | `src/app`               | the Next.js 16 app (App Router): routes, layout and theme (`globals.css`)               |
 | `src/components`        | app-wide components: the shadcn ones restyled, the stage, the top bar, the stepper      |
-| `public`                | the brand logos and mark, the demo artist's photo and covers                            |
+| `src/lib`               | app-wide helpers: `cn`, the class merger taught the theme's type sizes                  |
+| `public`                | the brand logos, the demo artist's photo and covers (CC0, `public/artist/CREDITS.md`)   |
 | `DESIGN.md`             | the design system as the build reads it: every token and rule, and the Decisions        |
 | `checks`                | repo-invariant tests (guards, agent instructions, skills), the Git hooks' and CI's code |
 | `scripts`               | one-off repo scripts, run with `tsx` (`unpack-reference.ts`)                            |
