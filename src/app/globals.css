@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "shadcn/tailwind.css";
 
 /* The Stage System's tokens, verbatim (DESIGN.md). Components use them by name, never by value. */
 @theme {
