@@ -129,11 +129,14 @@ describe("LinkScreen", () => {
     await user.click(
       screen.getByRole("button", { name: "Use a TikTok example" })
     );
+    expect(
+      screen.getByRole("button", { name: "Use an Instagram example" })
+    ).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Your link" })).toHaveValue(
       EXAMPLE_LINKS.tiktok
     );
     expect(
-      screen.getAllByRole("button", { name: /^Use a .+ example$/ })
+      screen.getAllByRole("button", { name: /^Use an? .+ example$/ })
     ).toHaveLength(7);
   });
 

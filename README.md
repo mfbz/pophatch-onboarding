@@ -16,10 +16,16 @@ The stack: Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tail
 
 ## Try it
 
-Run `npm run dev` and open `http://localhost:3000`. The field opens with a Spotify link for the demo artist, Noor Adeyemi; any of the seven platform names under it fills in an example from that platform. Every valid link finds Noor. Two links show the other paths:
+Run `npm run dev` and open `http://localhost:3000`. The field opens with a Spotify link for the demo artist, Noor Adeyemi; any of the seven platform names under it fills in an example from that platform. Every valid link finds Noor. The other paths:
 
 - `https://open.spotify.com/artist/not-found` finds no one, and the flow returns to step 1 with a line saying so.
 - Typing something that is not a link (a name, for example) shows the field's error line.
+- "Not me" on "Found you" returns to step 1 with an empty field.
+- "No link? Connect your pages one by one" skips to step 4 with nothing found; the first account connected finds Noor.
+- On step 4, Facebook fails on the first try and connects on the second.
+- "Start over" on the last screen clears everything.
+
+Progress is kept for the browser tab, so a reload stays on the same step; a new tab starts fresh.
 
 ## Commands
 

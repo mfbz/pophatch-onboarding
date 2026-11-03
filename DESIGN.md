@@ -147,6 +147,10 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 - **Something not available yet** is shown at 60% opacity, in its place, with nothing to press.
 - **A field that could not be saved**: one line under it in white 13.5px with a pink dot before it, saying what happened and what to do; the field keeps what the artist typed.
 - **Waiting**: nothing spins. A block shows its title and fills in as the data arrives.
+- **Account rows** (`app/_components/connect-row.tsx`): hairline-separated, the platform in the row title and the handle in a Periwinkle caption; on the right, a secondary "Connect", then "Connecting…" while it waits, then a lime dot with "✓ Connected", or a pink dot with one line under the handle and "Try again". Something not ready yet is the whole row at 60%, reading "Coming soon".
+- **Goal pills** (`components/toggle-group.tsx`): one choice; off is the secondary look, on is lime with navy text and a leading ✓.
+- **The reading list**: a section with a hairline, each source arriving as a lime dot with its label and a caption; a muted dot reads "Reading…" until the last one, then turns lime.
+- **The arrival**: the flat mark, 280px (176px on a phone), at the center of the rings, the headline under it and a link to start over.
 
 ## Decisions
 

@@ -35,7 +35,7 @@ The onboarding is the first thing an artist sees of PopHatch. It should feel lik
 ## Accessibility
 
 - Semantic HTML first: one `h1` per screen, real `button`s and `a`s, labelled inputs, lists as lists.
-- Keyboard: every action reachable and visible on focus (`:focus-visible` ring from the tokens); focus moves to the new screen's heading when a step changes; nothing is hover-only.
+- Keyboard: every action reachable and visible on focus (`:focus-visible` ring from the tokens); every step exports its own page `title`, which Next's route announcer reads when the step changes (`src/app/step-titles.test.ts` pins them); a screen that asks for input again moves focus to that field; nothing is hover-only.
 - Contrast meets WCAG 2.2 AA for text and controls on every background the Stage System uses.
 - Async results are announced (`aria-live="polite"`) where the artist would otherwise miss them; errors say what happened and what to do next, beside the field they belong to.
 

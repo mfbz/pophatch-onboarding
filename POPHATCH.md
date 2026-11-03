@@ -19,6 +19,7 @@ Four stages, shown as a progress rail: **Find you → Confirm → Connect → En
 3. **Found you.** The artist's profile as PopHatch found it: name, city, artwork of recent releases, and the numbers (releases, monthly listeners, followers). Two answers: "That's me" or "Not me".
 4. **Connect your pages.** The accounts found from the first link, each to connect or skip; one is enough to continue. Spotify, Apple Music and distributor reports come in as files (a cloud folder or an upload).
 5. **Putting it together.** One question while PopHatch reads the connected accounts: what would make the next three months a win (a release landing, more shows, a bigger fanbase, making money, getting noticed, or the artist's own words). The reading progress runs beside it, then the artist enters the app.
+6. **You're in.** The arrival: the PopHatch mark large on the stage, "You're in, Noor." and "Your first plan is on its way." It stands where the app would open, with "Start over" to run the flow again.
 
 ## Design references
 
@@ -46,3 +47,11 @@ There is no backend. A typed client in the app stands in for one: it answers the
 - **Screens that move on by themselves replace their own history entry.** Step 2 hands over to "Found you" with a replace, so back from "Found you" goes to step 1 and never re-runs the search.
 
 - **The first headline greets the artist by name before PopHatch knows it.** "Noor, let's run your business." is the prototype's line and the demo is about Noor, so it stays as designed. A real sign-up would greet without a name until the link resolves; open for the next iteration.
+
+- **Nothing starts connected, and any source counts.** Step 4 opens with no account connected, so the artist makes the connection the next step reads. An account, a folder or uploaded files each count toward "one is enough", and the button counts all of them ("Continue with 2 connected"). Uploaded files are listed by name and never read or sent. SoundCloud is shown as coming soon, with nothing to press. Facebook fails on its first try in the mock, so the failure and retry are part of the demo.
+
+- **The one-by-one path finds the artist from the first account.** Without a link, step 4 offers every platform with no handles and no "found" wording. The first account connected is where PopHatch finds the artist, and only then does the stepper mark Find you and Confirm done.
+
+- **Step 5 reads only what was connected, and Enter waits for both.** SoundCharts is always read (it comes from the artist's Spotify), then each connected source in turn, then the reports. Enter becomes available once a goal is picked or written and the reading is done; until then it says which one it is waiting for. One goal at a time: a picked goal clears a written one and the other way round, and a written goal stops at 140 characters.
+
+- **Every step has its own page title.** Next announces a client-side navigation by the page title, so each step's title ("Found you · PopHatch") is what a screen reader hears when the step changes. On step 1, after a return, focus goes to the empty link field instead.

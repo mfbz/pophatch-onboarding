@@ -152,7 +152,7 @@ function LinkForm({ notice }: LinkFormProps) {
             key={platform}
             type="button"
             variant="secondary"
-            aria-label={`Use a ${PLATFORM_NAMES[platform]} example`}
+            aria-label={`Use ${/^[AEIOU]/.test(PLATFORM_NAMES[platform]) ? "an" : "a"} ${PLATFORM_NAMES[platform]} example`}
             onClick={() => fillExample(platform)}
             className="min-h-9 px-3.5 py-1.5 max-tablet:min-h-11"
           >
