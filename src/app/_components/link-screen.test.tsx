@@ -111,6 +111,18 @@ describe("LinkScreen", () => {
     expect(screen.getByRole("button", { name: "Find me" })).toBeEnabled();
   });
 
+  it("keeps the new link in place while it moves on after a notice", async () => {
+    const user = userEvent.setup();
+    await renderScreen("not-me");
+    const field = await screen.findByRole("textbox", { name: "Your link" });
+    await user.type(field, "tiktok.com/@someoneelse");
+    await user.click(screen.getByRole("button", { name: "Find me" }));
+    expect(screen.getByRole("textbox", { name: "Your link" })).toHaveValue(
+      "tiktok.com/@someoneelse"
+    );
+    expect(screen.getByRole("button", { name: "Find me" })).toBeDisabled();
+  });
+
   it("fills in an example link for any platform", async () => {
     const user = userEvent.setup();
     await renderScreen();

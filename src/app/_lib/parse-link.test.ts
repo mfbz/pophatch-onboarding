@@ -34,6 +34,26 @@ describe("parseArtistLink", () => {
     ],
     ["soundcloud.com/x", "soundcloud", "https://soundcloud.com/x"],
     ["linktr.ee/x", "linktree", "https://linktr.ee/x"],
+    ["https://vm.tiktok.com/ZM123/", "tiktok", "https://vm.tiktok.com/ZM123/"],
+    ["on.soundcloud.com/abc", "soundcloud", "https://on.soundcloud.com/abc"],
+    [
+      "music.youtube.com/channel/x",
+      "youtube",
+      "https://music.youtube.com/channel/x",
+    ],
+    ["spotify.link/abc", "spotify", "https://spotify.link/abc"],
+    [
+      "open.spotify.com./artist/x",
+      "spotify",
+      "https://open.spotify.com/artist/x",
+    ],
+    ["www.m.youtube.com/@x", "youtube", "https://youtube.com/@x"],
+    ["spotify:artist:5kZ2", "spotify", "https://open.spotify.com/artist/5kZ2"],
+    [
+      "Listen to me: https://open.spotify.com/artist/x?si=1 !",
+      "spotify",
+      "https://open.spotify.com/artist/x?si=1",
+    ],
   ])("reads %s as %s", (input, platform, url) => {
     expect(parseArtistLink(input)).toEqual({ ok: true, platform, url });
   });
@@ -49,6 +69,9 @@ describe("parseArtistLink", () => {
     ["   ", "empty"],
     ["noor adeyemi", "not-a-link"],
     ["https://example.com/x", "unsupported"],
+    ["mailto:noor@example.com", "not-a-link"],
+    ["javascript:alert(1)", "not-a-link"],
+    ["https://noor@example.com/x", "not-a-link"],
   ])("refuses %j as %s", (input, reason) => {
     expect(parseArtistLink(input)).toEqual({ ok: false, reason });
   });

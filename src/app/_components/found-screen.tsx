@@ -24,7 +24,11 @@ function ArtistCard({ artist }: ArtistCardProps) {
         {artist.name}
       </p>
       <p className="mt-1 text-xl text-mist">{artist.city}</p>
-      <ul className="mt-6 flex w-full snap-x scroll-px-4 gap-4 overflow-x-auto pb-2 max-tablet:-mx-4 max-tablet:w-[calc(100%+2rem)] max-tablet:px-4 tablet:justify-center">
+      <ul
+        aria-label="Releases"
+        tabIndex={0}
+        className="mt-6 flex w-full snap-x scroll-px-4 gap-4 overflow-x-auto pb-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid max-tablet:-mx-4 max-tablet:w-[calc(100%+2rem)] max-tablet:px-4 tablet:justify-center"
+      >
         {artist.releases.map((release) => (
           <li key={release.title} className="shrink-0 snap-start">
             <Image
@@ -77,7 +81,7 @@ function FoundScreen() {
               width={132}
               height={132}
               preload
-              className="size-33 rounded-full border-[3px] border-lime object-cover p-1.5 max-tablet:size-28"
+              className="size-33 rounded-full border-3 border-lime object-cover p-1.5 max-tablet:size-28"
             />
           </div>
           <h1 className="mt-10 font-display text-page-title font-bold text-fg max-tablet:mt-8 max-tablet:text-page-title-phone">
