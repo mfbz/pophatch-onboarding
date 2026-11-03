@@ -7,13 +7,16 @@ Read in this order, only as far as the task needs:
 1. `POPHATCH.md`: the product spec, the flow, every decision with its reasoning (the source of truth). When code and spec disagree, flag it; never drift silently.
 2. The skill for the area you touch (`.agents/skills/`, also visible to Claude Code as `.claude/skills/`).
 
-Other reference files: `README.md` (run, test, the layout), `CONTRIBUTING.md` (how work happens, the guards), `docs/design/reference/` (the design inputs, below).
+Other reference files: `DESIGN.md` (the design system in Google's DESIGN.md format: tokens, rules, decisions), `README.md` (run, test, the layout), `CONTRIBUTING.md` (how work happens, the guards), `docs/design/reference/` (the design inputs it was taken from).
 
 ## Map
 
 | Path                    | What                                                                                    |
 | ----------------------- | --------------------------------------------------------------------------------------- |
-| `src/app`               | the Next.js 16 app (App Router): the onboarding screens, layout and theme               |
+| `src/app`               | the Next.js 16 app (App Router): routes, layout and theme (`globals.css`)               |
+| `src/components`        | app-wide components: the shadcn ones restyled, the stage, the top bar, the stepper      |
+| `public`                | the brand logos and mark, the demo artist's photo and covers                            |
+| `DESIGN.md`             | the design system as the build reads it: every token and rule, and the Decisions        |
 | `checks`                | repo-invariant tests (guards, agent instructions, skills), the Git hooks' and CI's code |
 | `scripts`               | one-off repo scripts, run with `tsx` (`unpack-reference.ts`)                            |
 | `docs/design/reference` | `stage-system.html` (the design system) and `onboarding-prototype.html` (the flow mock) |
@@ -45,7 +48,7 @@ Every command, with what it does, is in the `pophatch-workflow` skill and `READM
 ## Decisions that bind
 
 - The backend is mocked in the browser behind a typed client; no server, no database, no third-party calls (`POPHATCH.md`, Backend).
-- The design references are inputs, not a spec to trace: the Stage System sets tokens and components, the prototype sets the flow, and where the build departs from either the reason is a decision in `POPHATCH.md`.
+- The design references are inputs, not a spec to trace: the Stage System sets tokens and components, the prototype sets the flow, and where the build departs from either the reason is a decision: a design one in `DESIGN.md`, a product one in `POPHATCH.md`.
 - Built for artists: every screen works on a phone first, and the copy speaks like a manager, not a dashboard.
 - No secrets in the repo, ever. `.secrets/` and every `.env` stay out of Git and out of agent transcripts.
 

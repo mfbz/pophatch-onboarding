@@ -34,6 +34,9 @@ The stack: Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tail
 | Path                    | What                                                                       |
 | ----------------------- | -------------------------------------------------------------------------- |
 | `src/app/`              | the app: layout, theme (`globals.css`), the onboarding screens             |
+| `src/components/`       | app-wide components: the restyled shadcn ones, the stage, the top bar      |
+| `public/`               | the brand logos and mark, the demo artist's photo and covers               |
+| `DESIGN.md`             | the design system as the build reads it: tokens, rules and its Decisions   |
 | `checks/`               | repo-invariant tests and the Git hooks' code                               |
 | `scripts/`              | one-off repo scripts                                                       |
 | `docs/design/reference` | the Stage System design system and the onboarding prototype                |

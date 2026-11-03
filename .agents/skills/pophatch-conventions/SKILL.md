@@ -43,6 +43,7 @@ These bias toward caution over speed. For trivial tasks, use judgment.
 - **Layout:** `src/`-rooted, `@/*` → `./src/*`, TypeScript strict everywhere (`noUncheckedIndexedAccess` included). No `any`; `unknown` and narrow.
 - **kebab-case file and folder names**, no exceptions. Components are PascalCase with **named exports**; no default exports outside framework file conventions (`page.tsx`, `layout.tsx`).
 - **No `index.ts` files, no barrel (`export *`) re-exports.** Every module has a descriptive filename and is imported directly from its source.
+- **shadcn:** add a primitive with `npx shadcn@latest add <name>`; it lands flat in `src/components/` (`components.json`), and is then restyled to `DESIGN.md` with its unused variants deleted. Components import `cn` from the `cn` package. No icon library: the system has no icons.
 - **Feature-based layout:** `lib/` holds only generic cross-cutting utilities; feature-specific code lives beside what uses it (`_components/`, `_lib/` next to the route). `components/` is flat and app-global.
 - **Module layout:** within every file, top to bottom: `imports → types → constants → private helpers → exported functions (last)`. For `.tsx`: `imports → prop types → constants → local subcomponents → the exported component (last)`.
 - **Comments explain _why_, never _what_.** Never decorative separators, JSX section comments or "end of section" markers.
