@@ -102,8 +102,12 @@ function readLine(source: Source): ReadLine {
 async function resolveLink(
   url: string
 ): Promise<{ status: "found"; artist: Artist } | { status: "not-found" }> {
+  // A search that comes back empty takes longer, so step 2 is seen before the flow returns.
+  if (url.includes("not-found")) {
+    await wait(1800);
+    return { status: "not-found" };
+  }
   await wait(600);
-  if (url.includes("not-found")) return { status: "not-found" };
   return { status: "found", artist: ArtistSchema.parse(DEMO_ARTIST) };
 }
 
