@@ -22,14 +22,14 @@ function Stage({ children }: StageProps) {
         <div className="absolute inset-0 bg-[radial-gradient(640px_420px_at_92%_8%,rgb(255_255_255/0.13),transparent_70%)]" />
         <svg
           viewBox="-720 -720 1440 1440"
-          className="absolute top-[-600px] right-[-610px] size-[1440px] max-tablet:top-[-660px] max-tablet:right-[-690px] max-tablet:scale-60"
+          className="absolute top-[-600px] right-[-610px] size-[1440px] text-fg max-tablet:top-[-660px] max-tablet:right-[-690px] max-tablet:scale-60"
         >
           {RINGS.map((ring) => (
             <circle
               key={ring.r}
               r={ring.r}
               fill="none"
-              stroke="#fff"
+              stroke="currentColor"
               strokeWidth={3}
               opacity={ring.opacity}
             />
@@ -37,14 +37,14 @@ function Stage({ children }: StageProps) {
           <circle
             r={710}
             fill="none"
-            stroke="#fff"
+            stroke="currentColor"
             strokeWidth={2}
             className="animate-stage-pulse motion-reduce:hidden"
           />
           <circle
             r={710}
             fill="none"
-            stroke="#fff"
+            stroke="currentColor"
             strokeWidth={2}
             className="animate-stage-pulse [animation-delay:3.75s] motion-reduce:hidden"
           />

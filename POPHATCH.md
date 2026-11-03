@@ -27,7 +27,7 @@ Four stages, shown as a progress rail: **Find you → Confirm → Connect → En
 - `stage-system.html`, **the Stage System**: the design system PopHatch is moving to (color, type, components, layouts, phone rules, motion, tokens).
 - `onboarding-prototype.html`, **the prototype**: the five screens above at 1440×1000. It predates part of the Stage System.
 
-Where they disagree, the Stage System sets tokens and components and the prototype sets the flow and copy. Where the build departs from either, the reason is recorded under Decisions.
+Where they disagree, the Stage System sets tokens and components and the prototype sets the flow and copy. Where the build departs from either, the reason is recorded: a design departure under Decisions in `DESIGN.md`, a product one under Decisions here.
 
 ## Backend
 

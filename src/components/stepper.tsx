@@ -39,7 +39,7 @@ function Stepper({ current, done }: StepperProps) {
               <span
                 aria-hidden
                 className={cn(
-                  "grid size-4.5 shrink-0 place-items-center rounded-pill text-[11px] leading-none font-bold",
+                  "grid size-4.5 shrink-0 place-items-center rounded-pill text-label leading-none font-bold tracking-normal",
                   isDone && "bg-fg/90 text-klein",
                   isCurrent && "bg-lime text-navy",
                   !isDone && !isCurrent && "border-[1.5px] border-fg/50"
@@ -49,7 +49,7 @@ function Stepper({ current, done }: StepperProps) {
               </span>
               <span
                 className={cn(
-                  "ml-2 text-[13.5px] whitespace-nowrap max-tablet:sr-only",
+                  "ml-2 text-caption whitespace-nowrap max-tablet:sr-only",
                   isCurrent && "font-semibold text-fg",
                   isDone && "text-fg/90",
                   !isDone && !isCurrent && "text-fg/60"
@@ -64,7 +64,7 @@ function Stepper({ current, done }: StepperProps) {
       </ol>
       <span
         aria-hidden
-        className="text-[13.5px] font-semibold whitespace-nowrap text-fg tablet:hidden"
+        className="text-caption font-semibold whitespace-nowrap text-fg tablet:hidden"
       >
         {currentLabel} · {position} of {STAGES.length}
       </span>

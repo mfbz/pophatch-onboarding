@@ -51,6 +51,11 @@ typography:
     fontFamily: DM Sans
     fontSize: 16px
     fontWeight: 400
+  wordmark:
+    fontFamily: Familjen Grotesk
+    fontSize: 22px
+    fontWeight: 700
+    letterSpacing: -0.02em
   caption:
     fontFamily: DM Sans
     fontSize: 13.5px
@@ -101,7 +106,7 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 
 ## Layout
 
-- Every page starts with the stage: the Klein-to-Night gradient (`bg-stage-gradient`), a patch of light and two white circles in the top-right corner, away from the text. The gradient reaches the edges of the window.
+- Every page starts with the stage: the Klein-to-Night gradient (`bg-stage-gradient`), a patch of light, six still rings and two white circles that grow and fade, all in the top-right corner and away from the text; the rings fade out under the top bar so its labels stay legible. The gradient reaches the edges of the window.
 - Content sits in one column at most 1180px wide, centered, with 48px on the left and right on a computer and 16px on a phone.
 - Three widths, the system's own: a computer from 1300px, a tablet or small laptop from 860px to 1299px, a phone under 860px. On a phone everything is one column, nothing is added and nothing is removed.
 - Sections, not boxes: a section is separated by a hairline (`border-hair`) above it, with no border on the sides and no background of its own. A list has a softer line (white at 20%) above each row and under the last, with 18px above and below each row.

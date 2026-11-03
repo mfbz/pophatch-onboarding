@@ -48,7 +48,7 @@ Every command, with what it does, is in the `pophatch-workflow` skill and `READM
 ## Decisions that bind
 
 - The backend is mocked in the browser behind a typed client; no server, no database, no third-party calls (`POPHATCH.md`, Backend).
-- The design references are inputs, not a spec to trace: the Stage System sets tokens and components, the prototype sets the flow, and where the build departs from either the reason is a decision in `POPHATCH.md`.
+- The design references are inputs, not a spec to trace: the Stage System sets tokens and components, the prototype sets the flow, and where the build departs from either the reason is a decision: a design one in `DESIGN.md`, a product one in `POPHATCH.md`.
 - Built for artists: every screen works on a phone first, and the copy speaks like a manager, not a dashboard.
 - No secrets in the repo, ever. `.secrets/` and every `.env` stay out of Git and out of agent transcripts.
 

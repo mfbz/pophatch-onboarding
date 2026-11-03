@@ -14,12 +14,12 @@ function TopBar({ current, done }: TopBarProps) {
           alt="PopHatch"
           width={36}
           height={36}
-          priority
+          preload
           className="size-9"
         />
         <span
           aria-hidden
-          className="font-display text-[22px] font-bold tracking-tight text-fg max-tablet:hidden"
+          className="font-display text-wordmark font-bold text-fg max-tablet:hidden"
         >
           PopHatch
         </span>
