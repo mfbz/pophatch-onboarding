@@ -25,6 +25,25 @@
   --breakpoint-tablet: 860px;
   --breakpoint-desktop: 1300px;
 
+  --text-page-title: 56px;
+  --text-page-title--line-height: 0.95;
+  --text-page-title--letter-spacing: -0.045em;
+  --text-page-title-phone: 34px;
+  --text-page-title-phone--line-height: 0.95;
+  --text-page-title-phone--letter-spacing: -0.045em;
+  --text-headline: 28px;
+  --text-headline--line-height: 1.02;
+  --text-headline--letter-spacing: -0.035em;
+  --text-row-title: 20px;
+  --text-row-title--letter-spacing: -0.02em;
+  --text-wordmark: 22px;
+  --text-wordmark--letter-spacing: -0.02em;
+  --text-body: 15px;
+  --text-body--line-height: 1.5;
+  --text-caption: 13.5px;
+  --text-label: 12px;
+  --text-label--letter-spacing: 0.1em;
+
   --animate-stage-pulse: stage-pulse 7.5s ease-out infinite;
 
   @keyframes stage-pulse {
