@@ -51,6 +51,12 @@ typography:
     fontFamily: DM Sans
     fontSize: 16px
     fontWeight: 400
+  display:
+    fontFamily: Familjen Grotesk
+    fontSize: 132px
+    fontWeight: 700
+    lineHeight: 0.92
+    letterSpacing: -0.05em
   wordmark:
     fontFamily: Familjen Grotesk
     fontSize: 22px
@@ -81,6 +87,7 @@ spacing:
 motion:
   stage-circles: 7.5s
   logo-cycle: 12s
+  logo-step: 2s
   reduced-motion: none
 components:
   button-primary:
@@ -158,6 +165,18 @@ The prototype's progress was four filled pills that read as four buttons. The on
 ### The big logo is a traced mark
 
 The finished logos are 200px images, too small to show large on a sharp screen. The arrival shows the flat PopHatch mark instead, traced from the app icon into `public/brand/mark.svg`, so it stays crisp at any size. The header and the search keep the finished logos at their own size.
+
+### The first headline is set at display size
+
+The prototype opens on a 132px headline ("Noor, let's run your business."), far above the system's 56px page title. The system already has a size that large, the stage's large number (150px), and the first screen is the stage moment the whole flow is built on, so step 1 keeps it as the `display` size: 132px at 1440 wide, scaling with the window down to 54px on a phone, line height .92, letter spacing −.05em. Every later step uses the page title.
+
+### The rings follow the subject
+
+On steps 1 and 4 to 6 the rings sit in the top-right corner like every stage. On "Getting to know you" and "Found you" there is one subject, the logo searching and then the artist's photo, so the rings and the two growing circles center on it, as in the prototype. Both are the same `Rings` drawing (`components/stage.tsx`). The stepper sits on a pill of the stage's own Klein, invisible on the stage, so centered rings pass behind its labels.
+
+### Example links behind the platform names
+
+Under the link field, the seven platform names are secondary buttons: each fills the field with an example link from that platform, so anyone trying the flow can start from any of them in one tap. The field opens with the Spotify example already in it.
 
 ### Nothing starts connected
 

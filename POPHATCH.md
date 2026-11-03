@@ -31,10 +31,18 @@ Where they disagree, the Stage System sets tokens and components and the prototy
 
 ## Backend
 
-There is no backend. A typed client in the app stands in for one: it answers the onboarding's calls (resolve a link, search platforms, connect an account, read history) from mock data, with realistic latency and the failures a real service has (an unknown link, a profile that is not the artist, a connection that is refused), so every waiting, empty and wrong state is built and visible. Mock artists are invented; their links and addresses use example domains.
+There is no backend. A typed client in the app stands in for one: it answers the onboarding's calls (resolve a link, search platforms, connect an account, read history) from mock data, with realistic latency and the failures a real service has (an unknown link, a profile that is not the artist, a connection that is refused), so every waiting, empty and wrong state is built and visible. Mock artists are invented; their links use the real platforms' domains with invented handles, and any address uses an example domain.
 
 ## Decisions
 
 - **Next.js 16 (App Router) with React 19, TypeScript strict and Tailwind CSS 4.** The App Router gives each step a URL, so back, reload and a shared link behave as an artist expects; static prerendering makes the first screen instant; Tailwind's theme is where the Stage System tokens live once. Rejected: a Vite single-page app (no prerendered first paint, routing assembled by hand).
 
 - **The backend is mocked in the browser, behind the same typed contract a real API would have.** Rejected: a mock server (more moving parts, no change in what the artist sees) and hard-coded screen states (the waiting and failure states would never be exercised).
+
+- **Flow progress lives in the browser session.** One reducer holds the flow (`src/app/_lib/onboarding-state.ts`); it is saved to `sessionStorage`, so a reload or the back button keeps the artist where they were and a new tab starts fresh. A step opened without what it needs (the search without a link, "Found you" without an artist) sends the artist back to step 1. Rejected: the URL for everything (an artist object does not belong in a link) and a state library (one reducer is enough).
+
+- **A wrong or empty search returns to step 1 with a reason, not a dead end.** "Not me" and a link that finds no one both bring the artist back to an empty, focused field with one line saying what happened and offering the one-by-one path, so nobody loops. The reason travels in the flow state rather than the URL, so the first screen still renders on the server. A search that finds no one is shown on step 2 before it returns.
+
+- **Screens that move on by themselves replace their own history entry.** Step 2 hands over to "Found you" with a replace, so back from "Found you" goes to step 1 and never re-runs the search.
+
+- **The first headline greets the artist by name before PopHatch knows it.** "Noor, let's run your business." is the prototype's line and the demo is about Noor, so it stays as designed. A real sign-up would greet without a name until the link resolves; open for the next iteration.

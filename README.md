@@ -14,6 +14,13 @@ npm run check     # format:check, lint, typecheck, test
 
 The stack: Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4, Vitest with Testing Library.
 
+## Try it
+
+Run `npm run dev` and open `http://localhost:3000`. The field opens with a Spotify link for the demo artist, Noor Adeyemi; any of the seven platform names under it fills in an example from that platform. Every valid link finds Noor. Two links show the other paths:
+
+- `https://open.spotify.com/artist/not-found` finds no one, and the flow returns to step 1 with a line saying so.
+- Typing something that is not a link (a name, for example) shows the field's error line.
+
 ## Commands
 
 | Command                    | What it does                                                                                            |

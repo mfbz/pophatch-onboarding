@@ -27,6 +27,17 @@ describe("Stepper", () => {
     expect(connect).not.toHaveTextContent("✓");
   });
 
+  it("shows every stage done, and none current, on arrival", () => {
+    render(
+      <Stepper current={null} done={["find", "confirm", "connect", "enter"]} />
+    );
+    for (const item of screen.getAllByRole("listitem")) {
+      expect(item).toHaveTextContent("✓");
+      expect(item).not.toHaveAttribute("aria-current");
+    }
+    expect(screen.getByText("All done")).toBeInTheDocument();
+  });
+
   it("names the current stage and its position for a phone", () => {
     render(<Stepper current="connect" done={["find", "confirm"]} />);
     expect(screen.getByText("Connect · 3 of 4")).toBeInTheDocument();
