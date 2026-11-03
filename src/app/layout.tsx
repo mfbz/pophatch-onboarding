@@ -14,7 +14,7 @@ const display = Familjen_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "PopHatch",
+  title: { default: "PopHatch", template: "%s · PopHatch" },
   description: "Your manager, from one link.",
 };
 
