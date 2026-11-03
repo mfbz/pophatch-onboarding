@@ -50,7 +50,7 @@ describe("WelcomeScreen", () => {
     sessionStorage.clear();
   });
 
-  it("welcomes the artist by name with the mark", async () => {
+  it("welcomes the artist by name with the logo, and no stepper", async () => {
     renderWith(arrived);
     expect(
       await screen.findByRole("heading", { level: 1, name: "You're in, Noor." })
@@ -58,10 +58,13 @@ describe("WelcomeScreen", () => {
     expect(
       screen.getByText("Your first plan is on its way.")
     ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("list", { name: "Onboarding progress" })
+    ).not.toBeInTheDocument();
     const sources = screen
       .getAllByRole("img", { name: "PopHatch" })
       .map((image) => image.getAttribute("src"));
-    expect(sources).toContainEqual(expect.stringContaining("mark.svg"));
+    expect(sources).toContainEqual(expect.stringContaining("logo-pearl"));
   });
 
   it("starts over from step 1", async () => {

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { Stepper } from "./stepper";
 
 describe("Stepper", () => {
-  it("lists the four stages in order, without anything to press", () => {
+  it("lists the four stages in order, with nothing to press ahead", () => {
     render(<Stepper current="confirm" done={["find"]} />);
     const list = screen.getByRole("list", { name: "Onboarding progress" });
     const items = within(list).getAllByRole("listitem");
@@ -15,6 +15,7 @@ describe("Stepper", () => {
       expect.stringContaining("Enter"),
     ]);
     expect(screen.queryAllByRole("button")).toEqual([]);
+    expect(screen.getAllByRole("link")).toHaveLength(1);
   });
 
   it("marks the current stage and the done ones", () => {
@@ -35,11 +36,38 @@ describe("Stepper", () => {
       expect(item).toHaveTextContent("✓");
       expect(item).not.toHaveAttribute("aria-current");
     }
-    expect(screen.getByText("All done")).toBeInTheDocument();
   });
 
   it("names the current stage and its position for a phone", () => {
     render(<Stepper current="connect" done={["find", "confirm"]} />);
-    expect(screen.getByText("Connect · 3 of 4")).toBeInTheDocument();
+    const connect = screen.getByRole("listitem", { current: "step" });
+    expect(connect).toHaveTextContent("Connect · 3 of 4");
+  });
+
+  it("takes a done stage back to its page, and leaves the others plain", () => {
+    render(<Stepper current="connect" done={["find", "confirm"]} />);
+    expect(screen.getByRole("link", { name: /Find you/ })).toHaveAttribute(
+      "href",
+      "/"
+    );
+    expect(screen.getByRole("link", { name: /Confirm/ })).toHaveAttribute(
+      "href",
+      "/found"
+    );
+    expect(screen.getAllByRole("link")).toHaveLength(2);
+  });
+
+  it("takes Enter back to the goal once it is done", () => {
+    render(
+      <Stepper current={null} done={["find", "confirm", "connect", "enter"]} />
+    );
+    expect(screen.getByRole("link", { name: /Connect/ })).toHaveAttribute(
+      "href",
+      "/connect"
+    );
+    expect(screen.getByRole("link", { name: /Enter/ })).toHaveAttribute(
+      "href",
+      "/together"
+    );
   });
 });

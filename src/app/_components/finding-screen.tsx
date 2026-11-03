@@ -23,7 +23,8 @@ const DELAYS = [
   "[animation-delay:10s]",
 ];
 
-// Step 2 moves on by itself: it resolves the link, reports each platform as the search finds it,
+// Step 2 moves on by itself: it resolves the link, reports each platform as the search finds it
+// (one line at a time on screen, the whole list for a screen reader),
 // then replaces itself with step 3, so going back from step 3 skips the search. A link that finds
 // no one returns to step 1 with a line saying so. The list empties when Next hides this page
 // (Activity) and each run rebuilds it from the start, so a second search never shows the first.
@@ -69,30 +70,56 @@ function FindingScreen() {
   return (
     <Stage rings="none">
       <TopBar current="find" done={[]} />
-      <main className="relative flex flex-1 flex-col items-center justify-center pb-10 text-center">
-        <div className="relative grid size-72 place-items-center max-tablet:size-52">
-          <Rings className="absolute top-1/2 left-1/2 -z-10 -translate-1/2 max-tablet:scale-75" />
-          {LOGOS.map((logo, index) => (
-            <Image
-              key={logo}
-              src={`/brand/logo-${logo}.png`}
-              alt=""
-              width={288}
-              height={288}
-              preload={index === 0}
-              className={`absolute inset-0 size-full animate-logo-cycle object-contain opacity-0 ${DELAYS[index]} motion-reduce:animate-none ${index === 0 ? "motion-reduce:opacity-100" : ""}`}
-            />
-          ))}
-        </div>
-        <h1 className="mt-14 font-display text-page-title font-bold text-fg max-tablet:mt-10 max-tablet:text-page-title-phone">
-          Getting to know you.
-        </h1>
-        <div role="status" aria-live="polite" className="mt-5 min-h-32">
-          <ul className="flex flex-col items-center gap-1.5 text-lg text-mist">
-            {found.map((platform) => (
-              <li key={platform}>Found you on {PLATFORM_NAMES[platform]}.</li>
+      <main className="flex flex-1 flex-col items-center justify-center gap-9 pb-16 text-center max-tablet:gap-7">
+        <div className="relative grid size-110 place-items-center max-tablet:size-72">
+          <Rings
+            hole={220}
+            className="absolute top-1/2 left-1/2 -z-10 -translate-1/2 max-tablet:scale-[0.6545]"
+          />
+          <div className="relative size-90 animate-float motion-reduce:animate-none max-tablet:size-58">
+            {LOGOS.map((logo, index) => (
+              <Image
+                key={logo}
+                src={`/brand/logo-${logo}.png`}
+                alt=""
+                width={360}
+                height={360}
+                preload={index === 0}
+                className={`absolute inset-0 size-full animate-logo-cycle object-contain opacity-0 ${DELAYS[index]} motion-reduce:animate-none ${index === 0 ? "motion-reduce:opacity-100" : ""}`}
+              />
             ))}
-          </ul>
+          </div>
+        </div>
+        <div className="relative grid h-16 w-full place-items-center font-display text-status font-bold text-fg text-halo max-tablet:text-headline">
+          <h1
+            className={
+              found.length > 0
+                ? "sr-only"
+                : "col-start-1 row-start-1 animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
+            }
+          >
+            Getting to know you.
+          </h1>
+          <div
+            role="status"
+            aria-live="polite"
+            className="col-start-1 row-start-1"
+          >
+            <ul>
+              {found.map((platform, index) => (
+                <li
+                  key={platform}
+                  className={
+                    index === found.length - 1
+                      ? "animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
+                      : "sr-only"
+                  }
+                >
+                  Found you on {PLATFORM_NAMES[platform]}.
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </main>
     </Stage>

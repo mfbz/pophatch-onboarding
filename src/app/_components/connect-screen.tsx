@@ -22,6 +22,7 @@ import { Button, buttonVariants } from "@/components/button";
 import { Stage } from "@/components/stage";
 import { StatusDot } from "@/components/status-dot";
 import { TopBar } from "@/components/top-bar";
+import { cn } from "@/lib/cn";
 
 type FolderButtonProps = { provider: FolderProvider };
 
@@ -62,7 +63,7 @@ function FolderButton({ provider }: FolderButtonProps) {
         ref={status}
         role="status"
         tabIndex={-1}
-        className="flex min-h-10 items-center gap-2 text-sm font-semibold text-fg outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid"
+        className="flex min-h-11 items-center gap-2 text-sm font-bold text-navy outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-navy focus-visible:outline-solid"
       >
         <StatusDot tone="lime" />
         {name} connected
@@ -71,10 +72,10 @@ function FolderButton({ provider }: FolderButtonProps) {
   }
   return (
     <Button
-      variant="secondary"
+      variant="outline"
       aria-disabled={pending || undefined}
       onClick={press}
-      className="aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
+      className="focus-visible:outline-navy aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
     >
       {pending ? "Connecting…" : `Connect ${name}`}
     </Button>
@@ -129,19 +130,19 @@ function ConnectScreen() {
   }
 
   return (
-    <Stage>
+    <Stage rings="bottom">
       <TopBar current={progress.current} done={progress.done} />
       {allowed && (
-        <main className="flex flex-1 flex-col pt-14 max-tablet:pt-8">
-          <h1 className="font-display text-page-title font-bold text-fg max-tablet:text-page-title-phone">
+        <main className="flex flex-1 flex-col pt-11.5 max-tablet:pt-8 tablet:px-11">
+          <h1 className="font-display text-page-title font-bold text-fg text-halo max-tablet:text-page-title-phone">
             Connect your <span className="text-lime">pages.</span>
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-mist">
+          <p className="mt-5.5 text-lead text-mist text-halo max-tablet:text-lg">
             {manual
               ? "Connect what you have; one is enough to start."
               : `PopHatch found these from your ${linkPlatform}. Connect what you have; one is enough to start.`}
           </p>
-          <ul className="mt-8 max-w-3xl border-t border-hair">
+          <ul className="mt-5.5 grid gap-4 max-tablet:gap-3 tablet:grid-cols-3 desktop:grid-cols-5">
             {CONNECT_PLATFORMS.map(({ platform, available }) => (
               <ConnectRow
                 key={platform}
@@ -153,27 +154,47 @@ function ConnectScreen() {
               />
             ))}
           </ul>
-          <section aria-labelledby="reports-title" className="mt-10 max-w-3xl">
-            <h2
-              id="reports-title"
-              className="font-display text-row-title font-semibold text-fg"
-            >
-              Spotify, Apple Music and distributor reports
-            </h2>
-            <p className="mt-1.5 text-mist">
-              Point PopHatch at the folder where you save them, or upload the
-              files.
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+          <section
+            aria-labelledby="reports-title"
+            className="mt-5.5 flex items-center gap-6 rounded-card bg-fg px-7 py-6.5 text-navy shadow-card max-desktop:flex-col max-desktop:items-start max-tablet:px-5"
+          >
+            <div className="min-w-0 flex-1">
+              <h2
+                id="reports-title"
+                className="font-display text-tile font-bold"
+              >
+                Spotify, Apple Music and distributor reports
+              </h2>
+              <p className="mt-1 text-lead text-navy/70 max-tablet:text-body">
+                Point PopHatch at the folder where you save them, or upload the
+                files.
+              </p>
+              {state.files.length > 0 && (
+                <ul aria-label="Uploaded files" className="mt-3 space-y-1">
+                  {state.files.map((name) => (
+                    <li
+                      key={name}
+                      className="flex items-center gap-2 text-caption"
+                    >
+                      <StatusDot tone="lime" />
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5">
               {FOLDERS.map((provider) => (
                 <FolderButton key={provider} provider={provider} />
               ))}
               <label
-                className={buttonVariants({
-                  variant: "secondary",
-                  className:
-                    "has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-fg has-focus-visible:outline-solid",
-                })}
+                className={cn(
+                  buttonVariants({
+                    variant: "primary",
+                    className:
+                      "min-h-11 px-5 py-3 text-body has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-navy has-focus-visible:outline-solid",
+                  })
+                )}
               >
                 Upload files
                 <input
@@ -198,28 +219,15 @@ function ConnectScreen() {
                 />
               </label>
             </div>
-            {state.files.length > 0 && (
-              <ul aria-label="Uploaded files" className="mt-4 space-y-1">
-                {state.files.map((name) => (
-                  <li
-                    key={name}
-                    className="flex items-center gap-2 text-caption text-fg"
-                  >
-                    <StatusDot tone="lime" />
-                    {name}
-                  </li>
-                ))}
-              </ul>
-            )}
           </section>
-          <div className="mt-12 flex max-w-3xl items-center justify-between gap-4 max-tablet:mt-auto max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:pt-10">
+          <div className="mt-5.5 flex items-center justify-between gap-4 max-tablet:mt-auto max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:pt-10">
             <Button variant="link" onClick={() => router.push("/")}>
               Try another link
             </Button>
             <Button
               disabled={!ready}
               onClick={() => router.push("/together")}
-              className="min-h-12 px-7 max-tablet:w-full"
+              className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
             >
               {count === 0
                 ? "Connect one to continue"

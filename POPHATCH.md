@@ -19,7 +19,7 @@ Four stages, shown as a progress rail: **Find you → Confirm → Connect → En
 3. **Found you.** The artist's profile as PopHatch found it: name, city, artwork of recent releases, and the numbers (releases, monthly listeners, followers). Two answers: "That's me" or "Not me".
 4. **Connect your pages.** The accounts found from the first link, each to connect or skip; one is enough to continue. Spotify, Apple Music and distributor reports come in as files (a cloud folder or an upload).
 5. **Putting it together.** One question while PopHatch reads the connected accounts: what would make the next three months a win (a release landing, more shows, a bigger fanbase, making money, getting noticed, or the artist's own words). The reading progress runs beside it, then the artist enters the app.
-6. **You're in.** The arrival: the PopHatch mark large on the stage, "You're in, Noor." and "Your first plan is on its way." It stands where the app would open, with "Start over" to run the flow again.
+6. **You're in.** The arrival, where the app would open: the PopHatch logo pops in and runs through its finishes while the rings burst out, lands on pearl, then "You're in, Noor." and "Your first plan is on its way." rise in with "Start over" to run the flow again. It celebrates once and then stays still.
 
 ## Design references
 
@@ -53,5 +53,7 @@ There is no backend. A typed client in the app stands in for one: it answers the
 - **The one-by-one path finds the artist from the first account.** Without a link, step 4 offers every platform with no handles and no "found" wording. The first account connected is where PopHatch finds the artist, and only then does the stepper mark Find you and Confirm done.
 
 - **Step 5 reads only what was connected, and Enter waits for both.** SoundCharts is always read (it comes from the artist's Spotify), then each connected source in turn, then the reports. Enter becomes available once a goal is picked or written and the reading is done; until then it says which one it is waiting for. One goal at a time: a picked goal clears a written one and the other way round, and a written goal stops at 140 characters.
+
+- **The artist can go back, never skip ahead.** A done step in the stepper is a link back to its page, and the PopHatch logo returns to step 1; neither clears anything, so what was found and connected is still there. Steps ahead are not links, because each needs what the steps before it collect. On a phone the stepper shows only the current step, and the browser's back does the rest.
 
 - **Every step has its own page title.** Next announces a client-side navigation by the page title, so each step's title ("Found you · PopHatch") is what a screen reader hears when the step changes. On step 1, after a return, focus goes to the empty link field instead.

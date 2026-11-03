@@ -81,9 +81,9 @@ function TogetherScreen() {
     <Stage>
       <TopBar current={progress.current} done={progress.done} />
       {allowed && (
-        <main className="grid flex-1 content-start gap-x-16 gap-y-12 pt-14 max-tablet:pt-8 tablet:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <main className="grid flex-1 content-start gap-x-12 gap-y-8 pt-14 max-tablet:pt-8 tablet:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] tablet:px-11">
           <div>
-            <h1 className="font-display text-page-title font-bold text-fg max-tablet:text-page-title-phone">
+            <h1 className="font-display text-title font-bold text-fg text-halo max-tablet:text-page-title-phone">
               What would make the next three months a{" "}
               <span className="text-lime">win?</span>
             </h1>
@@ -97,7 +97,7 @@ function TogetherScreen() {
                   goal: value ? { kind: "preset", value } : null,
                 })
               }
-              className="mt-8"
+              className="mt-5.5"
             >
               {GOALS.map((option) => (
                 <ToggleGroupItem key={option} value={option}>
@@ -121,48 +121,46 @@ function TogetherScreen() {
                 });
               }}
               aria-describedby="written-goal-count"
-              className="mt-5"
+              className="mt-5.5"
             />
             <p
               id="written-goal-count"
-              className="mt-2 pr-5 text-right text-caption text-periwinkle"
+              className="mt-2 pr-6 text-right text-caption text-mist text-halo"
             >
               {written.length}/{GOAL_LIMIT}
             </p>
           </div>
           <section
             aria-labelledby="reading-title"
-            className="border-t border-hair pt-6"
+            className="flex flex-col gap-4.5 self-start rounded-card bg-fg px-7 py-6.5 text-navy shadow-card max-tablet:px-5"
           >
             <h2
               id="reading-title"
-              className="font-display text-row-title font-semibold text-fg"
+              className="font-display text-headline font-bold"
             >
               Putting it together
             </h2>
             <ul
               aria-labelledby="reading-title"
               aria-live="polite"
-              className="mt-4 space-y-3"
+              className="space-y-4.5 empty:hidden"
             >
               {reading.lines.map((line) => (
-                <li key={line.label} className="flex gap-3">
-                  <span className="mt-2">
-                    <StatusDot tone="lime" />
+                <li
+                  key={line.label}
+                  className="animate-line-in motion-reduce:animate-none"
+                >
+                  <span className="block text-base font-bold">
+                    {line.label}
                   </span>
-                  <span>
-                    <span className="block font-semibold text-fg">
-                      {line.label}
-                    </span>
-                    <span className="block text-caption text-periwinkle">
-                      {line.detail}
-                    </span>
+                  <span className="block text-[14.5px] text-navy/70">
+                    {line.detail}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="mt-5 flex items-center gap-2 text-caption font-semibold text-fg">
-              <StatusDot tone={reading.done ? "lime" : "muted"} />
+            <p className="flex items-center gap-2.5 pt-3 font-bold text-klein">
+              <StatusDot tone="klein" />
               {reading.done ? "Read everything you connected." : "Reading…"}
             </p>
           </section>
@@ -170,7 +168,7 @@ function TogetherScreen() {
             <Button
               disabled={waitingFor !== null}
               onClick={() => router.push("/welcome")}
-              className="min-h-12 px-9 max-tablet:w-full"
+              className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
             >
               {waitingFor ?? "Enter"}
             </Button>

@@ -48,7 +48,8 @@ Progress is kept for the browser tab, so a reload stays on the same step; a new 
 | ----------------------- | -------------------------------------------------------------------------- |
 | `src/app/`              | the app: layout, theme (`globals.css`), the onboarding screens             |
 | `src/components/`       | app-wide components: the restyled shadcn ones, the stage, the top bar      |
-| `public/`               | the brand logos and mark, the demo artist's photo and covers               |
+| `src/lib/`              | app-wide helpers: `cn`, taught the theme's sizes, shadows and radii        |
+| `public/`               | the brand logos, the demo artist's photo and covers                        |
 | `DESIGN.md`             | the design system as the build reads it: tokens, rules and its Decisions   |
 | `checks/`               | repo-invariant tests and the Git hooks' code                               |
 | `scripts/`              | one-off repo scripts                                                       |
