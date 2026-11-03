@@ -69,6 +69,15 @@ const CONNECT_NAMES: Record<ConnectPlatform, string> = {
   soundcloud: "SoundCloud",
 };
 
+// What PopHatch can connect today, in the order it offers them. SoundCloud is not ready yet.
+const CONNECT_PLATFORMS: { platform: ConnectPlatform; available: boolean }[] = [
+  { platform: "instagram", available: true },
+  { platform: "tiktok", available: true },
+  { platform: "youtube", available: true },
+  { platform: "facebook", available: true },
+  { platform: "soundcloud", available: false },
+];
+
 const FOLDER_NAMES: Record<FolderProvider, string> = {
   "google-drive": "Google Drive",
   onedrive: "OneDrive",
@@ -162,7 +171,9 @@ async function resolveFromAccount(platform: ConnectPlatform): Promise<Artist> {
 
 export {
   ArtistSchema,
+  FOLDER_NAMES,
   CONNECT_NAMES,
+  CONNECT_PLATFORMS,
   connectAccount,
   connectFolder,
   readSources,

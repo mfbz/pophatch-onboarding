@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { type FlowStage, Stepper } from "@/components/stepper";
 
-type TopBarProps = { current: FlowStage; done: FlowStage[] };
+type TopBarProps = { current: FlowStage | null; done: FlowStage[] };
 
 // On a phone the mark stands alone so the stepper keeps its one line.
 function TopBar({ current, done }: TopBarProps) {
