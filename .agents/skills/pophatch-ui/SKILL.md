@@ -44,4 +44,6 @@ The onboarding is the first thing an artist sees of PopHatch. It should feel lik
 
 ## Done means seen
 
+Screenshots at an exact width: `npx playwright screenshot --channel chrome --viewport-size "375, 812" http://localhost:3000 out.png` (the installed Chrome, no browser download). Plain headless Chrome's `--window-size` cannot go below about 500 wide, so its phone shots are wrong.
+
 A screen is done when it has been opened in a real browser at 375, 768 and 1440 wide, in its waiting, success and failure states, with keyboard only and with reduced motion on, and the screenshots are in the pull request.

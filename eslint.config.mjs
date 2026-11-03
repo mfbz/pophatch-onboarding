@@ -1,8 +1,13 @@
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import { defineConfig, globalIgnores } from "eslint/config";
 import tseslint from "typescript-eslint";
 
-// Type-aware, because the rules that matter most here (floating promises, misused promises) need types.
+// Next's own config is not type-aware, so a dropped promise would pass lint. The type-checked
+// recommended set adds that, through the TypeScript project service.
 export default defineConfig(
+  ...nextVitals,
+  ...nextTs,
   tseslint.configs.recommendedTypeChecked,
   {
     languageOptions: {
@@ -21,6 +26,17 @@ export default defineConfig(
       ],
     },
   },
-  { files: ["**/*.mjs"], ...tseslint.configs.disableTypeChecked },
-  globalIgnores([".agents/**", "docs/**", "coverage/**"])
+  { files: ["**/*.{js,cjs,mjs}"], ...tseslint.configs.disableTypeChecked },
+  // ESLint does not read .gitignore: build output, agent worktrees and scratch are listed here.
+  globalIgnores([
+    "**/.next/**",
+    ".claude/worktrees/**",
+    ".superpowers/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    ".agents/**",
+    "docs/**",
+    "coverage/**",
+  ])
 );

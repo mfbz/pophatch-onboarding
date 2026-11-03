@@ -23,7 +23,8 @@ describe("the secret guard", () => {
       sample("AK", "IA", "ABCDEFGHIJKLMNOP"),
       sample("npm", "_", "e".repeat(36)),
       sample("xo", "xb-", "1234567890-abc"),
-      sample("AI", "za", "f".repeat(35)),
+      sample("AI", "za", "f".repeat(34), "-"),
+      sample("-----BEGIN ", "PGP PRIVATE KEY BLOCK-----"),
       sample("vc", "p_", "g".repeat(30)),
       sample("sk_", "live_", "h".repeat(30)),
     ];
@@ -80,6 +81,25 @@ describe("the personal path guard", () => {
     expect(findHomePath(`${windows}\\x.ttf`, "/root")).toHaveLength(1);
     expect(findHomePath("src/Users/list.ts users/home", "/root")).toEqual([]);
   });
+
+  it("finds a home folder without a trailing slash, with a space, or escaped", () => {
+    expect(findHomePath(`cwd="${mac}"`, "/root")).toHaveLength(1);
+    expect(
+      findHomePath(`${sample("/Us", "ers/Some One")}/x`, "/root")
+    ).toHaveLength(1);
+    expect(
+      findHomePath(`"${sample("C:\\\\Us", "ers\\\\someone")}\\\\proj"`, "/root")
+    ).toHaveLength(1);
+  });
+
+  it("leaves an import path through a home route alone", () => {
+    expect(
+      findHomePath(
+        'import { Hero } from "@/app/home/_components/hero";',
+        "/root"
+      )
+    ).toEqual([]);
+  });
 });
 
 describe("the email guard", () => {
@@ -97,6 +117,13 @@ describe("the email guard", () => {
       sample("x", "@", "studio.test"),
     ];
     for (const address of allowed) expect(findEmails(address)).toEqual([]);
+  });
+
+  it("leaves retina assets and SSH remotes alone", () => {
+    expect(findEmails("logo@2x.png icon@3x.webp")).toEqual([]);
+    expect(
+      findEmails(sample("git clone git", "@", "github.com:owner/repo"))
+    ).toEqual([]);
   });
 
   it("leaves scoped package names and versions alone", () => {

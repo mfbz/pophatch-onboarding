@@ -13,7 +13,8 @@ Other reference files: `README.md` (run, test, the layout), `CONTRIBUTING.md` (h
 
 | Path                    | What                                                                                    |
 | ----------------------- | --------------------------------------------------------------------------------------- |
-| `checks`                | repo-invariant tests (guards, agent instructions, skills) and the Git hooks' code       |
+| `src/app`               | the Next.js 16 app (App Router): the onboarding screens, layout and theme               |
+| `checks`                | repo-invariant tests (guards, agent instructions, skills), the Git hooks' and CI's code |
 | `scripts`               | one-off repo scripts, run with `tsx` (`unpack-reference.ts`)                            |
 | `docs/design/reference` | `stage-system.html` (the design system) and `onboarding-prototype.html` (the flow mock) |
 | `.agents/skills`        | the skills below                                                                        |
@@ -32,6 +33,8 @@ Other reference files: `README.md` (run, test, the layout), `CONTRIBUTING.md` (h
 
 ```bash
 npm ci                     # install (Node 24); also switches on the Git hooks
+npm run dev                # the app on localhost:3000
+npm run build              # production build (CI runs it too)
 npm run check              # green checkpoint: format:check, lint, typecheck, test
 npm run format             # Prettier (a Claude hook also formats each edited file)
 npm run reference:unpack   # decode the prototype into readable screens (gitignored)
@@ -50,7 +53,7 @@ Every command, with what it does, is in the `pophatch-workflow` skill and `READM
 
 Details: skill `pophatch-conventions` (and `pophatch-ui` for screens).
 
-- TypeScript strict everywhere, ES modules, `@/*` → `./src/*`. kebab-case files and folders, named exports (default only where the framework requires it), no `index.ts`, no barrels.
+- Next.js 16 App Router, React 19, Tailwind CSS 4, all under `src/`. TypeScript strict everywhere, ES modules, `@/*` → `./src/*`. kebab-case files and folders, named exports (default only where the framework requires it), no `index.ts`, no barrels.
 - File order: imports → types → constants → private helpers → exported functions last. Comments explain why, never what.
 - zod at the boundary. Tests co-located as `*.test.ts(x)` (Vitest).
 - Always the latest package versions, checked against current docs, never from memory.
@@ -72,3 +75,13 @@ Details: skill `pophatch-conventions` (and `pophatch-ui` for screens).
 - Behind `main`? Merge `main` into your branch (no rebase of pushed work). Never push to `main`, never force-push, never commit secrets or `.env` files.
 - Never credit an AI tool as an author: no `Co-Authored-By` trailers for coding agents, no "Generated with …" lines, in commits, PRs, issues or docs.
 - Guards check every commit (Git hooks from `npm install`) and every committable file (`npm test`): no keys or tokens, no home-folder paths, no real email addresses, no AI attribution, nothing over 1 MB ([CONTRIBUTING.md](CONTRIBUTING.md), "Guards"). Fix the cause; never weaken a guard, never `--no-verify`, never change `core.hooksPath`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -25,11 +25,14 @@ The "Task" issue form says what to do and when it is done. Work in a worktree on
 
 ```bash
 npm ci                     # install (Node 24); also switches on the Git hooks
+npm run dev                # the app on localhost:3000 (Turbopack)
+npm run build              # production build
+npm run start              # serve the production build
 npm run check              # green checkpoint: format:check, lint, typecheck, test
 npm run format             # Prettier on everything
 npm run lint               # ESLint, type-aware
-npm run typecheck          # tsc --noEmit
-npm run test               # Vitest once (the guards and repo checks included)
+npm run typecheck          # next typegen (route and layout types), then tsc --noEmit
+npm run test               # Vitest once: the app project (jsdom) and the checks project (node)
 npm run test:watch         # Vitest in watch mode
 npm run reference:unpack   # decode the prototype into docs/design/reference/unpacked/ (gitignored)
 ```
@@ -56,4 +59,4 @@ Every doc reads as the project's own: what it does and why it is built that way,
 
 ## CI
 
-A green checkpoint = `npm run check`. CI is **one job** in `.github/workflows/ci.yml` (Node 24, one `npm ci`): format, lint, typecheck, test, each a step that runs even after an earlier one failed, so one run reports everything. It runs on every pull request and every push to `main`.
+A green checkpoint = `npm run check`. CI is **one job** in `.github/workflows/ci.yml` (Node 24, one `npm ci`): the message guards on a pull request (`checks/messages.ts`), then format, lint, typecheck, test, build, each a step that runs even after an earlier one failed, so one run reports everything. It runs on every pull request and every push to `main`.
