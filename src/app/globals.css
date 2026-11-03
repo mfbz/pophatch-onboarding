@@ -1,10 +1,56 @@
 @import "tailwindcss";
 
+/* The Stage System's tokens, verbatim (DESIGN.md). Components use them by name, never by value. */
+@theme {
+  --color-klein: #0a2eb0;
+  --color-navy: #0a1b66;
+  --color-night: #060c2a;
+  --color-lime: #d4ff3a;
+  --color-pink: #ff4fa3;
+  --color-amber: #ffb020;
+  --color-fg: #ffffff;
+  --color-mist: #d6deff;
+  --color-periwinkle: #c7d2ff;
+  --color-hair: rgba(255, 255, 255, 0.26);
+  --color-hair-soft: rgba(255, 255, 255, 0.14);
+  --color-glass: rgba(255, 255, 255, 0.07);
+
+  --radius-pill: 999px;
+  --radius-bubble: 22px;
+  --radius-image: 20px;
+  --radius-thumb: 12px;
+
+  /* The system's phone layout starts under 860px, its computer layout at 1300px. */
+  --breakpoint-tablet: 860px;
+  --breakpoint-desktop: 1300px;
+}
+
 @theme inline {
-  --font-sans: var(--font-body);
-  --font-display: var(--font-display-face);
+  --font-sans: var(--font-body), system-ui, sans-serif;
+  --font-display:
+    var(--font-display-face), var(--font-body), system-ui, sans-serif;
+}
+
+@utility bg-stage-gradient {
+  background: linear-gradient(
+      180deg,
+      #0a2eb0 0,
+      #0a2eb0 560px,
+      #071a6e 1000px,
+      #060c2a 1500px
+    )
+    no-repeat #060c2a;
+}
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-night);
 }
 
 body {
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-mist);
+  -webkit-tap-highlight-color: transparent;
 }

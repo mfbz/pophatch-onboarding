@@ -9,13 +9,15 @@ The onboarding is the first thing an artist sees of PopHatch. It should feel lik
 
 ## The references
 
-- `docs/design/reference/stage-system.html` is **the design system** and the source of every token: color, type, shape, motion, the phone rules, the waiting, empty and wrong states. Its Tokens section is used verbatim; a value the build needs that it lacks is added to the theme once, named, and recorded in `POPHATCH.md`.
+- `DESIGN.md` is **the design system as the build reads it**: every token in its front matter, the rules below it, and the Decisions where the onboarding departs from or extends the system. Read it before any screen work. Its values come verbatim from `docs/design/reference/stage-system.html`; a token changes there first, then in `DESIGN.md` and `src/app/globals.css` in the same change (`checks/design-repo.test.ts` fails when the two disagree).
+- A value the build needs that the system lacks is added to the theme once, named, and recorded as a Decision in `DESIGN.md`.
 - `docs/design/reference/onboarding-prototype.html` is **the flow** as first designed. Read it through `npm run reference:unpack` (`docs/design/reference/unpacked/NN-*.html`, one per screen, in order). It predates part of the Stage System: where they disagree on look, the Stage System wins; on flow and copy, the prototype does, unless `POPHATCH.md` records otherwise.
 - Never trace a reference pixel for pixel. Read what each screen is for, then build the best version of that for an artist on a phone and on a laptop.
 
 ## Tokens and styling
 
-- Tokens are defined once in the theme and consumed by name; no raw hex, no one-off font sizes, radii or shadows in components.
+- Tokens are defined once in `src/app/globals.css` (`@theme`) and consumed by name (`bg-lime`, `text-mist`, `border-hair`, `rounded-pill`, `bg-stage-gradient`); no raw hex, no one-off font sizes, radii or shadows in components.
+- Breakpoints are the system's: `tablet:` from 860px, `desktop:` from 1300px; under 860px is the phone layout.
 - Type: the display face for headlines and big numbers, the body face for everything else, both loaded by the framework's font loader (no layout shift, no external request at runtime).
 
 ## Motion
