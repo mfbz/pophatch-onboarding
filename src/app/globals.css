@@ -24,6 +24,22 @@
   /* The system's phone layout starts under 860px, its computer layout at 1300px. */
   --breakpoint-tablet: 860px;
   --breakpoint-desktop: 1300px;
+
+  --animate-stage-pulse: stage-pulse 7.5s ease-out infinite;
+
+  @keyframes stage-pulse {
+    0% {
+      transform: scale(0.12);
+      opacity: 0;
+    }
+    12% {
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0;
+    }
+  }
 }
 
 @theme inline {
