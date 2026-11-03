@@ -8,17 +8,23 @@ Node 24 (`.nvmrc`), then:
 
 ```bash
 npm ci            # install; also switches on the Git hooks
+npm run dev       # the app on localhost:3000
 npm run check     # format:check, lint, typecheck, test
 ```
+
+The stack: Next.js 16 (App Router, Cache Components), React 19, TypeScript, Tailwind CSS 4, Vitest with Testing Library.
 
 ## Commands
 
 | Command                    | What it does                                                                                            |
 | -------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`              | the app on localhost:3000 (Turbopack)                                                                   |
+| `npm run build`            | the production build                                                                                    |
+| `npm run start`            | serve the production build                                                                              |
 | `npm run check`            | the green checkpoint: `format:check`, `lint`, `typecheck`, `test`                                       |
 | `npm run format`           | Prettier on everything                                                                                  |
 | `npm run lint`             | ESLint, type-aware                                                                                      |
-| `npm run typecheck`        | `tsc --noEmit`                                                                                          |
+| `npm run typecheck`        | `next typegen`, then `tsc --noEmit`                                                                     |
 | `npm run test`             | Vitest once, including the repo guards                                                                  |
 | `npm run test:watch`       | Vitest in watch mode                                                                                    |
 | `npm run reference:unpack` | decode the prototype into one HTML file per screen under `docs/design/reference/unpacked/` (gitignored) |
@@ -27,6 +33,7 @@ npm run check     # format:check, lint, typecheck, test
 
 | Path                    | What                                                                       |
 | ----------------------- | -------------------------------------------------------------------------- |
+| `src/app/`              | the app: layout, theme (`globals.css`), the onboarding screens             |
 | `checks/`               | repo-invariant tests and the Git hooks' code                               |
 | `scripts/`              | one-off repo scripts                                                       |
 | `docs/design/reference` | the Stage System design system and the onboarding prototype                |

@@ -35,4 +35,6 @@ There is no backend. A typed client in the app stands in for one: it answers the
 
 ## Decisions
 
+- **Next.js 16 (App Router) with React 19, TypeScript strict and Tailwind CSS 4.** The App Router gives each step a URL, so back, reload and a shared link behave as an artist expects; static prerendering makes the first screen instant; Tailwind's theme is where the Stage System tokens live once. Rejected: a Vite single-page app (no prerendered first paint, routing assembled by hand).
+
 - **The backend is mocked in the browser, behind the same typed contract a real API would have.** Rejected: a mock server (more moving parts, no change in what the artist sees) and hard-coded screen states (the waiting and failure states would never be exercised).

@@ -1,6 +1,6 @@
 name: CI
 
-# One job, not one per check: each job pays its own `npm ci` and GitHub bills every job rounded up
+# One job, not one per check (format, lint, typecheck, test, build): each job pays its own `npm ci` and GitHub bills every job rounded up
 # to the minute.
 on:
   pull_request:
@@ -43,3 +43,6 @@ jobs:
       - name: Test
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run test
+      - name: Build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run build

@@ -37,6 +37,7 @@
       "Bash(git commit * -n *)",
       "Bash(git * core.hooksPath*)",
       "Bash(git * core.hookspath*)",
+      "Bash(git * --output*)",
       "Bash(git push * main)",
       "Bash(git push * main:*)",
       "Bash(git push --force*)",
