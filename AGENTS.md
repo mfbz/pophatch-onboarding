@@ -14,7 +14,7 @@ Other reference files: `README.md` (run, test, the layout), `CONTRIBUTING.md` (h
 | Path                    | What                                                                                    |
 | ----------------------- | --------------------------------------------------------------------------------------- |
 | `src/app`               | the Next.js 16 app (App Router): the onboarding screens, layout and theme               |
-| `checks`                | repo-invariant tests (guards, agent instructions, skills) and the Git hooks' code       |
+| `checks`                | repo-invariant tests (guards, agent instructions, skills), the Git hooks' and CI's code |
 | `scripts`               | one-off repo scripts, run with `tsx` (`unpack-reference.ts`)                            |
 | `docs/design/reference` | `stage-system.html` (the design system) and `onboarding-prototype.html` (the flow mock) |
 | `.agents/skills`        | the skills below                                                                        |

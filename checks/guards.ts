@@ -5,7 +5,7 @@
 type Finding = { rule: string; match: string };
 
 const SECRETS: ReadonlyArray<[string, RegExp]> = [
-  ["private key", /-----BEGIN [A-Z ]*PRIVATE KEY-----/],
+  ["private key", /-----BEGIN [A-Z ]*PRIVATE KEY(?: BLOCK)?-----/],
   ["OpenAI or Anthropic key", /\bsk-(?:proj-|ant-)?[A-Za-z0-9_-]{24,}/],
   [
     "GitHub token",
@@ -14,23 +14,38 @@ const SECRETS: ReadonlyArray<[string, RegExp]> = [
   ["AWS access key", /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/],
   ["npm token", /\bnpm_[A-Za-z0-9]{36}\b/],
   ["Slack token", /\bxox[abprs]-[A-Za-z0-9-]{10,}/],
-  ["Google API key", /\bAIza[0-9A-Za-z_-]{35}\b/],
+  ["Google API key", /\bAIza[0-9A-Za-z_-]{35}(?![0-9A-Za-z_-])/],
   ["Vercel token", /\bvc[pk]_[A-Za-z0-9]{24,}/],
   ["Stripe key", /\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{24,}/],
 ];
-// A home folder from any machine, not only this one: a `/Users/<name>/` path committed from another
-// laptop would otherwise pass CI, whose runner has a home of its own.
+// A home folder from any machine, not only this one: a `/Users/<name>` path committed from another
+// laptop would otherwise pass CI, whose runner has a home of its own. A path counts when it starts
+// one (at a line start, after a space, a quote, `=`, `(` or `:`), so an import like
+// `@/app/home/_components/x` is not one; the name may hold spaces, and Windows paths may be
+// escaped once (JSON, JS strings).
+const PATH_START = String.raw`(?:^|[\s"'\`=(:])`;
 const HOME_PATHS: ReadonlyArray<RegExp> = [
-  /\/Users\/[A-Za-z0-9._-]+\//,
-  /\/home\/[A-Za-z0-9._-]+\//,
-  /C:\\Users\\[A-Za-z0-9._-]+\\/,
+  new RegExp(
+    String.raw`${PATH_START}/(?:Users|home)/[A-Za-z0-9._-][A-Za-z0-9._ -]*(?=$|[/"'\`\s)])`,
+    "m"
+  ),
+  new RegExp(
+    String.raw`[A-Za-z]:\\{1,2}Users\\{1,2}[A-Za-z0-9._-][A-Za-z0-9._ -]*(?=$|[\\"'\`\s)])`,
+    "m"
+  ),
 ];
+// Every co-author trailer is refused, a person's too: commits are authored by one GitHub identity,
+// and a trailer is how an AI tool or someone's address slips in.
 const ATTRIBUTION =
   /Co-Authored-By:[ \t]*[A-Za-z]|noreply@anthropic\.com|Generated with \[?Claude/i;
 // A real person's address never belongs in the repo. Mock data uses the reserved example domains
 // (RFC 2606) or GitHub's noreply addresses.
 const EMAIL =
   /\b[A-Za-z0-9._%+-]+@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})\b/g;
+// What looks like an address but is not one: a retina asset (`logo@2x.png`) and an SSH remote
+// (`git@github.com:owner/repo`).
+const NOT_AN_ADDRESS =
+  /^git@|\.(?:png|jpe?g|gif|webp|avif|svg|ico|css|js|mjs|cjs|ts|tsx|json|woff2?)$/i;
 const ALLOWED_EMAIL_DOMAIN =
   /(?:^|\.)(?:example\.(?:com|org|net)|users\.noreply\.github\.com|test|invalid|localhost)$/i;
 
@@ -69,7 +84,11 @@ function findHomePath(text: string, home: string): Finding[] {
 
 function findEmails(text: string): Finding[] {
   return [...text.matchAll(EMAIL)]
-    .filter(([, domain]) => !ALLOWED_EMAIL_DOMAIN.test(domain ?? ""))
+    .filter(
+      ([address, domain]) =>
+        !NOT_AN_ADDRESS.test(address) &&
+        !ALLOWED_EMAIL_DOMAIN.test(domain ?? "")
+    )
     .map(([address]) => ({ rule: "an email address", match: address }));
 }
 

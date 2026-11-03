@@ -59,4 +59,4 @@ Every doc reads as the project's own: what it does and why it is built that way,
 
 ## CI
 
-A green checkpoint = `npm run check`. CI is **one job** in `.github/workflows/ci.yml` (Node 24, one `npm ci`): format, lint, typecheck, test, build, each a step that runs even after an earlier one failed, so one run reports everything. It runs on every pull request and every push to `main`.
+A green checkpoint = `npm run check`. CI is **one job** in `.github/workflows/ci.yml` (Node 24, one `npm ci`): the message guards on a pull request (`checks/messages.ts`), then format, lint, typecheck, test, build, each a step that runs even after an earlier one failed, so one run reports everything. It runs on every pull request and every push to `main`.

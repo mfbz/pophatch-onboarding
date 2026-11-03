@@ -1,6 +1,6 @@
 name: CI
 
-# One job, not one per check (format, lint, typecheck, test, build): each job pays its own `npm ci` and GitHub bills every job rounded up
+# One job, not one per check (messages, format, lint, typecheck, test, build): each job pays its own `npm ci` and GitHub bills every job rounded up
 # to the minute.
 on:
   pull_request:
@@ -24,6 +24,9 @@ jobs:
     # wrong from one run.
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The message guards read every commit since the base branch.
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -31,6 +34,14 @@ jobs:
       - id: install
         name: Install
         run: npm ci
+      # Untrusted text reaches the script through the environment, never the command line.
+      - name: Messages
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && github.event_name == 'pull_request' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: npx tsx checks/messages.ts "origin/$BASE_REF"
       - name: Format
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run format:check

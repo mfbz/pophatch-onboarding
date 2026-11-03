@@ -26,9 +26,12 @@ export default defineConfig(
       ],
     },
   },
-  { files: ["**/*.mjs"], ...tseslint.configs.disableTypeChecked },
+  { files: ["**/*.{js,cjs,mjs}"], ...tseslint.configs.disableTypeChecked },
+  // ESLint does not read .gitignore: build output, agent worktrees and scratch are listed here.
   globalIgnores([
-    ".next/**",
+    "**/.next/**",
+    ".claude/worktrees/**",
+    ".superpowers/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
