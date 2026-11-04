@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import {
   ArtistReply,
@@ -119,6 +119,11 @@ function Conversation({ phone }: ConversationProps) {
   const [confirmed, setConfirmed] = useState(() => goal !== null);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
   const counterId = useId();
+  // Where keyboard focus goes once an answer is sent or taken back, because the control that had
+  // it leaves the page: the "Change" link after sending, the chosen pill or the box after changing.
+  const focusAfter = useRef<"change" | "answer" | null>(null);
+  const changeButton = useRef<HTMLButtonElement>(null);
+  const answer = useRef<HTMLDivElement>(null);
   const first = state.artist?.name.split(" ")[0] ?? "";
   const shownAsked = reduced ? 2 : asked;
   const shownConfirmed = goal !== null && (reduced || confirmed);
@@ -145,7 +150,19 @@ function Conversation({ phone }: ConversationProps) {
     return () => clearTimeout(timer);
   }, [goal, confirmed]);
 
+  useEffect(() => {
+    const target = focusAfter.current;
+    focusAfter.current = null;
+    if (target === "change") changeButton.current?.focus();
+    if (target === "answer") {
+      const chosen =
+        answer.current?.querySelector<HTMLElement>('[data-state="on"]');
+      (chosen ?? answer.current?.querySelector("input"))?.focus();
+    }
+  }, [goal]);
+
   function send(next: NonNullable<Goal>) {
+    focusAfter.current = "change";
     setConfirmed(false);
     dispatch({ type: "goal", goal: next });
   }
@@ -157,6 +174,7 @@ function Conversation({ phone }: ConversationProps) {
   }
 
   function change() {
+    focusAfter.current = "answer";
     setDraft(draftOf(goal));
     setConfirmed(false);
     dispatch({ type: "goal", goal: null });
@@ -198,6 +216,7 @@ function Conversation({ phone }: ConversationProps) {
             <div className="mt-2 flex flex-col items-end gap-1">
               <ArtistReply>{goal.value}</ArtistReply>
               <button
+                ref={changeButton}
                 type="button"
                 onClick={change}
                 className="cursor-pointer px-1 text-[13.5px] text-mist underline underline-offset-3 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg focus-visible:outline-solid max-tablet:min-h-11"
@@ -213,7 +232,10 @@ function Conversation({ phone }: ConversationProps) {
         </div>
 
         {shownAsked === 2 && goal === null && (
-          <div className="mt-1.5 ml-10 flex animate-rise flex-col gap-3 motion-reduce:animate-none max-tablet:ml-0">
+          <div
+            ref={answer}
+            className="mt-1.5 ml-10 flex animate-rise flex-col gap-3 motion-reduce:animate-none max-tablet:ml-0"
+          >
             <ToggleGroup
               type="single"
               aria-label="Your goal"

@@ -210,6 +210,29 @@ describe("TogetherScreen", () => {
     expect(goalField()).toHaveValue("Tour Europe");
   });
 
+  it("keeps keyboard focus through answering and changing", async () => {
+    await renderWith(connected);
+    await untilAsked();
+    screen.getByRole("radio", { name: "A bigger fanbase" }).focus();
+    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "Change" })
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(document.activeElement).toBe(
+      screen.getByRole("radio", { name: "A bigger fanbase" })
+    );
+  });
+
+  it("returns focus to the box after changing a written goal", async () => {
+    await renderWith(connected);
+    await untilAsked();
+    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    fireEvent.click(screen.getByRole("button", { name: "Change" }));
+    expect(document.activeElement).toBe(goalField());
+  });
+
   it("a reload restores the answered conversation without typing", async () => {
     await renderWith(read);
     expect(screen.getByText(/Nice to meet you/)).toBeInTheDocument();

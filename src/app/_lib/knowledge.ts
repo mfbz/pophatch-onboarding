@@ -22,6 +22,8 @@ const MANUAL_FIRST_LINE = "You're in my books. Each account fills in more.";
 
 const MANUAL_WAITING = "Connect an account and I'll find you.";
 
+const FINDING = "Got it. Finding you from there.";
+
 // How well PopHatch knows the artist, as step 4's meter shows it. Spotify is where any link leads
 // (SoundCharts reads from it), so it counts once the artist is known; each connected account adds a
 // fifth. Files and folders are read in step 5 but say nothing about the artist's audience, so they
@@ -48,13 +50,18 @@ function knowledge(state: OnboardingState): Knowledge {
   ];
 
   const filled = segments.filter((segment) => segment.state === "filled");
-  const line = failed
-    ? `${CONNECT_NAMES[failed]} didn't answer. Try it again whenever you like.`
-    : !known
-      ? MANUAL_WAITING
-      : connected === 0 && state.path === "manual"
-        ? MANUAL_FIRST_LINE
-        : (LINES[connected] ?? "");
+  // A failure is the news only until an account gets through; after that the line follows the
+  // progress and the failure stays on its segment and its row.
+  const line =
+    failed && connected === 0
+      ? `${CONNECT_NAMES[failed]} didn't answer. Try it again whenever you like.`
+      : !known
+        ? connected > 0
+          ? FINDING
+          : MANUAL_WAITING
+        : connected === 1 && state.path === "manual"
+          ? MANUAL_FIRST_LINE
+          : (LINES[connected] ?? "");
 
   return { percent: filled.length * 20, segments, line };
 }

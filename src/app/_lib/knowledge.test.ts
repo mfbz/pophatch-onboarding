@@ -85,6 +85,30 @@ describe("knowledge", () => {
     });
     expect(result.percent).toBe(40);
     expect(result.segments[0]?.state).toBe("filled");
+    expect(result.line).toBe("You're in my books. Each account fills in more.");
+  });
+
+  it("says it is finding the artist between connecting and finding", () => {
+    const result = knowledge({
+      ...initialState,
+      path: "manual",
+      accounts: { instagram: connected },
+    });
+    expect(result.line).toBe("Got it. Finding you from there.");
+  });
+
+  it("lets the line follow progress once an account connects after a failure", () => {
+    const result = on({
+      accounts: {
+        facebook: {
+          status: "failed",
+          message: "Facebook didn't answer. Try again.",
+          attempts: 1,
+        },
+        instagram: connected,
+      },
+    });
+    expect(result.segments[4]).toEqual({ mark: "facebook", state: "failed" });
     expect(result.line).toBe(
       "Good start. Now I can see your fans, not just your listeners."
     );
