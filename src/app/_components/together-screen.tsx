@@ -1,13 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useId, useRef, useState } from "react";
+import { type FormEvent, useEffect, useId, useState } from "react";
 
-import {
-  ArtistReply,
-  PopHatchMessage,
-  TypingMessage,
-} from "@/app/_components/chat";
 import { ReadingPanel } from "@/app/_components/reading-panel";
 import { type ReadLine, readingPlan, readSources } from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
@@ -20,18 +15,17 @@ import {
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button } from "@/components/button";
 import { Stage } from "@/components/stage";
+import { StatusDot } from "@/components/status-dot";
 import { ToggleGroup, ToggleGroupItem } from "@/components/toggle-group";
 import { TopBar } from "@/components/top-bar";
 import { cn } from "@/lib/cn";
-import { useMediaQuery, useReducedMotion } from "@/lib/motion";
+import { useMediaQuery } from "@/lib/motion";
 
 type Reading = { lines: ReadLine[]; done: boolean };
 
 type Goal = OnboardingState["goal"];
 
-type Draft = { preset: string; text: string };
-
-type ConversationProps = { phone: boolean };
+type AnswerProps = { phone: boolean };
 
 // Each preset goal, and how PopHatch says it back.
 const GOALS = [
@@ -47,12 +41,7 @@ const GOALS = [
 
 const GOAL_LIMIT = 140;
 
-// How long PopHatch "types" before each message, in ms.
-const TYPING = { greeting: 700, question: 800, confirmation: 900 };
-
 const PHONE = "(max-width: 859px)";
-
-const EMPTY_DRAFT: Draft = { preset: "", text: "" };
 
 // Reads the connected sources once per set of sources. The reading lives in the flow state, so a
 // finished one stays finished when Next shows this page again (Activity) and "Start over" clears it;
@@ -97,87 +86,30 @@ function confirmation(goal: NonNullable<Goal>): string {
     : "Got it. I'll build your first plan around that.";
 }
 
-function draftOf(goal: Goal): Draft {
-  if (goal === null) return EMPTY_DRAFT;
-  return goal.kind === "preset"
-    ? { preset: goal.value, text: "" }
-    : { preset: "", text: goal.value };
-}
-
-// The thread: PopHatch greets, asks, and the answer sits right under the question. Answering
-// replaces it with the artist's reply, PopHatch confirms, and the button takes the answer's place.
-// A goal already in the flow state (a reload, or coming back) shows the answered thread at once.
-function Conversation({ phone }: ConversationProps) {
+// The question and its answer, the way step 1 asks for a link: the goals as pills, one tap each,
+// and a box built like the link field for the artist's own words, with its own button so it is
+// clear where to type. PopHatch confirms the goal under it, and Enter waits for the reading.
+function Answer({ phone }: AnswerProps) {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
-  const reduced = useReducedMotion();
   const sources = connectedSources(state);
   const reading = useReading(true, JSON.stringify(sources));
   const plan = readingPlan(sources);
   const goal = state.goal;
-  const [asked, setAsked] = useState(() => (goal !== null ? 2 : 0));
-  const [confirmed, setConfirmed] = useState(() => goal !== null);
-  const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
+  const [text, setText] = useState(() =>
+    goal?.kind === "written" ? goal.value : ""
+  );
   const counterId = useId();
-  // Where keyboard focus goes once an answer is sent or taken back, because the control that had
-  // it leaves the page: the "Change" link after sending, the chosen pill or the box after changing.
-  const focusAfter = useRef<"change" | "answer" | null>(null);
-  const changeButton = useRef<HTMLButtonElement>(null);
-  const answer = useRef<HTMLDivElement>(null);
   const first = state.artist?.name.split(" ")[0] ?? "";
-  const shownAsked = reduced ? 2 : asked;
-  const shownConfirmed = goal !== null && (reduced || confirmed);
   const read = Math.min(reading.lines.length, plan.length);
+  const typed = text.trim();
+  const written = goal?.kind === "written" && goal.value === typed;
 
-  useEffect(() => {
-    if (asked === 2) return;
-    const greeting = setTimeout(() => setAsked(1), TYPING.greeting);
-    const question = setTimeout(
-      () => setAsked(2),
-      TYPING.greeting + TYPING.question
-    );
-    return () => {
-      clearTimeout(greeting);
-      clearTimeout(question);
-    };
-    // Runs once: the thread plays on arrival, and a restored goal starts it at the end.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (goal === null || confirmed) return;
-    const timer = setTimeout(() => setConfirmed(true), TYPING.confirmation);
-    return () => clearTimeout(timer);
-  }, [goal, confirmed]);
-
-  useEffect(() => {
-    const target = focusAfter.current;
-    focusAfter.current = null;
-    if (target === "change") changeButton.current?.focus();
-    if (target === "answer") {
-      const chosen =
-        answer.current?.querySelector<HTMLElement>('[data-state="on"]');
-      (chosen ?? answer.current?.querySelector("input"))?.focus();
-    }
-  }, [goal]);
-
-  function send(next: NonNullable<Goal>) {
-    focusAfter.current = "change";
-    setConfirmed(false);
-    dispatch({ type: "goal", goal: next });
-  }
-
-  function sendWritten(event?: FormEvent) {
-    event?.preventDefault();
-    const value = draft.text.trim();
-    if (value) send({ kind: "written", value });
-  }
-
-  function change() {
-    focusAfter.current = "answer";
-    setDraft(draftOf(goal));
-    setConfirmed(false);
-    dispatch({ type: "goal", goal: null });
+  function sendWritten(event: FormEvent) {
+    event.preventDefault();
+    if (!typed) return;
+    setText(typed);
+    dispatch({ type: "goal", goal: { kind: "written", value: typed } });
   }
 
   const panel = (
@@ -191,165 +123,125 @@ function Conversation({ phone }: ConversationProps) {
 
   return (
     <>
-      <div className="flex min-w-0 flex-col gap-2.5">
-        <div
-          role="log"
-          aria-label="Conversation"
-          className="flex flex-col gap-3"
+      <div className="flex min-w-0 flex-col">
+        <h1 className="animate-rise font-display text-title font-bold text-fg text-halo motion-reduce:animate-none max-tablet:text-page-title-phone">
+          What would make the next three months a{" "}
+          <span className="text-lime">win?</span>
+        </h1>
+        <p className="mt-5 max-w-150 text-lead text-mist text-halo max-tablet:mt-3 max-tablet:text-lg">
+          Nice to meet you, {first}. While I read everything you connected, tell
+          me what matters most.
+        </p>
+        <ToggleGroup
+          type="single"
+          aria-label="Your goal"
+          value={goal?.kind === "preset" ? goal.value : ""}
+          onValueChange={(value) => {
+            if (!value) return;
+            setText("");
+            dispatch({ type: "goal", goal: { kind: "preset", value } });
+          }}
+          className="mt-7 gap-2.5 max-tablet:mt-6"
         >
-          {shownAsked === 0 ? (
-            <TypingMessage />
-          ) : (
-            <PopHatchMessage>
-              Nice to meet you, {first}. I&apos;m reading everything you
-              connected; it takes a moment.
-            </PopHatchMessage>
-          )}
-          {phone && shownAsked > 0 && <div className="my-1.5">{panel}</div>}
-          {shownAsked === 1 && <TypingMessage continued={!phone} />}
-          {shownAsked === 2 && (
-            <PopHatchMessage continued={!phone}>
-              While I do: what would make the next three months a{" "}
-              <span className="font-semibold text-lime">win</span> for you?
-            </PopHatchMessage>
-          )}
-          {goal !== null && (
-            <div className="mt-2 flex flex-col items-end gap-1">
-              <ArtistReply>{goal.value}</ArtistReply>
-              <button
-                ref={changeButton}
-                type="button"
-                onClick={change}
-                className="cursor-pointer px-1 text-[13.5px] text-mist underline underline-offset-3 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg focus-visible:outline-solid max-tablet:min-h-11"
-              >
-                Change
-              </button>
-            </div>
-          )}
-          {goal !== null && !shownConfirmed && <TypingMessage />}
-          {shownConfirmed && (
-            <PopHatchMessage>{confirmation(goal)}</PopHatchMessage>
-          )}
-        </div>
-
-        {shownAsked === 2 && goal === null && (
+          {GOALS.map(({ value }, index) => (
+            <ToggleGroupItem
+              key={value}
+              value={value}
+              style={{ animationDelay: `${120 + index * 60}ms` }}
+              className="animate-rise [animation-fill-mode:both] motion-reduce:animate-none max-tablet:text-base"
+            >
+              {value}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <form noValidate onSubmit={sendWritten} className="mt-5">
           <div
-            ref={answer}
-            className="mt-5 ml-10 max-w-160 animate-rise rounded-card bg-night/30 p-5 ring-1 ring-fg/12 motion-reduce:animate-none max-tablet:mt-4 max-tablet:ml-0 max-tablet:p-4"
+            className={cn(
+              "flex max-w-[680px] items-center gap-3 rounded-pill bg-fg py-2 pr-2 pl-6 shadow-card transition-shadow duration-500 focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-fg focus-within:outline-solid max-tablet:pl-5",
+              written &&
+                "shadow-[0_0_0_6px_rgb(212_255_58/0.3),0_20px_50px_-20px_rgb(0_0_0/0.5)]"
+            )}
           >
-            <p className="flex items-center gap-2 font-mono text-[11px] tracking-widest text-lime uppercase">
-              <span aria-hidden className="size-1.5 rounded-full bg-lime" />
-              Your answer · one tap is enough
-            </p>
-            <ToggleGroup
-              type="single"
-              aria-label="Your goal"
-              value={draft.preset}
-              onValueChange={(value) => {
-                const picked = value || draft.preset;
-                if (picked) send({ kind: "preset", value: picked });
-              }}
-              className="mt-3.5 gap-2"
+            <input
+              aria-label="Or say it in your own words"
+              aria-describedby={counterId}
+              placeholder="Or say it in your own words"
+              maxLength={GOAL_LIMIT}
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              className="min-h-12 min-w-0 flex-1 bg-transparent text-[17px] text-navy outline-none placeholder:text-navy/50 max-tablet:text-base"
+            />
+            <small
+              id={counterId}
+              className="shrink-0 text-xs text-navy/50 tabular-nums max-tablet:hidden"
             >
-              {GOALS.map(({ value }, index) => (
-                <ToggleGroupItem
-                  key={value}
-                  value={value}
-                  style={{ animationDelay: `${150 + index * 60}ms` }}
-                  className="min-h-11 animate-rise border-[1.5px] border-lime/45 bg-fg/6 px-4 py-2 text-[15.5px] [animation-fill-mode:both] enabled:hover:border-lime enabled:hover:bg-lime/12 motion-reduce:animate-none"
-                >
-                  {value}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-            <div
-              aria-hidden
-              className="my-3.5 flex items-center gap-3 text-[12.5px] text-periwinkle"
-            >
-              <span className="h-px flex-1 bg-fg/12" />
-              or in your own words
-              <span className="h-px flex-1 bg-fg/12" />
-            </div>
-            <form
-              onSubmit={sendWritten}
-              className={cn(
-                "flex items-center gap-2 rounded-pill bg-fg py-1.5 pr-1.5 pl-5 transition-shadow duration-500 has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-fg has-focus-visible:outline-solid",
-                draft.text.trim() && "shadow-[0_0_0_5px_rgb(212_255_58/0.3)]"
-              )}
-            >
-              <input
-                aria-label="Or say it in your own words"
-                aria-describedby={counterId}
-                placeholder="Or say it in your own words"
-                maxLength={GOAL_LIMIT}
-                value={draft.text}
-                onChange={(event) =>
-                  setDraft({ preset: "", text: event.target.value })
-                }
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") sendWritten(event);
-                }}
-                className="min-h-10 min-w-0 flex-1 bg-transparent text-base text-navy outline-none placeholder:text-navy/50"
-              />
-              <small
-                id={counterId}
-                className="shrink-0 text-xs text-navy/50 tabular-nums"
-              >
-                {draft.text.length} / {GOAL_LIMIT}
-              </small>
-              <button
-                type="submit"
-                aria-label="Send"
-                aria-disabled={!draft.text.trim() || undefined}
-                className="grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-full bg-lime text-lg font-bold text-navy transition-[transform,opacity] active:scale-96 aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:active:scale-100 motion-reduce:transition-none max-tablet:size-11"
-              >
-                <span aria-hidden>↑</span>
-              </button>
-            </form>
-          </div>
-        )}
-
-        {shownConfirmed && (
-          <div className="mt-2.5 ml-10 flex animate-rise flex-col items-start gap-2 motion-reduce:animate-none max-tablet:ml-0 max-tablet:items-stretch">
+              {text.length} / {GOAL_LIMIT}
+            </small>
             <Button
-              disabled={!reading.done}
-              onClick={() => router.push("/welcome")}
-              className="relative min-h-15 min-w-80 overflow-hidden px-7 text-[18px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:min-h-13 max-tablet:w-full max-tablet:text-base"
+              type="submit"
+              aria-disabled={!typed || undefined}
+              className="min-h-13.5 px-7 text-[17px] font-extrabold aria-disabled:cursor-default aria-disabled:opacity-50 aria-disabled:active:scale-100 max-tablet:min-h-12 max-tablet:px-5 max-tablet:text-base"
             >
-              {!reading.done && (
-                <span
-                  aria-hidden
-                  style={{ width: `${(read / plan.length) * 100}%` }}
-                  className="absolute inset-y-0 left-0 bg-lime/35 transition-[width] duration-800 ease-stage motion-reduce:transition-none"
-                />
-              )}
-              <span className="relative">
-                {reading.done ? (
-                  <>
-                    Enter PopHatch<span aria-hidden> →</span>
-                  </>
-                ) : (
-                  `Finishing the reading · ${read} of ${plan.length}`
-                )}
-              </span>
+              That&apos;s it
             </Button>
           </div>
-        )}
+        </form>
+        <p
+          aria-live="polite"
+          className="mt-5 flex min-h-7 items-center gap-2.5 text-[17px] text-fg text-halo max-tablet:text-base"
+        >
+          {goal && (
+            <span
+              key={`${goal.kind}:${goal.value}`}
+              className="flex animate-fade-in items-center gap-2.5 motion-reduce:animate-none"
+            >
+              <StatusDot tone="lime" />
+              {confirmation(goal)}
+            </span>
+          )}
+        </p>
+        <div className="mt-6 max-tablet:mt-5">
+          <Button
+            disabled={goal === null || !reading.done}
+            onClick={() => router.push("/welcome")}
+            className="relative min-h-13.5 min-w-75 overflow-hidden px-7 text-[17px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
+          >
+            {goal !== null && !reading.done && (
+              <span
+                aria-hidden
+                style={{ width: `${(read / plan.length) * 100}%` }}
+                className="absolute inset-y-0 left-0 bg-lime/35 transition-[width] duration-800 ease-stage motion-reduce:transition-none"
+              />
+            )}
+            <span className="relative">
+              {goal === null ? (
+                "Pick a goal to enter"
+              ) : reading.done ? (
+                <>
+                  Enter PopHatch<span aria-hidden> →</span>
+                </>
+              ) : (
+                `Finishing the reading · ${read} of ${plan.length}`
+              )}
+            </span>
+          </Button>
+        </div>
+        {phone && <div className="mt-6">{panel}</div>}
       </div>
       {!phone && (
-        <div className={cn("self-start tablet:sticky tablet:top-6")}>
-          {panel}
-        </div>
+        <div className="self-start tablet:sticky tablet:top-6">{panel}</div>
       )}
     </>
   );
 }
 
-// Step 5: one question, asked as a conversation, while PopHatch reads what the artist connected
-// beside it. Enter waits for both.
+// Step 5: one question while PopHatch reads what the artist connected beside it. Enter waits for
+// both.
 function TogetherScreen() {
   const { state } = useOnboarding();
-  const allowed = useStepGuard((current) => connectedCount(current) > 0);
+  const allowed = useStepGuard(
+    (current) => connectedCount(current) > 0 && current.artist !== null
+  );
   const progress = stageProgress(state, "/together");
   const phone = useMediaQuery(PHONE);
 
@@ -357,11 +249,8 @@ function TogetherScreen() {
     <Stage>
       <TopBar current={progress.current} done={progress.done} />
       {allowed && (
-        <main className="grid flex-1 content-start gap-14 pt-12 max-desktop:gap-10 max-tablet:pt-6 tablet:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] tablet:px-11 desktop:px-18">
-          <h1 className="sr-only">
-            What would make the next three months a win?
-          </h1>
-          <Conversation phone={phone} />
+        <main className="grid flex-1 content-start gap-14 pt-14 max-desktop:gap-10 max-tablet:pt-8 tablet:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] tablet:px-11">
+          <Answer phone={phone} />
         </main>
       )}
     </Stage>

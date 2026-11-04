@@ -71,9 +71,8 @@ function goalField() {
   return screen.getByRole("textbox", { name: "Or say it in your own words" });
 }
 
-// Both messages and the answer are in after the typing indicators.
-async function untilAsked() {
-  await wait(1700);
+function sendButton() {
+  return screen.getByRole("button", { name: "That's it" });
 }
 
 const read: Partial<OnboardingState> = {
@@ -101,7 +100,7 @@ describe("TogetherScreen", () => {
     sessionStorage.clear();
   });
 
-  it("asks the question after greeting", async () => {
+  it("asks one question, with five goals and a box to write in", async () => {
     await renderWith(connected);
     expect(
       screen.getByRole("heading", {
@@ -109,38 +108,24 @@ describe("TogetherScreen", () => {
         name: "What would make the next three months a win?",
       })
     ).toBeInTheDocument();
-    expect(screen.queryByText(/Nice to meet you/)).toBeNull();
-    await untilAsked();
-    expect(
-      screen.getByText(
-        "Nice to meet you, Noor. I'm reading everything you connected; it takes a moment."
-      )
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        (_, element) =>
-          element?.tagName === "P" &&
-          element.textContent ===
-            "While I do: what would make the next three months a win for you?"
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Nice to meet you, Noor\./)).toBeInTheDocument();
     for (const goal of GOALS) {
       expect(screen.getByRole("radio", { name: goal })).toBeInTheDocument();
     }
-    expect(screen.queryByRole("button", { name: /Enter PopHatch/ })).toBeNull();
+    expect(goalField()).toHaveAttribute("maxLength", "140");
+    expect(
+      screen.getByRole("button", { name: "Pick a goal to enter" })
+    ).toBeDisabled();
   });
 
-  it("picking a goal replies, confirms and shows the button", async () => {
+  it("confirms a picked goal and waits for the reading", async () => {
     await renderWith(connected);
-    await untilAsked();
     fireEvent.click(
       screen.getByRole("radio", { name: "More shows, better rooms" })
     );
-    expect(screen.queryByRole("radio")).toBeNull();
     expect(
-      screen.getByText("More shows, better rooms", { selector: "p" })
-    ).toBeInTheDocument();
-    await wait(1000);
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    ).toBeChecked();
     expect(
       screen.getByText(
         "Got it: more shows, better rooms. I'll build your first plan around it."
@@ -151,94 +136,65 @@ describe("TogetherScreen", () => {
     ).toBeDisabled();
   });
 
-  it("a written goal stops at 140 and gets the generic confirmation", async () => {
+  it("sends a written goal from the box, capped at 140", async () => {
     await renderWith(connected);
-    await untilAsked();
-    expect(goalField()).toHaveAttribute("maxLength", "140");
     fireEvent.change(goalField(), { target: { value: "  Tour Europe " } });
     expect(screen.getByText("14 / 140")).toBeInTheDocument();
-    fireEvent.keyDown(goalField(), { key: "Enter" });
+    expect(screen.queryByText(/Got it/)).toBeNull();
+    fireEvent.click(sendButton());
     expect(
-      screen.getByText("Tour Europe", { selector: "p" })
+      screen.getByText("Got it. I'll build your first plan around that.")
     ).toBeInTheDocument();
-    await wait(1000);
+    expect(goalField()).toHaveValue("Tour Europe");
+  });
+
+  it("sends a written goal with Enter, not an empty one", async () => {
+    await renderWith(connected);
+    fireEvent.change(goalField(), { target: { value: "   " } });
+    fireEvent.submit(goalField());
+    expect(screen.queryByText(/Got it/)).toBeNull();
+    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
+    fireEvent.submit(goalField());
     expect(
       screen.getByText("Got it. I'll build your first plan around that.")
     ).toBeInTheDocument();
   });
 
-  it("does not send an empty written goal", async () => {
+  it("keeps one goal: a pick clears the text and the text clears the pick", async () => {
     await renderWith(connected);
-    await untilAsked();
-    fireEvent.change(goalField(), { target: { value: "   " } });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    expect(goalField()).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
+    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
+    fireEvent.click(sendButton());
+    expect(
+      screen.getByRole("radio", { name: "A bigger fanbase" })
+    ).not.toBeChecked();
+    fireEvent.click(
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    );
+    expect(goalField()).toHaveValue("");
+    expect(
+      screen.getByText(
+        "Got it: more shows, better rooms. I'll build your first plan around it."
+      )
+    ).toBeInTheDocument();
   });
 
   it("Enter waits for the reading", async () => {
     await renderWith(connected);
-    await untilAsked();
     fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
-    await wait(1000);
     expect(
       screen.getByRole("button", { name: /Finishing the reading/ })
     ).toBeDisabled();
-    await wait(3000);
+    await wait(3500);
     fireEvent.click(screen.getByRole("button", { name: "Enter PopHatch" }));
     expect(push).toHaveBeenCalledWith("/welcome");
   });
 
-  it("Change brings the answer back with the goal selected", async () => {
-    await renderWith(connected);
-    await untilAsked();
-    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
-    await wait(1000);
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
-    expect(
-      screen.getByRole("radio", { name: "A bigger fanbase" })
-    ).toBeChecked();
-    expect(screen.queryByText(/Got it/)).toBeNull();
-    expect(
-      screen.queryByRole("button", { name: /Finishing|Enter/ })
-    ).toBeNull();
-  });
-
-  it("Change brings a written goal back into the box", async () => {
-    await renderWith(connected);
-    await untilAsked();
-    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    await wait(1000);
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
-    expect(goalField()).toHaveValue("Tour Europe");
-  });
-
-  it("keeps keyboard focus through answering and changing", async () => {
-    await renderWith(connected);
-    await untilAsked();
-    screen.getByRole("radio", { name: "A bigger fanbase" }).focus();
-    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
-    expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "Change" })
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
-    expect(document.activeElement).toBe(
-      screen.getByRole("radio", { name: "A bigger fanbase" })
-    );
-  });
-
-  it("returns focus to the box after changing a written goal", async () => {
-    await renderWith(connected);
-    await untilAsked();
-    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
-    fireEvent.click(screen.getByRole("button", { name: "Send" }));
-    fireEvent.click(screen.getByRole("button", { name: "Change" }));
-    expect(document.activeElement).toBe(goalField());
-  });
-
-  it("a reload restores the answered conversation without typing", async () => {
+  it("restores the answer after a reload", async () => {
     await renderWith(read);
-    expect(screen.getByText(/Nice to meet you/)).toBeInTheDocument();
+    expect(
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    ).toBeChecked();
     expect(
       screen.getByText(
         "Got it: more shows, better rooms. I'll build your first plan around it."
@@ -247,6 +203,14 @@ describe("TogetherScreen", () => {
     expect(
       screen.getByRole("button", { name: "Enter PopHatch" })
     ).toBeEnabled();
+  });
+
+  it("restores a written goal into the box", async () => {
+    await renderWith({
+      ...read,
+      goal: { kind: "written", value: "Tour Europe" },
+    });
+    expect(goalField()).toHaveValue("Tour Europe");
   });
 
   it("the panel says what it reads now", async () => {
@@ -271,10 +235,9 @@ describe("TogetherScreen", () => {
   it("the compact block folds when done", async () => {
     setPhone(true);
     await renderWith(connected);
-    await wait(800);
     const header = screen.getByRole("button", { name: /Reading SoundCharts/ });
     expect(header).toHaveAttribute("aria-expanded", "true");
-    await wait(2400);
+    await wait(3200);
     await wait(1300);
     const folded = screen.getByRole("button", { name: /✓ Read 3 sources/ });
     expect(folded).toHaveAttribute("aria-expanded", "false");
@@ -296,7 +259,6 @@ describe("TogetherScreen", () => {
     );
     const { rerender } = render(tree("visible"));
     await wait(0);
-    await untilAsked();
     fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
     await wait(3500);
     rerender(tree("hidden"));

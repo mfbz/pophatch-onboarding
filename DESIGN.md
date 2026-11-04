@@ -136,7 +136,6 @@ motion:
   arrival: 2.4s
   goal-card: 2.6s
   record-turn: 30s
-  typing: 0.7s to 0.9s
   reduced-motion: none
 components:
   button-primary:
@@ -157,14 +156,6 @@ components:
     backgroundColor: "rgba(6, 12, 42, 0.35)"
     textColor: "{colors.fg}"
     rounded: "{rounded.card}"
-  bubble:
-    backgroundColor: "#2944BB"
-    textColor: "{colors.fg}"
-    rounded: "22px 22px 22px 6px"
-  reply:
-    backgroundColor: "{colors.lime}"
-    textColor: "{colors.navy}"
-    rounded: "22px 22px 6px 22px"
 ---
 
 ## Overview
@@ -183,7 +174,7 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 
 - Every button, chip and field is a pill (`rounded-pill`).
 - Cards are `rounded-card` (28px), release covers `rounded-cover` (18px), the artist's photo a circle.
-- The writing box is a white pill with navy text.
+- The writing box is a white pill with navy text, built like the link field: its own lime button inside on the right.
 
 ## Colors
 
@@ -214,17 +205,16 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 - **Account rows** (`app/_components/connect-row.tsx`): glass pills, one per line, with the platform's 44px mark, the name (17px) and the handle; the state pill on the right reads "Connect" (white, Klein text), "Connecting…", a lime "✓ Connected" or "Try again" with a pink dot and one line under the handle. On a phone the numbers read from a connected account replace the handle. Something not ready reads "Coming soon" in a dashed pill, with nothing to press.
 - **File chips**: Google Drive, OneDrive and "Upload reports" as glass pills with their marks; a connected folder turns lime-tinted with a ✓.
 - **The knowledge card** (`app/_components/knowledge-card.tsx`): the artist's photo as a Klein duotone hero (luminosity blend) with name, city, listeners and genres; the meter "How well I know you", one segment per platform filling in its colour over .9s with its mark under it and the percent counting up; a line in the manager's voice; and a row per account gaining its numbers and "Gives me …" once connected. On a phone it shrinks to a header (photo, name, percent, segments, line) above the accounts.
-- **Messages** (`app/_components/chat.tsx`): PopHatch's bubbles in a lighter Klein (`#2944BB`, the `bubble` theme colour, kept to messages and outside the palette) with the pearl logo as a 30px avatar, three typing dots before each (700–900ms); the artist's reply in lime on the right with a "Change" link under it.
-- **Goal pills** (`components/toggle-group.tsx`): one choice; off has a 2px border at 50% white, on is lime with navy text and a leading ✓. In the conversation they sit in a glass answer card under the question, headed in lime "Your answer · one tap is enough", with a lime outline that fills on hover; a pill sends at once.
-- **The writing box**: a white pill under "or in your own words", with a "0 / 140" count and a 42px lime send button (↑), faded until there is something to send; once there is, the box takes the link field's flat lime ring. Enter sends.
-- **The reading panel** (`app/_components/reading-panel.tsx`): "Putting it together", a live line ("Reading Instagram · 2 of 3", then "Read everything you connected."), one bar segment per source (lime read, white at 50% reading, at 16% waiting) and a row per source going Waiting → spinner → "✓ Read". On a phone it is a block the size of a message under the first message, with the stacked marks and a thin lime progress line, that folds to "Read 3 sources" 1.2s after the last one and opens on a tap.
+- **Goal pills** (`components/toggle-group.tsx`): one choice, 17px; off has a 2px border at 50% white, on is lime with navy text and a leading ✓. On step 5 they rise in one after another, and a tap sets the goal.
+- **The writing box**: the link field's twin: a white pill, "Or say it in your own words", a "0 / 140" count and a lime "That's it" inside on the right, faded until there is something to send. Enter sends too. Once its words are the goal, it takes the link field's flat lime ring.
+- **The reading panel** (`app/_components/reading-panel.tsx`): "Putting it together", a live line ("Reading Instagram · 2 of 3", then "Read everything you connected."), one bar segment per source (lime read, white at 50% reading, at 16% waiting) and a row per source going Waiting → spinner → "✓ Read". On a phone it is a compact block under the Enter button, with the stacked marks and a thin lime progress line, that folds to "Read 3 sources" 1.2s after the last one and opens on a tap.
 - **The arrival**: no stepper. The rings grow in around the logo while it pops in and flashes through its five other finishes, 0.3s each, and two circles burst out once; it lands on pearl (360px, 232px on a phone), then "You're in, Noor." and "Your first plan is on its way." rise in, and at 2.6s the goal card docks at the bottom like a now-playing bar: the latest cover, "Your goal · next three months", the goal as the line PopHatch plans around, "Your first plan is built around it." and a lime "Start over". Then everything stays still. Under reduced motion it all simply appears.
 
 ## Decisions
 
 ### The onboarding's exceptions to lime and motion
 
-The onboarding is the artist's first impression, a stage moment rather than a product screen, so it keeps things the product screens do not have: the lime last word of each headline ("business.", "you.", "pages.", "Noor."), lime on what is the artist's (the record's printed label, the ring round her photo and latest cover, her reply in the conversation, the numbers read from her accounts), lime for what is done (a ✓ Read, a filled meter segment, the progress line), and the PopHatch logo cycling through its six finishes while PopHatch searches. Everything else follows the system's lime and motion rules, and all motion stops under reduced motion.
+The onboarding is the artist's first impression, a stage moment rather than a product screen, so it keeps things the product screens do not have: the lime last word of each headline ("business.", "you.", "pages.", "Noor."), lime on what is the artist's (the record's printed label, the ring round her photo and latest cover, the goal she chose, the numbers read from her accounts), lime for what is done (a ✓ Read, a filled meter segment, the progress line), and the PopHatch logo cycling through its six finishes while PopHatch searches. Everything else follows the system's lime and motion rules, and all motion stops under reduced motion.
 
 ### The progress pills go back, never ahead
 
@@ -268,4 +258,4 @@ The prototype's white cards turned every step into a form. On the stage the onbo
 
 ### Motion reports progress or marks an arrival
 
-Every animation either says something is happening (the search tiles, typing dots, the reading spinner, the meter filling) or marks a moment arriving (the promises as they come into view, the record dropping in, the arrival). Each plays once except the record's slow turn and the logo's cycle while searching. Under reduced motion every one of them shows its end state.
+Every animation either says something is happening (the search tiles, the reading spinner, the meter filling, the waiting button filling) or marks a moment arriving (the promises as they come into view, the record dropping in, the arrival). Each plays once except the record's slow turn and the logo's cycle while searching. Under reduced motion every one of them shows its end state.
