@@ -1,9 +1,6 @@
-import type { Metadata } from "next";
-
 import { LinkScreen } from "@/app/_components/link-screen";
 
-export const metadata: Metadata = { title: "Your link" };
-
+// The start carries the site title (app/_lib/site-metadata.ts), the one a shared link shows.
 export default function Home() {
   return <LinkScreen />;
 }

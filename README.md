@@ -27,6 +27,10 @@ Run `npm run dev` and open `http://localhost:3000`. The field opens with a Spoti
 
 Progress is kept for the browser tab, so a reload stays on the same step; a new tab starts fresh.
 
+## Deploying it
+
+On Vercel nothing needs setting: a shared link's preview, the canonical link and the sitemap use the production domain. Anywhere else, set `SITE_URL` to the full address the app is served from (`SITE_URL=https://pophatch.example.com npm run build`); without it they point at localhost.
+
 ## Commands
 
 | Command                    | What it does                                                                                            |

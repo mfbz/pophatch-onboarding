@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans, Familjen_Grotesk } from "next/font/google";
 
 import { OnboardingProvider } from "@/app/_lib/onboarding-provider";
+import { siteMetadata } from "@/app/_lib/site-metadata";
 import { RouteFocus } from "@/components/route-focus";
 
 import "./globals.css";
@@ -19,10 +20,7 @@ const mono = DM_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: { default: "PopHatch", template: "%s · PopHatch" },
-  description: "Your manager, from one link.",
-};
+export const metadata: Metadata = siteMetadata;
 
 export const viewport: Viewport = {
   width: "device-width",
