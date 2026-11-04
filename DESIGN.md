@@ -165,8 +165,8 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 ## Layout
 
 - Every page starts with the stage: solid Klein for the first 1000px, then a gradient to Night (`bg-stage-gradient`), a patch of light, six still rings and two white circles that grow and fade. The rings sit in the top-right corner, in the bottom-right on "Connect your pages", or centered on the screen's one subject (Decisions). Nothing fades them: type over a ring stays legible through its own Klein glow (`text-halo`), and centered text gets a soft patch of Klein behind it (`bg-halo`).
-- The top bar sits 52px in from the edges of the window (16px on a phone). Content keeps the prototype's insets: 110px from each edge on step 1, 96px on steps 4 and 5, centered on steps 2, 3 and the arrival.
-- Three widths, the system's own: a computer from 1300px, a tablet or small laptop from 860px to 1299px, a phone under 860px. On a phone everything is one column, nothing is added and nothing is removed.
+- The page is at most 1440px wide, the width the flow was drawn at, and centered on a wider screen; the gradient and the rings still run to the window's edges. The top bar sits 52px in from the page's edges (16px on a phone). Content keeps the prototype's insets: 110px from each edge on step 1, 96px on steps 4 and 5, centered on steps 2, 3 and the arrival.
+- Three widths, the system's own: a computer from 1300px, a tablet or small laptop from 860px to 1299px, a phone under 860px. On a phone everything is one column, nothing is added and nothing is removed. A phone held sideways keeps the phone layout; there the search on "Getting to know you" shrinks to fit the screen's height, since that page moves on by itself and its line must stay in view.
 - Nothing on the stage is a white card: surfaces are dark glass (Night at 35–94%, a 1px hairline at 10–14% white, `rounded-card`) with white text, so the artist's photo, covers and platform colours carry the colour (Decisions). White stays for fields and the writing box.
 - Everything the artist can press is at least 40px tall (44px on a phone), and a phone's primary action is full width at the bottom of the screen, within thumb reach.
 
@@ -194,7 +194,7 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 ## Components
 
 - **Buttons** (`components/button.tsx`): primary is lime with navy text, 14px weight 700, 10px by 18px, and 17px weight 800 for a screen's main action; secondary has no background, white text and a 1.5px border at 70% white; link is Mist and underlined; on a white card, `ink` is Klein filled and `outline` a 2px Klein outline. On hover the lime goes to 90% and the secondary border to 100%; pressed, any button shrinks to 96%. Nothing else changes on hover.
-- **Focus**: everything the artist can press is reachable with Tab in reading order and shows a 2px white outline 3px outside its edge.
+- **Focus**: everything the artist can press is reachable with Tab in reading order and shows a 2px white outline 3px outside its edge. After a step change focus sits on the new heading, with no outline, as the starting point for Tab.
 - **Status dots**: 8px. Lime working, amber quiet, pink needs the artist, white at 35% not connected.
 - **Something not available yet** is shown at 60% opacity, in its place, with nothing to press.
 - **A field that could not be saved**: one line under it in white 13.5px with a pink dot before it, saying what happened and what to do; the field keeps what the artist typed.

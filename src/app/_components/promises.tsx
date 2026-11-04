@@ -240,7 +240,7 @@ function PlanTimeline({ play }: PictureProps) {
       <span
         style={{ left: `${NOW * 100 + 1}%` }}
         className={cn(
-          "absolute bottom-51.5 -translate-x-1/2 rounded-pill bg-lime px-2.75 py-1.25 text-xs font-bold whitespace-nowrap text-navy transition-[opacity,translate] delay-700 duration-600 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:absolute after:top-full after:left-1/2 after:h-3 after:w-0.5 after:bg-lime motion-reduce:transition-none",
+          "absolute bottom-51.5 -translate-x-1/2 rounded-pill bg-lime px-2.75 py-1.25 text-xs font-bold whitespace-nowrap text-navy transition-[opacity,translate] delay-700 duration-600 ease-[cubic-bezier(0.34,1.56,0.64,1)] after:absolute after:top-full after:left-1/2 after:h-3 after:w-0.5 after:bg-lime motion-reduce:transition-none max-[400px]:bottom-55.5",
           play ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
         )}
       >
@@ -261,9 +261,9 @@ function PlanTimeline({ play }: PictureProps) {
               ? "rgb(255 255 255 / 0.5)"
               : "rgb(255 79 163 / 0.75)"
         }
-        className="absolute inset-x-0 bottom-23 h-26 w-full"
+        className="absolute inset-x-0 bottom-23 h-26 w-full max-[400px]:bottom-27"
       />
-      <div className="absolute inset-x-0 bottom-17.5 h-3.5 font-mono text-[11px] tracking-[0.04em] text-periwinkle uppercase">
+      <div className="absolute inset-x-0 bottom-17.5 h-3.5 font-mono text-[11px] tracking-[0.04em] text-periwinkle uppercase max-[400px]:bottom-21.5">
         {TICKS.map(([tick, left]) => (
           <span
             key={tick}
@@ -287,11 +287,12 @@ function PlanTimeline({ play }: PictureProps) {
           height={42}
           className="size-10.5 shrink-0 rounded-lg object-cover"
         />
+        {/* The title may wrap on a narrow phone, where the timeline sits higher to make room. */}
         <div className="min-w-0">
           <b className="block text-sm leading-tight text-fg">
             Pitch &ldquo;Lantern&rdquo; to 3 playlists
           </b>
-          <span className="text-[12.5px] text-periwinkle">
+          <span className="block truncate text-[12.5px] text-periwinkle">
             Saves are up 40% since Friday
           </span>
         </div>

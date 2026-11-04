@@ -24,7 +24,9 @@ describe("Stepper", () => {
     expect(confirm).toHaveAttribute("aria-current", "step");
     expect(find).not.toHaveAttribute("aria-current");
     expect(find).toHaveTextContent("✓");
-    expect(within(find!).getByText("done", { exact: false })).toBeTruthy();
+    expect(
+      within(find!).getByRole("link", { name: "Find you, done. Go back" })
+    ).toBeInTheDocument();
     expect(connect).not.toHaveTextContent("✓");
   });
 

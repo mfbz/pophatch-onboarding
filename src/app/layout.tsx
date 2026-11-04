@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans, Familjen_Grotesk } from "next/font/google";
 
 import { OnboardingProvider } from "@/app/_lib/onboarding-provider";
+import { RouteFocus } from "@/components/route-focus";
 
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-dvh flex-col">
         <OnboardingProvider>{children}</OnboardingProvider>
+        <RouteFocus />
       </body>
     </html>
   );

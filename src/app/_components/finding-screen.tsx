@@ -103,8 +103,9 @@ function FindingScreen() {
   return (
     <Stage rings="none">
       <TopBar current="find" done={[]} />
-      <main className="flex flex-1 flex-col items-center justify-center pb-16 text-center max-tablet:pb-10">
-        <div className="relative h-150 w-full max-tablet:h-125">
+      <main className="flex flex-1 flex-col items-center justify-center pb-16 text-center max-tablet:pb-10 max-tablet:[@media(max-height:520px)]:pb-0">
+        {/* On a phone held sideways the search shrinks to fit the screen, so the line under the logo stays in view. */}
+        <div className="relative h-150 w-full max-tablet:h-125 max-tablet:[@media(max-height:520px)]:-my-23.75 max-tablet:[@media(max-height:520px)]:scale-[0.62]">
           <div className="absolute top-1/2 left-1/2 grid size-110 -translate-1/2 place-items-center max-tablet:size-72">
             <Rings
               hole={150}

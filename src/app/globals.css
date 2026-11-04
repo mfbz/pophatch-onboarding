@@ -252,6 +252,12 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* A page heading takes focus only after a move to another step (RouteFocus), as a starting point
+   for Tab, not as something to press, so it shows no ring. */
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
+
 /* The record spins in, then turns once every 30 seconds (DESIGN.md, The record). */
 @utility animate-record {
   animation:

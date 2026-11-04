@@ -73,6 +73,9 @@ function Stepper({ current, done }: StepperProps) {
             {isDone ? (
               <Link
                 href={stage.href}
+                // A label, not hidden text: hidden text is laid out as a block, which puts a space
+                // before the comma in the name.
+                aria-label={`${stage.label}, done. Go back`}
                 className={cn(
                   PILL,
                   "bg-fg text-klein transition-transform outline-none hover:bg-mist focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid active:scale-96 motion-reduce:transition-none motion-reduce:active:scale-100"
@@ -85,7 +88,6 @@ function Stepper({ current, done }: StepperProps) {
                   ✓
                 </span>
                 {stage.label}
-                <span className="sr-only">, done. Go back</span>
               </Link>
             ) : (
               <span

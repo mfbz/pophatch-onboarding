@@ -80,6 +80,13 @@ describe("seeded", () => {
     expect([a(), a(), a()]).toEqual([b(), b(), b()]);
   });
 
+  it("levels are rounded, so every browser draws the bars the server drew", () => {
+    const values = levels(48, 19, (x, value) => value * Math.exp(-x));
+    for (const value of values) {
+      expect(Math.round(value * 1000) / 1000).toBe(value);
+    }
+  });
+
   it("levels stay between 0 and 1", () => {
     const values = levels(48, 19);
     expect(values).toHaveLength(48);

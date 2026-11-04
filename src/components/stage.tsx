@@ -72,7 +72,9 @@ function Rings({ className, hole = 0, pulse = "loop" }: RingsProps) {
 }
 
 // The stage (DESIGN.md, Layout): the gradient, a patch of light, the rings in the top-right corner
-// and the page, 52px in from the edges like the prototype. Each screen sets its own content inset.
+// and the page, 52px in from the edges like the prototype and never wider than the 1440px it was
+// drawn at, centered on a wider screen while the stage itself runs edge to edge. Each screen sets its
+// own content inset.
 // A screen whose cards fill the top passes rings="bottom", as the prototype's step 4 does; a screen
 // that centers the rings on its own subject passes rings="none".
 function Stage({ children, rings = "corner" }: StageProps) {
@@ -90,7 +92,7 @@ function Stage({ children, rings = "corner" }: StageProps) {
           <Rings className="absolute top-[260px] right-[-680px] max-tablet:top-[300px] max-tablet:right-[-760px] max-tablet:scale-60" />
         )}
       </div>
-      <div className="flex w-full flex-1 flex-col px-13 pb-12 max-tablet:px-4 max-tablet:pb-8">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-13 pb-12 max-tablet:px-4 max-tablet:pb-8">
         {children}
       </div>
     </div>

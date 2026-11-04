@@ -220,9 +220,11 @@ function KnowledgeCard({ state }: KnowledgeCardProps) {
           ))}
         </div>
 
+        {/* Two lines kept on a phone, where the card sits above the accounts: a longer line after
+            an account answers must not push the rows down under the artist's thumb. */}
         <p
           aria-live="polite"
-          className="mt-4 text-[14.5px] leading-snug text-fg max-tablet:mt-3 max-tablet:text-[13.5px]"
+          className="mt-4 text-[14.5px] leading-snug text-fg max-tablet:mt-3 max-tablet:min-h-[2lh] max-tablet:text-[13.5px]"
         >
           {line}
         </p>
