@@ -3,6 +3,7 @@
 import {
   type RefObject,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -14,22 +15,35 @@ function noSubscription(): () => void {
   return () => {};
 }
 
-function subscribeReduced(onChange: () => void): () => void {
-  if (typeof window.matchMedia !== "function") return () => {};
-  const query = window.matchMedia(REDUCE);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
+function subscribeQuery(query: string): (onChange: () => void) => () => void {
+  return (onChange) => {
+    if (typeof window.matchMedia !== "function") return () => {};
+    const list = window.matchMedia(query);
+    list.addEventListener("change", onChange);
+    return () => list.removeEventListener("change", onChange);
+  };
 }
 
-function readReduced(): boolean {
+function readQuery(query: string): boolean {
   return (
-    typeof window.matchMedia === "function" && window.matchMedia(REDUCE).matches
+    typeof window.matchMedia === "function" && window.matchMedia(query).matches
   );
 }
 
-// The server cannot know, so it renders the moving version and the client settles it on hydration.
+// Whether a media query matches now, following it as it changes. The server cannot know, so it
+// renders as if it does not match and the client settles it on hydration.
+function useMediaQuery(query: string): boolean {
+  const subscribe = useMemo(() => subscribeQuery(query), [query]);
+  return useSyncExternalStore(
+    subscribe,
+    () => readQuery(query),
+    () => false
+  );
+}
+
+// The moving version is the default; the artist's setting turns it off.
 function useReducedMotion(): boolean {
-  return useSyncExternalStore(subscribeReduced, readReduced, () => false);
+  return useMediaQuery(REDUCE);
 }
 
 // True once the element has been at least 30% on screen, and then for good: reveals play once.
@@ -120,4 +134,11 @@ function levels(
   });
 }
 
-export { levels, seeded, useCountUp, useInView, useReducedMotion };
+export {
+  levels,
+  seeded,
+  useCountUp,
+  useInView,
+  useMediaQuery,
+  useReducedMotion,
+};
