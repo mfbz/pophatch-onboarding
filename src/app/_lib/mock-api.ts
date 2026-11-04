@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 import {
+  ACCOUNT_NUMBERS,
   ACCOUNT_READS,
   DEMO_ARTIST,
   FOUND_ON,
   SOUNDCHARTS_READ,
 } from "@/app/_lib/mock-data";
-import type { Platform } from "@/app/_lib/parse-link";
 
 type ConnectPlatform = z.infer<typeof ConnectPlatformSchema>;
 
@@ -21,6 +21,10 @@ type Source =
 
 type ReadLine = z.infer<typeof ReadLineSchema>;
 
+type ReadingStep = { mark: ReadLine["mark"]; name: string };
+
+type FoundOn = z.infer<typeof FoundOnSchema>;
+
 const ConnectPlatformSchema = z.enum([
   "instagram",
   "tiktok",
@@ -34,11 +38,22 @@ const ArtistSchema = z.object({
   name: z.string(),
   city: z.string(),
   photo: z.string(),
-  releases: z.array(z.object({ title: z.string(), cover: z.string() })),
+  genres: z.array(z.string()),
+  releases: z.array(
+    z.object({
+      title: z.string(),
+      cover: z.string(),
+      kind: z.string(),
+      year: z.number(),
+      plays: z.string(),
+      tint: z.string(),
+    })
+  ),
   stats: z.object({
     releases: z.number(),
     monthlyListeners: z.number(),
     followers: z.number(),
+    instagramFollowers: z.number(),
   }),
   accounts: z.array(
     z.object({
@@ -59,7 +74,26 @@ const PlatformSchema = z.enum([
   "linktree",
 ]);
 
-const ReadLineSchema = z.object({ label: z.string(), detail: z.string() });
+const FoundOnSchema = z.object({
+  platform: PlatformSchema,
+  detail: z.string(),
+});
+
+const ReadLineSchema = z.object({
+  mark: z.enum([
+    "soundcharts",
+    "instagram",
+    "tiktok",
+    "youtube",
+    "facebook",
+    "soundcloud",
+    "google-drive",
+    "onedrive",
+    "files",
+  ]),
+  label: z.string(),
+  detail: z.string(),
+});
 
 const CONNECT_NAMES: Record<ConnectPlatform, string> = {
   instagram: "Instagram",
@@ -92,16 +126,19 @@ function readLine(source: Source): ReadLine {
   switch (source.kind) {
     case "account":
       return {
+        mark: source.platform,
         label: `Reading ${CONNECT_NAMES[source.platform]}`,
         detail: ACCOUNT_READS[source.platform],
       };
     case "folder":
       return {
+        mark: source.provider,
         label: `Reading your ${FOLDER_NAMES[source.provider]} folder`,
         detail: "Contracts and statements",
       };
     case "files":
       return {
+        mark: "files",
         label: "Reading your reports",
         detail: `${source.count} ${source.count === 1 ? "file" : "files"}`,
       };
@@ -120,11 +157,11 @@ async function resolveLink(
   return { status: "found", artist: ArtistSchema.parse(DEMO_ARTIST) };
 }
 
-async function* searchPlatforms(artistId: string): AsyncGenerator<Platform> {
+async function* searchPlatforms(artistId: string): AsyncGenerator<FoundOn> {
   void artistId;
-  for (const platform of FOUND_ON) {
+  for (const found of FOUND_ON) {
     await wait(900);
-    yield PlatformSchema.parse(platform);
+    yield FoundOnSchema.parse(found);
   }
 }
 
@@ -132,7 +169,7 @@ async function connectAccount(
   platform: ConnectPlatform,
   attempt: number
 ): Promise<
-  | { status: "connected"; handle: string }
+  | { status: "connected"; handle: string; numbers: string }
   | { status: "failed"; message: string }
 > {
   await wait(1200);
@@ -143,7 +180,11 @@ async function connectAccount(
   const account = DEMO_ARTIST.accounts.find(
     (candidate) => candidate.platform === platform
   );
-  return { status: "connected", handle: z.string().parse(account?.handle) };
+  return {
+    status: "connected",
+    handle: z.string().parse(account?.handle),
+    numbers: ACCOUNT_NUMBERS[platform],
+  };
 }
 
 async function connectFolder(
@@ -163,6 +204,26 @@ async function* readSources(sources: Source[]): AsyncGenerator<ReadLine> {
   }
 }
 
+// The rows of step 5's panel, known before anything is read, in the order readSources reads them.
+function readingPlan(sources: Source[]): ReadingStep[] {
+  return [
+    { mark: "soundcharts", name: "SoundCharts" },
+    ...sources.map((source): ReadingStep => {
+      switch (source.kind) {
+        case "account":
+          return {
+            mark: source.platform,
+            name: CONNECT_NAMES[source.platform],
+          };
+        case "folder":
+          return { mark: source.provider, name: FOLDER_NAMES[source.provider] };
+        case "files":
+          return { mark: "files", name: "Your reports" };
+      }
+    }),
+  ];
+}
+
 async function resolveFromAccount(platform: ConnectPlatform): Promise<Artist> {
   void platform;
   await wait(600);
@@ -177,9 +238,18 @@ export {
   CONNECT_PLATFORMS,
   connectAccount,
   connectFolder,
+  readingPlan,
   readSources,
   resolveFromAccount,
   resolveLink,
   searchPlatforms,
 };
-export type { Artist, ConnectPlatform, FolderProvider, ReadLine, Source };
+export type {
+  Artist,
+  ConnectPlatform,
+  FolderProvider,
+  FoundOn,
+  ReadingStep,
+  ReadLine,
+  Source,
+};

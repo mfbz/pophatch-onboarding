@@ -4,9 +4,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useState } from "react";
 
-import { resolveLink, searchPlatforms } from "@/app/_lib/mock-api";
+import {
+  type FoundOn,
+  resolveLink,
+  searchPlatforms,
+} from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
-import { PLATFORM_NAMES, type Platform } from "@/app/_lib/parse-link";
+import { PLATFORM_NAMES } from "@/app/_lib/parse-link";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Rings, Stage } from "@/components/stage";
 import { TopBar } from "@/components/top-bar";
@@ -32,7 +36,7 @@ function FindingScreen() {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
   const allowed = useStepGuard((current) => current.link !== null);
-  const [found, setFound] = useState<Platform[]>([]);
+  const [found, setFound] = useState<FoundOn[]>([]);
   const link = state.link;
 
   useLayoutEffect(() => () => setFound([]), []);
@@ -40,7 +44,7 @@ function FindingScreen() {
   useEffect(() => {
     if (!allowed || link === null) return;
     let cancelled = false;
-    const reported: Platform[] = [];
+    const reported: FoundOn[] = [];
 
     async function search(url: string) {
       const result = await resolveLink(url);
@@ -50,9 +54,9 @@ function FindingScreen() {
         router.replace("/");
         return;
       }
-      for await (const platform of searchPlatforms(result.artist.id)) {
+      for await (const place of searchPlatforms(result.artist.id)) {
         if (cancelled) return;
-        reported.push(platform);
+        reported.push(place);
         setFound([...reported]);
       }
       if (cancelled) return;
@@ -106,7 +110,7 @@ function FindingScreen() {
             className="col-start-1 row-start-1"
           >
             <ul>
-              {found.map((platform, index) => (
+              {found.map(({ platform }, index) => (
                 <li
                   key={platform}
                   className={

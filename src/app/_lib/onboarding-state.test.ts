@@ -6,6 +6,7 @@ import {
   connectedCount,
   connectedSources,
   initialState,
+  OnboardingStateSchema,
   type OnboardingAction,
   onboardingReducer,
   stageProgress,
@@ -74,7 +75,11 @@ describe("the onboarding reducer", () => {
   });
 
   it("keeps a finished reading only for the sources it read", () => {
-    const line = { label: "Reading SoundCharts", detail: "11 releases" };
+    const line = {
+      mark: "soundcharts" as const,
+      label: "Reading SoundCharts",
+      detail: "11 releases",
+    };
     const state = run(
       { type: "readingStarted", sources: "a" },
       { type: "readingLine", line },
@@ -163,6 +168,24 @@ describe("stageProgress", () => {
     expect(stageProgress(initialState, "/welcome")).toEqual({
       current: null,
       done: ["find", "confirm", "connect", "enter"],
+    });
+  });
+});
+
+describe("saved progress", () => {
+  it("keeps an account's numbers", () => {
+    const saved = OnboardingStateSchema.parse({
+      ...initialState,
+      accounts: {
+        instagram: {
+          status: "connected",
+          handle: "@nooradeyemi",
+          numbers: "312 posts · 4,120 followers",
+        },
+      },
+    });
+    expect(saved.accounts.instagram).toMatchObject({
+      numbers: "312 posts · 4,120 followers",
     });
   });
 });

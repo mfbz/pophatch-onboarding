@@ -38,7 +38,11 @@ type FlowRoute =
 const ConnectionSchema = z.discriminatedUnion("status", [
   z.object({ status: z.literal("idle") }),
   z.object({ status: z.literal("connecting") }),
-  z.object({ status: z.literal("connected"), handle: z.string().optional() }),
+  z.object({
+    status: z.literal("connected"),
+    handle: z.string().optional(),
+    numbers: z.string().optional(),
+  }),
   z.object({
     status: z.literal("failed"),
     message: z.string(),
