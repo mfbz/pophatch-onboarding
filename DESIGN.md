@@ -215,8 +215,8 @@ The PopHatch onboarding as the Stage System renders it. `docs/design/reference/s
 - **File chips**: Google Drive, OneDrive and "Upload reports" as glass pills with their marks; a connected folder turns lime-tinted with a ✓.
 - **The knowledge card** (`app/_components/knowledge-card.tsx`): the artist's photo as a Klein duotone hero (luminosity blend) with name, city, listeners and genres; the meter "How well I know you", one segment per platform filling in its colour over .9s with its mark under it and the percent counting up; a line in the manager's voice; and a row per account gaining its numbers and "Gives me …" once connected. On a phone it shrinks to a header (photo, name, percent, segments, line) above the accounts.
 - **Messages** (`app/_components/chat.tsx`): PopHatch's bubbles in a lighter Klein (`#2944BB`, the `bubble` theme colour, kept to messages and outside the palette) with the pearl logo as a 30px avatar, three typing dots before each (700–900ms); the artist's reply in lime on the right with a "Change" link under it.
-- **Goal pills** (`components/toggle-group.tsx`): one choice; off has a 2px border at 50% white, on is lime with navy text and a leading ✓. In the conversation a pill sends at once.
-- **The writing box**: a white pill, "Or say it in your own words", a "0 / 140" count and a 42px Klein send button (↑); Enter sends.
+- **Goal pills** (`components/toggle-group.tsx`): one choice; off has a 2px border at 50% white, on is lime with navy text and a leading ✓. In the conversation they sit in a glass answer card under the question, headed in lime "Your answer · one tap is enough", with a lime outline that fills on hover; a pill sends at once.
+- **The writing box**: a white pill under "or in your own words", with a "0 / 140" count and a 42px lime send button (↑), faded until there is something to send; once there is, the box takes the link field's flat lime ring. Enter sends.
 - **The reading panel** (`app/_components/reading-panel.tsx`): "Putting it together", a live line ("Reading Instagram · 2 of 3", then "Read everything you connected."), one bar segment per source (lime read, white at 50% reading, at 16% waiting) and a row per source going Waiting → spinner → "✓ Read". On a phone it is a block the size of a message under the first message, with the stacked marks and a thin lime progress line, that folds to "Read 3 sources" 1.2s after the last one and opens on a tap.
 - **The arrival**: no stepper. The rings grow in around the logo while it pops in and flashes through its five other finishes, 0.3s each, and two circles burst out once; it lands on pearl (360px, 232px on a phone), then "You're in, Noor." and "Your first plan is on its way." rise in, and at 2.6s the goal card docks at the bottom like a now-playing bar: the latest cover, "Your goal · next three months", the goal as the line PopHatch plans around, "Your first plan is built around it." and a lime "Start over". Then everything stays still. Under reduced motion it all simply appears.
 
@@ -228,7 +228,7 @@ The onboarding is the artist's first impression, a stage moment rather than a pr
 
 ### The progress pills go back, never ahead
 
-The top bar keeps the prototype's four pills: done is white with a Klein ✓, current is lime, upcoming a 50% outline. A done pill is a link back to its page (Find you → the link, Confirm → "Found you", Connect, Enter → the goal); the current pill and those ahead are plain, because their pages need what the earlier steps collect. On a phone only the current pill shows, with its position ("Confirm · 2 of 4"). The PopHatch logo at top left links back to step 1 and clears nothing.
+The top bar keeps the prototype's four pills in one glass tray (Night at 35%, a 14% hairline), joined by short lines that turn lime between two stages the artist has reached; the newest one draws in when its page opens. Done is white with a white ✓ in a Klein circle, current is lime, upcoming a 40% outline. The one-by-one path skips the search, so it lights no line before it. A done pill is a link back to its page (Find you → the link, Confirm → "Found you", Connect, Enter → the goal); the current pill and those ahead are plain, because their pages need what the earlier steps collect. On a phone only the current pill shows, with its position ("Confirm · 2 of 4"). The PopHatch logo at top left links back to step 1 and clears nothing.
 
 ### The logos lose their haze
 
@@ -244,7 +244,7 @@ On steps 1 and 5 the rings sit in the top-right corner, on step 4 in the bottom-
 
 ### Example links behind the platform names
 
-Under the link field, the seven platform names are filled chips (white at 12%): each fills the field with an example link from that platform, so anyone trying the flow can start from any of them in one tap. The field opens with the Spotify example already in it.
+Under the link field, the seven platform names are filled chips (white at 12%): each fills the field with an example link from that platform, so anyone trying the flow can start from any of them in one tap. The field opens with the Spotify example already in it. "Any one works." ends the same line, and the one-by-one path sits right under it as a short line with a lime-underlined link, so every way in is together.
 
 ### Nothing starts connected
 

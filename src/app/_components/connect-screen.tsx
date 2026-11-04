@@ -223,25 +223,31 @@ function ConnectScreen() {
                   </ul>
                 )}
               </section>
+              <div className="mt-9 flex items-center gap-6 max-tablet:mt-8 max-tablet:flex-col max-tablet:items-stretch max-tablet:gap-3.5">
+                <Button
+                  disabled={!ready}
+                  onClick={() => router.push("/together")}
+                  className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
+                >
+                  {ready ? (
+                    <>
+                      Continue with {count} connected
+                      <span aria-hidden> →</span>
+                    </>
+                  ) : count === 0 ? (
+                    "Connect one to continue"
+                  ) : (
+                    "Connect an account to continue"
+                  )}
+                </Button>
+                <Button variant="link" onClick={() => router.push("/")}>
+                  Try another link
+                </Button>
+              </div>
             </div>
             <div className="animate-rise [animation-delay:150ms] [animation-fill-mode:both] motion-reduce:animate-none max-tablet:order-first tablet:sticky tablet:top-6">
               <KnowledgeCard state={state} />
             </div>
-          </div>
-          <div className="mt-8 flex items-center justify-between gap-4 max-tablet:mt-auto max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:pt-8">
-            <Button variant="link" onClick={() => router.push("/")}>
-              Try another link
-            </Button>
-            <Button
-              disabled={!ready}
-              onClick={() => router.push("/together")}
-              className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
-            >
-              {count === 0
-                ? "Connect one to continue"
-                : `Continue with ${count} connected`}
-              {count > 0 && <span aria-hidden> →</span>}
-            </Button>
           </div>
         </main>
       )}

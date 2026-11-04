@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import {
   type FormEvent,
+  type ReactNode,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -27,7 +28,10 @@ import { StatusDot } from "@/components/status-dot";
 import { TopBar } from "@/components/top-bar";
 import { cn } from "@/lib/cn";
 
-type LinkFormProps = { notice: OnboardingState["notice"] };
+type LinkFormProps = {
+  notice: OnboardingState["notice"];
+  children?: ReactNode;
+};
 
 const PLATFORMS = Object.keys(PLATFORM_NAMES) as Platform[];
 
@@ -52,7 +56,7 @@ const NOTICES: Record<NonNullable<OnboardingState["notice"]>, string> = {
 // Back from "Not me" or a link that found no one, the field starts empty and focused so the
 // artist can paste another link straight away. Next keeps this page alive while hidden (Activity),
 // so the sending state and any error reset when it hides, and the focus runs each time it shows.
-function LinkForm({ notice }: LinkFormProps) {
+function LinkForm({ notice, children }: LinkFormProps) {
   const { dispatch } = useOnboarding();
   const router = useRouter();
   const [link, setLink] = useState(notice ? "" : EXAMPLE_LINKS.spotify);
@@ -94,14 +98,14 @@ function LinkForm({ notice }: LinkFormProps) {
   }
 
   return (
-    <form noValidate onSubmit={submit} className="mt-7 max-w-[860px]">
+    <form noValidate onSubmit={submit} className="mt-7">
       <label htmlFor="artist-link" className="sr-only">
         Your link
       </label>
       <div
         data-platform={recognised ?? undefined}
         className={cn(
-          "flex items-center gap-3 rounded-pill bg-fg py-2 pr-2 pl-2.5 shadow-card outline-pink transition-shadow duration-500 focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-fg focus-within:outline-solid has-[[aria-invalid=true]]:outline-2 has-[[aria-invalid=true]]:outline-solid",
+          "flex max-w-[860px] items-center gap-3 rounded-pill bg-fg py-2 pr-2 pl-2.5 shadow-card outline-pink transition-shadow duration-500 focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-fg focus-within:outline-solid has-[[aria-invalid=true]]:outline-2 has-[[aria-invalid=true]]:outline-solid",
           recognised &&
             "shadow-[0_0_0_6px_rgb(212_255_58/0.3),0_20px_50px_-20px_rgb(0_0_0/0.5)]"
         )}
@@ -144,7 +148,7 @@ function LinkForm({ notice }: LinkFormProps) {
       <p
         id="artist-link-line"
         aria-live="polite"
-        className="mt-3 flex min-h-5 items-center gap-2 text-caption text-fg empty:mt-0"
+        className="mt-3 flex min-h-5 max-w-[860px] items-center gap-2 text-caption text-fg empty:mt-0"
       >
         {line && (
           <>
@@ -153,7 +157,7 @@ function LinkForm({ notice }: LinkFormProps) {
           </>
         )}
       </p>
-      <div className="mt-7 flex flex-wrap items-center gap-2">
+      <div className="mt-5 flex flex-wrap items-center gap-1.5 max-tablet:gap-2">
         {PLATFORMS.map((platform) => (
           <Button
             key={platform}
@@ -162,16 +166,17 @@ function LinkForm({ notice }: LinkFormProps) {
             aria-pressed={recognised === platform}
             aria-label={`Use ${/^[AEIOU]/.test(PLATFORM_NAMES[platform]) ? "an" : "a"} ${PLATFORM_NAMES[platform]} example`}
             onClick={() => fillExample(platform)}
-            className="min-h-0 gap-2 border-0 bg-fg/12 py-1.25 pr-3.5 pl-1.25 text-caption font-semibold enabled:hover:-translate-y-px enabled:hover:bg-fg/20 aria-pressed:bg-fg aria-pressed:text-navy max-tablet:min-h-11"
+            className="min-h-0 gap-1.5 border-0 bg-fg/12 py-1 pr-3 pl-1 text-[13px] font-semibold enabled:hover:-translate-y-px enabled:hover:bg-fg/20 aria-pressed:bg-fg aria-pressed:text-navy max-tablet:min-h-11"
           >
-            <PlatformMark mark={platform} size={26} />
+            <PlatformMark mark={platform} size={22} />
             {PLATFORM_NAMES[platform]}
           </Button>
         ))}
-        <span className="ml-1 text-lead text-mist text-halo">
+        <span className="ml-1.5 text-[15px] whitespace-nowrap text-mist text-halo">
           Any one works.
         </span>
       </div>
+      {children}
     </form>
   );
 }
@@ -200,14 +205,20 @@ function LinkScreen() {
         <LinkForm
           key={ready ? `returns-${state.returns}` : "loading"}
           notice={state.notice}
-        />
-        <div className="mt-14 max-tablet:mt-10">
+        >
+          <p className="mt-3.5 text-[14px] text-mist text-halo">
+            No link to hand?{" "}
+            <button
+              type="button"
+              onClick={startManual}
+              className="cursor-pointer font-semibold text-fg underline decoration-lime decoration-2 underline-offset-4 outline-none hover:text-lime focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid max-tablet:min-h-11"
+            >
+              Connect your pages one by one
+            </button>
+          </p>
+        </LinkForm>
+        <div className="mt-12 max-tablet:mt-10">
           <Promises />
-        </div>
-        <div className="mt-10">
-          <Button variant="link" onClick={startManual}>
-            No link? Connect your pages one by one
-          </Button>
         </div>
       </main>
     </Stage>

@@ -106,8 +106,16 @@ function KnowledgeCard({ state }: KnowledgeCardProps) {
         ) : (
           <div
             aria-hidden
-            className="absolute top-1/2 left-1/2 size-28 -translate-1/2 rounded-full bg-fg/12"
-          />
+            className="absolute top-[42%] left-1/2 grid size-28 -translate-1/2 place-items-center rounded-full border-2 border-dashed border-fg/35"
+          >
+            <Image
+              src="/brand/logo-pearl.png"
+              alt=""
+              width={56}
+              height={56}
+              className="size-14 animate-float motion-reduce:animate-none"
+            />
+          </div>
         )}
         <div className="absolute inset-0 bg-linear-to-b from-[rgb(10_46_176/0)] from-35% to-[rgb(8_18_70/0.95)]" />
         <div className="absolute inset-x-6 bottom-5">

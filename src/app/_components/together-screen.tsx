@@ -195,7 +195,7 @@ function Conversation({ phone }: ConversationProps) {
         <div
           role="log"
           aria-label="Conversation"
-          className="flex flex-col gap-2.5"
+          className="flex flex-col gap-3"
         >
           {shownAsked === 0 ? (
             <TypingMessage />
@@ -209,7 +209,8 @@ function Conversation({ phone }: ConversationProps) {
           {shownAsked === 1 && <TypingMessage continued={!phone} />}
           {shownAsked === 2 && (
             <PopHatchMessage continued={!phone}>
-              While I do: what would make the next three months a win for you?
+              While I do: what would make the next three months a{" "}
+              <span className="font-semibold text-lime">win</span> for you?
             </PopHatchMessage>
           )}
           {goal !== null && (
@@ -234,8 +235,12 @@ function Conversation({ phone }: ConversationProps) {
         {shownAsked === 2 && goal === null && (
           <div
             ref={answer}
-            className="mt-1.5 ml-10 flex animate-rise flex-col gap-3 motion-reduce:animate-none max-tablet:ml-0"
+            className="mt-5 ml-10 max-w-160 animate-rise rounded-card bg-night/30 p-5 ring-1 ring-fg/12 motion-reduce:animate-none max-tablet:mt-4 max-tablet:ml-0 max-tablet:p-4"
           >
+            <p className="flex items-center gap-2 font-mono text-[11px] tracking-widest text-lime uppercase">
+              <span aria-hidden className="size-1.5 rounded-full bg-lime" />
+              Your answer · one tap is enough
+            </p>
             <ToggleGroup
               type="single"
               aria-label="Your goal"
@@ -244,21 +249,33 @@ function Conversation({ phone }: ConversationProps) {
                 const picked = value || draft.preset;
                 if (picked) send({ kind: "preset", value: picked });
               }}
-              className="gap-2.5"
+              className="mt-3.5 gap-2"
             >
-              {GOALS.map(({ value }) => (
+              {GOALS.map(({ value }, index) => (
                 <ToggleGroupItem
                   key={value}
                   value={value}
-                  className="min-h-11.5 px-4.5 py-2 text-base"
+                  style={{ animationDelay: `${150 + index * 60}ms` }}
+                  className="min-h-11 animate-rise border-[1.5px] border-lime/45 bg-fg/6 px-4 py-2 text-[15.5px] [animation-fill-mode:both] enabled:hover:border-lime enabled:hover:bg-lime/12 motion-reduce:animate-none"
                 >
                   {value}
                 </ToggleGroupItem>
               ))}
             </ToggleGroup>
+            <div
+              aria-hidden
+              className="my-3.5 flex items-center gap-3 text-[12.5px] text-periwinkle"
+            >
+              <span className="h-px flex-1 bg-fg/12" />
+              or in your own words
+              <span className="h-px flex-1 bg-fg/12" />
+            </div>
             <form
               onSubmit={sendWritten}
-              className="flex max-w-140 items-center gap-2 rounded-pill bg-fg py-1.5 pr-1.5 pl-5 has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-lime has-focus-visible:outline-solid"
+              className={cn(
+                "flex items-center gap-2 rounded-pill bg-fg py-1.5 pr-1.5 pl-5 transition-shadow duration-500 has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-fg has-focus-visible:outline-solid",
+                draft.text.trim() && "shadow-[0_0_0_5px_rgb(212_255_58/0.3)]"
+              )}
             >
               <input
                 aria-label="Or say it in your own words"
@@ -283,7 +300,8 @@ function Conversation({ phone }: ConversationProps) {
               <button
                 type="submit"
                 aria-label="Send"
-                className="grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-full bg-klein text-lg text-fg transition-transform active:scale-96 motion-reduce:transition-none max-tablet:size-11"
+                aria-disabled={!draft.text.trim() || undefined}
+                className="grid size-10.5 shrink-0 cursor-pointer place-items-center rounded-full bg-lime text-lg font-bold text-navy transition-[transform,opacity] active:scale-96 aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:active:scale-100 motion-reduce:transition-none max-tablet:size-11"
               >
                 <span aria-hidden>↑</span>
               </button>

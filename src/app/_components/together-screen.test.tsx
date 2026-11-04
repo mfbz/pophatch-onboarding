@@ -118,7 +118,10 @@ describe("TogetherScreen", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "While I do: what would make the next three months a win for you?"
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent ===
+            "While I do: what would make the next three months a win for you?"
       )
     ).toBeInTheDocument();
     for (const goal of GOALS) {

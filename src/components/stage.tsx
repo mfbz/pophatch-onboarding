@@ -80,9 +80,9 @@ function Stage({ children, rings = "corner" }: StageProps) {
     <div className="relative isolate flex min-h-dvh flex-col overflow-clip bg-stage-gradient">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[1000px] overflow-hidden"
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[radial-gradient(640px_420px_at_92%_8%,rgb(255_255_255/0.13),transparent_70%)]" />
+        <div className="absolute inset-x-0 top-0 h-[1000px] bg-[radial-gradient(640px_420px_at_92%_8%,rgb(255_255_255/0.13),transparent_70%)]" />
         {rings === "corner" && (
           <Rings className="absolute top-[-600px] right-[-610px] max-tablet:top-[-660px] max-tablet:right-[-690px] max-tablet:scale-60" />
         )}

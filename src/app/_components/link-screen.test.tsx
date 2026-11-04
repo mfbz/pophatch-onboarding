@@ -195,7 +195,7 @@ describe("LinkScreen", () => {
     await renderScreen();
     await user.click(
       screen.getByRole("button", {
-        name: "No link? Connect your pages one by one",
+        name: "Connect your pages one by one",
       })
     );
     expect(saved().path).toBe("manual");
