@@ -86,9 +86,10 @@ function confirmation(goal: NonNullable<Goal>): string {
     : "Got it. I'll build your first plan around that.";
 }
 
-// The question and its answer, the way step 1 asks for a link: the goals as pills, one tap each,
-// and a box built like the link field for the artist's own words, with its own button so it is
-// clear where to type. PopHatch confirms the goal under it, and Enter waits for the reading.
+// The question and its answer as one choice: five goals as pills and a box built like the link
+// field for the artist's own words, the box being the sixth option. A tap or a word sets the goal at
+// once (a pick empties the box, writing clears the pick), PopHatch says it back, and a single button
+// enters, once everything is read. The Enter key in the box presses the same button.
 function Answer({ phone }: AnswerProps) {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
@@ -102,14 +103,20 @@ function Answer({ phone }: AnswerProps) {
   const counterId = useId();
   const first = state.artist?.name.split(" ")[0] ?? "";
   const read = Math.min(reading.lines.length, plan.length);
-  const typed = text.trim();
-  const written = goal?.kind === "written" && goal.value === typed;
+  const written = goal?.kind === "written";
+  const ready = goal !== null && reading.done;
 
-  function sendWritten(event: FormEvent) {
+  function write(value: string) {
+    setText(value);
+    const words = value.trim();
+    if (words)
+      dispatch({ type: "goal", goal: { kind: "written", value: words } });
+    else if (written) dispatch({ type: "goal", goal: null });
+  }
+
+  function enter(event: FormEvent) {
     event.preventDefault();
-    if (!typed) return;
-    setText(typed);
-    dispatch({ type: "goal", goal: { kind: "written", value: typed } });
+    if (ready) router.push("/welcome");
   }
 
   const panel = (
@@ -154,12 +161,12 @@ function Answer({ phone }: AnswerProps) {
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        <form noValidate onSubmit={sendWritten} className="mt-5">
+        <form noValidate onSubmit={enter} className="mt-5">
           <div
             className={cn(
               "flex max-w-[680px] items-center gap-3 rounded-pill bg-fg py-2 pr-2 pl-6 shadow-card transition-shadow duration-500 focus-within:outline-2 focus-within:outline-offset-3 focus-within:outline-fg focus-within:outline-solid max-tablet:pl-5",
               written &&
-                "shadow-[0_0_0_6px_rgb(212_255_58/0.3),0_20px_50px_-20px_rgb(0_0_0/0.5)]"
+                "shadow-[0_0_0_4px_var(--color-lime),0_20px_50px_-20px_rgb(0_0_0/0.5)]"
             )}
           >
             <input
@@ -168,7 +175,7 @@ function Answer({ phone }: AnswerProps) {
               placeholder="Or say it in your own words"
               maxLength={GOAL_LIMIT}
               value={text}
-              onChange={(event) => setText(event.target.value)}
+              onChange={(event) => write(event.target.value)}
               className="min-h-12 min-w-0 flex-1 bg-transparent text-[17px] text-navy outline-none placeholder:text-navy/50 max-tablet:text-base"
             />
             <small
@@ -177,40 +184,40 @@ function Answer({ phone }: AnswerProps) {
             >
               {text.length} / {GOAL_LIMIT}
             </small>
-            <Button
-              type="submit"
-              aria-disabled={!typed || undefined}
-              className="min-h-13.5 px-7 text-[17px] font-extrabold aria-disabled:cursor-default aria-disabled:opacity-50 aria-disabled:active:scale-100 max-tablet:min-h-12 max-tablet:px-5 max-tablet:text-base"
-            >
-              That&apos;s it
-            </Button>
-          </div>
-        </form>
-        <p
-          aria-live="polite"
-          className="mt-5 flex min-h-7 items-center gap-2.5 text-[17px] text-fg text-halo max-tablet:text-base"
-        >
-          {goal && (
             <span
-              key={`${goal.kind}:${goal.value}`}
-              className="flex animate-fade-in items-center gap-2.5 motion-reduce:animate-none"
+              aria-hidden
+              className={cn(
+                "grid size-10 shrink-0 place-items-center rounded-full text-[17px] font-extrabold transition-colors duration-300",
+                written ? "bg-lime text-navy" : "bg-navy/8 text-navy/30"
+              )}
             >
-              <Image
-                src="/brand/logo-pearl.png"
-                alt=""
-                width={24}
-                height={24}
-                className="size-6 shrink-0"
-              />
-              {confirmation(goal)}
+              ✓
             </span>
-          )}
-        </p>
-        <div className="mt-6 max-tablet:mt-5">
+          </div>
+          <p
+            aria-live="polite"
+            className="mt-5 flex min-h-7 items-center gap-2.5 text-[17px] text-fg text-halo max-tablet:text-base"
+          >
+            {goal && (
+              <span
+                key={goal.kind === "preset" ? goal.value : "written"}
+                className="flex animate-fade-in items-center gap-2.5 motion-reduce:animate-none"
+              >
+                <Image
+                  src="/brand/logo-pearl.png"
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="size-6 shrink-0"
+                />
+                {confirmation(goal)}
+              </span>
+            )}
+          </p>
           <Button
-            disabled={goal === null || !reading.done}
-            onClick={() => router.push("/welcome")}
-            className="relative min-h-13.5 min-w-75 overflow-hidden px-7 text-[17px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
+            type="submit"
+            disabled={!ready}
+            className="relative mt-6 min-h-13.5 min-w-75 overflow-hidden px-7 text-[17px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:mt-5 max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
           >
             {goal !== null && !reading.done && (
               <span
@@ -221,7 +228,7 @@ function Answer({ phone }: AnswerProps) {
             )}
             <span className="relative">
               {goal === null ? (
-                "Pick a goal to enter"
+                "Pick a goal or write your own"
               ) : reading.done ? (
                 <>
                   Enter PopHatch<span aria-hidden> →</span>
@@ -231,7 +238,7 @@ function Answer({ phone }: AnswerProps) {
               )}
             </span>
           </Button>
-        </div>
+        </form>
         {phone && <div className="mt-6">{panel}</div>}
       </div>
       {!phone && (

@@ -71,10 +71,6 @@ function goalField() {
   return screen.getByRole("textbox", { name: "Or say it in your own words" });
 }
 
-function sendButton() {
-  return screen.getByRole("button", { name: "That's it" });
-}
-
 const read: Partial<OnboardingState> = {
   ...connected,
   goal: { kind: "preset", value: "More shows, better rooms" },
@@ -113,8 +109,9 @@ describe("TogetherScreen", () => {
       expect(screen.getByRole("radio", { name: goal })).toBeInTheDocument();
     }
     expect(goalField()).toHaveAttribute("maxLength", "140");
+    expect(screen.queryByRole("button", { name: "That's it" })).toBeNull();
     expect(
-      screen.getByRole("button", { name: "Pick a goal to enter" })
+      screen.getByRole("button", { name: "Pick a goal or write your own" })
     ).toBeDisabled();
   });
 
@@ -136,38 +133,38 @@ describe("TogetherScreen", () => {
     ).toBeDisabled();
   });
 
-  it("sends a written goal from the box, capped at 140", async () => {
+  it("takes written words as the goal with no extra button, capped at 140", async () => {
     await renderWith(connected);
     fireEvent.change(goalField(), { target: { value: "  Tour Europe " } });
     expect(screen.getByText("14 / 140")).toBeInTheDocument();
-    expect(screen.queryByText(/Got it/)).toBeNull();
-    fireEvent.click(sendButton());
     expect(
       screen.getByText("Got it. I'll build your first plan around that.")
     ).toBeInTheDocument();
-    expect(goalField()).toHaveValue("Tour Europe");
+    expect(
+      screen.getByRole("button", { name: /Finishing the reading/ })
+    ).toBeDisabled();
   });
 
-  it("sends a written goal with Enter, not an empty one", async () => {
+  it("does not take blank words as a goal", async () => {
     await renderWith(connected);
+    fireEvent.change(goalField(), { target: { value: "Tour" } });
     fireEvent.change(goalField(), { target: { value: "   " } });
-    fireEvent.submit(goalField());
     expect(screen.queryByText(/Got it/)).toBeNull();
-    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
-    fireEvent.submit(goalField());
     expect(
-      screen.getByText("Got it. I'll build your first plan around that.")
-    ).toBeInTheDocument();
+      screen.getByRole("button", { name: "Pick a goal or write your own" })
+    ).toBeDisabled();
   });
 
   it("keeps one goal: a pick clears the text and the text clears the pick", async () => {
     await renderWith(connected);
     fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
     fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
-    fireEvent.click(sendButton());
     expect(
       screen.getByRole("radio", { name: "A bigger fanbase" })
     ).not.toBeChecked();
+    expect(
+      screen.getByText("Got it. I'll build your first plan around that.")
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("radio", { name: "More shows, better rooms" })
     );
@@ -187,6 +184,16 @@ describe("TogetherScreen", () => {
     ).toBeDisabled();
     await wait(3500);
     fireEvent.click(screen.getByRole("button", { name: "Enter PopHatch" }));
+    expect(push).toHaveBeenCalledWith("/welcome");
+  });
+
+  it("the Enter key in the box enters, once everything is read", async () => {
+    await renderWith(connected);
+    fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
+    fireEvent.submit(goalField());
+    expect(push).not.toHaveBeenCalled();
+    await wait(3500);
+    fireEvent.submit(goalField());
     expect(push).toHaveBeenCalledWith("/welcome");
   });
 
