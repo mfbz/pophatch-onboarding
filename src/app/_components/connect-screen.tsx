@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type MouseEvent, useEffect, useRef, useState } from "react";
 
 import { ConnectRow } from "@/app/_components/connect-row";
+import { KnowledgeCard } from "@/app/_components/knowledge-card";
 import {
   CONNECT_NAMES,
   CONNECT_PLATFORMS,
@@ -18,17 +19,19 @@ import { useOnboarding } from "@/app/_lib/onboarding-provider";
 import { parseArtistLink, PLATFORM_NAMES } from "@/app/_lib/parse-link";
 import { connectedCount, stageProgress } from "@/app/_lib/onboarding-state";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
-import { Button, buttonVariants } from "@/components/button";
+import { Button } from "@/components/button";
+import { PlatformMark } from "@/components/platform-mark";
 import { Stage } from "@/components/stage";
-import { StatusDot } from "@/components/status-dot";
 import { TopBar } from "@/components/top-bar";
-import { cn } from "@/lib/cn";
 
 type FolderButtonProps = { provider: FolderProvider };
 
 const FOLDERS: FolderProvider[] = ["google-drive", "onedrive"];
 
 const REPORT_TYPES = ".csv,.xlsx,.xls,.pdf,.zip";
+
+const CHIP =
+  "inline-flex min-h-10 items-center gap-2.5 rounded-pill bg-fg/8 py-1.25 pr-3.5 pl-1.25 text-[13.5px] font-bold text-fg ring-1 ring-hair-soft max-tablet:min-h-11";
 
 function FolderButton({ provider }: FolderButtonProps) {
   const { state, dispatch } = useOnboarding();
@@ -63,22 +66,26 @@ function FolderButton({ provider }: FolderButtonProps) {
         ref={status}
         role="status"
         tabIndex={-1}
-        className="flex min-h-11 items-center gap-2 text-sm font-bold text-navy outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-navy focus-visible:outline-solid"
+        className={`${CHIP} animate-pop bg-lime/12 ring-lime/55 outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid motion-reduce:animate-none`}
       >
-        <StatusDot tone="lime" />
+        <PlatformMark mark={provider} size={30} />
         {name} connected
+        <span aria-hidden className="text-lime">
+          ✓
+        </span>
       </p>
     );
   }
   return (
-    <Button
-      variant="outline"
+    <button
+      type="button"
       aria-disabled={pending || undefined}
       onClick={press}
-      className="focus-visible:outline-navy aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100"
+      className={`${CHIP} cursor-pointer transition-[transform,background-color] outline-none hover:bg-fg/14 focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid active:scale-96 aria-disabled:cursor-not-allowed aria-disabled:opacity-60 aria-disabled:active:scale-100 motion-reduce:transition-none`}
     >
+      <PlatformMark mark={provider} size={30} />
       {pending ? "Connecting…" : `Connect ${name}`}
-    </Button>
+    </button>
   );
 }
 
@@ -133,94 +140,95 @@ function ConnectScreen() {
     <Stage rings="bottom">
       <TopBar current={progress.current} done={progress.done} />
       {allowed && (
-        <main className="flex flex-1 flex-col pt-11.5 max-tablet:pt-8 tablet:px-11">
-          <h1 className="font-display text-page-title font-bold text-fg text-halo max-tablet:text-page-title-phone">
-            Connect your <span className="text-lime">pages.</span>
-          </h1>
-          <p className="mt-5.5 text-lead text-mist text-halo max-tablet:text-lg">
-            {manual
-              ? "Connect what you have; one is enough to start."
-              : `PopHatch found these from your ${linkPlatform}. Connect what you have; one is enough to start.`}
-          </p>
-          <ul className="mt-5.5 grid gap-4 max-tablet:gap-3 tablet:grid-cols-3 desktop:grid-cols-5">
-            {CONNECT_PLATFORMS.map(({ platform, available }) => (
-              <ConnectRow
-                key={platform}
-                name={CONNECT_NAMES[platform]}
-                handle={handleFor(platform)}
-                available={available}
-                connection={state.accounts[platform]}
-                connect={() => connect(platform)}
-              />
-            ))}
-          </ul>
-          <section
-            aria-labelledby="reports-title"
-            className="mt-5.5 flex items-center gap-6 rounded-card bg-fg px-7 py-6.5 text-navy shadow-card max-desktop:flex-col max-desktop:items-start max-tablet:px-5"
-          >
-            <div className="min-w-0 flex-1">
-              <h2
-                id="reports-title"
-                className="font-display text-tile font-bold"
-              >
-                Spotify, Apple Music and distributor reports
-              </h2>
-              <p className="mt-1 text-lead text-navy/70 max-tablet:text-body">
-                Point PopHatch at the folder where you save them, or upload the
-                files.
+        <main className="flex flex-1 flex-col pt-11.5 pb-10 max-tablet:pt-6 tablet:px-11">
+          <div className="grid flex-1 grid-cols-[minmax(0,1fr)_minmax(0,440px)] items-start gap-12 max-desktop:gap-8 max-tablet:grid-cols-1 max-tablet:gap-5">
+            <div className="flex min-w-0 flex-col">
+              <h1 className="animate-rise font-display text-page-title font-bold text-fg text-halo motion-reduce:animate-none max-tablet:text-page-title-phone">
+                Connect your <span className="text-lime">pages.</span>
+              </h1>
+              <p className="mt-4 max-w-140 text-lead text-mist text-halo max-tablet:mt-3 max-tablet:text-body">
+                {manual
+                  ? "Connect what you have; one is enough to start."
+                  : `PopHatch found these from your ${linkPlatform}. Connect what you have; one is enough to start.`}
               </p>
-              {state.files.length > 0 && (
-                <ul aria-label="Uploaded files" className="mt-3 space-y-1">
-                  {state.files.map((name) => (
-                    <li
-                      key={name}
-                      className="flex items-center gap-2 text-caption"
-                    >
-                      <StatusDot tone="lime" />
-                      {name}
-                    </li>
+              <ul className="mt-6 grid gap-2.5 max-tablet:mt-5 max-tablet:gap-2">
+                {CONNECT_PLATFORMS.map(({ platform, available }, index) => (
+                  <ConnectRow
+                    key={platform}
+                    delay={120 + index * 70}
+                    mark={platform}
+                    name={CONNECT_NAMES[platform]}
+                    handle={handleFor(platform)}
+                    available={available}
+                    connection={state.accounts[platform]}
+                    connect={() => connect(platform)}
+                  />
+                ))}
+              </ul>
+              <section aria-labelledby="reports-title" className="mt-6">
+                <h2
+                  id="reports-title"
+                  className="font-display text-[17px] font-bold text-fg"
+                >
+                  Spotify, Apple Music and distributor reports
+                </h2>
+                <p className="mt-1 text-[13.5px] text-periwinkle">
+                  Spotify and Apple Music come in as files. Point PopHatch at
+                  the folder where you save them, or upload them.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {FOLDERS.map((provider) => (
+                    <FolderButton key={provider} provider={provider} />
                   ))}
-                </ul>
-              )}
-            </div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              {FOLDERS.map((provider) => (
-                <FolderButton key={provider} provider={provider} />
-              ))}
-              <label
-                className={cn(
-                  buttonVariants({
-                    variant: "primary",
-                    className:
-                      "min-h-11 px-5 py-3 text-body has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-navy has-focus-visible:outline-solid",
-                  })
+                  <label
+                    className={`${CHIP} cursor-pointer transition-[transform,background-color] hover:bg-fg/14 active:scale-96 has-focus-visible:outline-2 has-focus-visible:outline-offset-3 has-focus-visible:outline-fg has-focus-visible:outline-solid motion-reduce:transition-none`}
+                  >
+                    <PlatformMark mark="files" size={30} />
+                    Upload reports
+                    <input
+                      type="file"
+                      multiple
+                      accept={REPORT_TYPES}
+                      className="sr-only"
+                      onChange={(event) => {
+                        const names = Array.from(
+                          event.target.files ?? [],
+                          (file) => file.name
+                        );
+                        // Cleared so choosing the same file again still counts as a choice.
+                        event.target.value = "";
+                        if (names.length > 0) {
+                          dispatch({
+                            type: "files",
+                            names: [...new Set([...state.files, ...names])],
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {state.files.length > 0 && (
+                  <ul aria-label="Uploaded files" className="mt-3 space-y-1">
+                    {state.files.map((name) => (
+                      <li
+                        key={name}
+                        className="flex animate-fade-in items-center gap-2 font-mono text-[12px] text-mist motion-reduce:animate-none"
+                      >
+                        <span aria-hidden className="text-lime">
+                          ✓
+                        </span>
+                        {name}
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              >
-                Upload files
-                <input
-                  type="file"
-                  multiple
-                  accept={REPORT_TYPES}
-                  className="sr-only"
-                  onChange={(event) => {
-                    const names = Array.from(
-                      event.target.files ?? [],
-                      (file) => file.name
-                    );
-                    // Cleared so choosing the same file again still counts as a choice.
-                    event.target.value = "";
-                    if (names.length > 0) {
-                      dispatch({
-                        type: "files",
-                        names: [...new Set([...state.files, ...names])],
-                      });
-                    }
-                  }}
-                />
-              </label>
+              </section>
             </div>
-          </section>
-          <div className="mt-5.5 flex items-center justify-between gap-4 max-tablet:mt-auto max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:pt-10">
+            <div className="animate-rise [animation-delay:150ms] [animation-fill-mode:both] motion-reduce:animate-none max-tablet:order-first tablet:sticky tablet:top-6">
+              <KnowledgeCard state={state} />
+            </div>
+          </div>
+          <div className="mt-8 flex items-center justify-between gap-4 max-tablet:mt-auto max-tablet:flex-col-reverse max-tablet:items-stretch max-tablet:pt-8">
             <Button variant="link" onClick={() => router.push("/")}>
               Try another link
             </Button>
@@ -232,6 +240,7 @@ function ConnectScreen() {
               {count === 0
                 ? "Connect one to continue"
                 : `Continue with ${count} connected`}
+              {count > 0 && <span aria-hidden> →</span>}
             </Button>
           </div>
         </main>
