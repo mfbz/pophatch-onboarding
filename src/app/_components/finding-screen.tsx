@@ -32,15 +32,15 @@ type Spot = { x: number; y: number; size: number };
 
 // Where each platform lands round the logo, in the order the search reports them: px from the
 // centre and the mark's size, one set for a computer and one for a phone, so no mark covers the
-// logo, another mark or the line below.
+// logo, another mark or the line under the logo.
 const SPOTS: { desk: Spot; phone: Spot }[] = [
   {
     desk: { x: -390, y: -150, size: 100 },
     phone: { x: -112, y: -138, size: 58 },
   },
   { desk: { x: 390, y: -190, size: 76 }, phone: { x: 112, y: -150, size: 48 } },
-  { desk: { x: 400, y: 70, size: 64 }, phone: { x: 116, y: 104, size: 42 } },
-  { desk: { x: -380, y: 110, size: 58 }, phone: { x: -112, y: 112, size: 40 } },
+  { desk: { x: 400, y: 70, size: 64 }, phone: { x: 120, y: 168, size: 42 } },
+  { desk: { x: -380, y: 110, size: 58 }, phone: { x: -120, y: 172, size: 40 } },
 ];
 
 // How long "That's all of you." stays before "Found you" takes over.
@@ -104,7 +104,7 @@ function FindingScreen() {
     <Stage rings="none">
       <TopBar current="find" done={[]} />
       <main className="flex flex-1 flex-col items-center justify-center pb-16 text-center max-tablet:pb-10">
-        <div className="relative h-150 w-full max-tablet:h-110">
+        <div className="relative h-150 w-full max-tablet:h-125">
           <div className="absolute top-1/2 left-1/2 grid size-110 -translate-1/2 place-items-center max-tablet:size-72">
             <Rings
               hole={150}
@@ -163,42 +163,45 @@ function FindingScreen() {
               </div>
             );
           })}
-        </div>
-        <div className="relative grid h-16 w-full place-items-center font-display text-status font-bold text-fg text-halo max-tablet:text-headline">
-          <h1
-            className={
-              found.length > 0
-                ? "sr-only"
-                : "col-start-1 row-start-1 animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
-            }
-          >
-            Getting to know you.
-          </h1>
-          <div
-            role="status"
-            aria-live="polite"
-            className="col-start-1 row-start-1"
-          >
-            <ul>
-              {found.map(({ platform }, index) => (
-                <li
-                  key={platform}
-                  className={
-                    index === found.length - 1 && !complete
-                      ? "animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none max-tablet:px-4"
-                      : "sr-only"
-                  }
-                >
-                  Found you on{" "}
-                  <span className="text-lime">{PLATFORM_NAMES[platform]}</span>.
-                </li>
-              ))}
-              {complete && (
-                <li className="animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none max-tablet:px-4">
-                  That&apos;s <span className="text-lime">all of you</span>.
-                </li>
-              )}
-            </ul>
+          <div className="absolute top-[calc(50%+150px)] left-1/2 grid w-full -translate-x-1/2 place-items-center font-display text-status font-bold text-fg text-halo max-tablet:top-[calc(50%+92px)] max-tablet:text-[22px]">
+            <h1
+              className={
+                found.length > 0
+                  ? "sr-only"
+                  : "col-start-1 row-start-1 animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none"
+              }
+            >
+              Getting to know you.
+            </h1>
+            <div
+              role="status"
+              aria-live="polite"
+              className="col-start-1 row-start-1"
+            >
+              <ul>
+                {found.map(({ platform }, index) => (
+                  <li
+                    key={platform}
+                    className={
+                      index === found.length - 1 && !complete
+                        ? "animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none max-tablet:px-4"
+                        : "sr-only"
+                    }
+                  >
+                    Found you on{" "}
+                    <span className="text-lime">
+                      {PLATFORM_NAMES[platform]}
+                    </span>
+                    .
+                  </li>
+                ))}
+                {complete && (
+                  <li className="animate-line-in bg-halo px-14 py-3 motion-reduce:animate-none max-tablet:px-4">
+                    That&apos;s <span className="text-lime">all of you</span>.
+                  </li>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       </main>
