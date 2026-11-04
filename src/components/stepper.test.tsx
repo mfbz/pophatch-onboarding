@@ -38,6 +38,28 @@ describe("Stepper", () => {
     }
   });
 
+  it("joins the stages with lines, lit up to the current one", () => {
+    const { container } = render(
+      <Stepper current="connect" done={["find", "confirm"]} />
+    );
+    const lines = Array.from(container.querySelectorAll("[data-line]"));
+    expect(lines.map((line) => line.getAttribute("data-line"))).toEqual([
+      "lit",
+      "lit",
+      "dim",
+    ]);
+  });
+
+  it("lights no line before the stages behind it are done", () => {
+    const { container } = render(<Stepper current="connect" done={[]} />);
+    const lines = Array.from(container.querySelectorAll("[data-line]"));
+    expect(lines.map((line) => line.getAttribute("data-line"))).toEqual([
+      "dim",
+      "dim",
+      "dim",
+    ]);
+  });
+
   it("names the current stage and its position for a phone", () => {
     render(<Stepper current="connect" done={["find", "confirm"]} />);
     const connect = screen.getByRole("listitem", { current: "step" });
