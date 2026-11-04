@@ -18,8 +18,8 @@ const STAGES: ReadonlyArray<{ id: FlowStage; label: string; href: Route }> = [
 const PILL =
   "inline-flex min-h-8 items-center gap-1.5 rounded-pill px-3.5 text-[13px] leading-tight font-bold whitespace-nowrap";
 
-// The prototype's step pills (DESIGN.md, Decisions) in one glass tray, joined by lines that light
-// up lime as far as the artist has come: done is white with a Klein check, current is lime,
+// The prototype's step pills (DESIGN.md, Decisions), joined by short lines: solid lime between two
+// stages the artist has reached, dotted ahead. Done is white with a Klein check, current is lime,
 // upcoming an outline. A done pill is a link back to its page; the current one and those ahead
 // stay plain, because their pages need what the earlier steps collect. On a phone only the current
 // pill shows, with its position, so the bar keeps one line.
@@ -27,10 +27,7 @@ function Stepper({ current, done }: StepperProps) {
   const position = STAGES.findIndex((stage) => stage.id === current) + 1;
 
   return (
-    <ol
-      aria-label="Onboarding progress"
-      className="flex items-center rounded-pill bg-night/35 p-1.5 ring-1 ring-fg/14 backdrop-blur-md max-tablet:bg-transparent max-tablet:p-0 max-tablet:ring-0 max-tablet:backdrop-blur-none"
-    >
+    <ol aria-label="Onboarding progress" className="flex items-center">
       {STAGES.map((stage, index) => {
         const isDone = done.includes(stage.id) && stage.id !== current;
         const isCurrent = stage.id === current;
@@ -55,7 +52,12 @@ function Stepper({ current, done }: StepperProps) {
               <span
                 aria-hidden
                 data-line={lit ? "lit" : "dim"}
-                className="relative mx-1.5 h-0.5 w-5 overflow-hidden rounded-pill bg-fg/22 max-tablet:hidden"
+                className={cn(
+                  "relative mx-1 w-4 max-tablet:hidden",
+                  lit
+                    ? "h-0.5 overflow-hidden rounded-pill"
+                    : "border-t-2 border-dotted border-fg/45"
+                )}
               >
                 {lit && (
                   <span
@@ -90,7 +92,7 @@ function Stepper({ current, done }: StepperProps) {
                 className={cn(
                   PILL,
                   isCurrent && "bg-lime text-navy",
-                  !isCurrent && "border-[1.5px] border-fg/40 text-fg"
+                  !isCurrent && "border-[1.5px] border-fg/50 bg-klein text-fg"
                 )}
               >
                 {stage.label}
