@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 
+import { type Platform, PlatformSchema } from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
 import type { OnboardingState } from "@/app/_lib/onboarding-state";
 import {
@@ -17,7 +18,6 @@ import {
   type ParsedLink,
   parseArtistLink,
   PLATFORM_NAMES,
-  type Platform,
 } from "@/app/_lib/parse-link";
 import { Promises } from "@/app/_components/promises";
 import { Button } from "@/components/button";
@@ -33,13 +33,11 @@ type LinkFormProps = {
   children?: ReactNode;
 };
 
-const PLATFORMS = Object.keys(PLATFORM_NAMES) as Platform[];
+const PLATFORMS = PlatformSchema.options;
 
-const PLATFORM_LIST = `${PLATFORMS.slice(0, -1)
-  .map((platform) => PLATFORM_NAMES[platform])
-  .join(
-    ", "
-  )} or ${PLATFORM_NAMES[PLATFORMS[PLATFORMS.length - 1] ?? "linktree"]}`;
+const NAMES = PLATFORMS.map((platform) => PLATFORM_NAMES[platform]);
+
+const PLATFORM_LIST = `${NAMES.slice(0, -1).join(", ")} or ${NAMES.at(-1)}`;
 
 const ERRORS: Record<Extract<ParsedLink, { ok: false }>["reason"], string> = {
   empty: `Paste a link to start: ${PLATFORM_LIST} all work.`,

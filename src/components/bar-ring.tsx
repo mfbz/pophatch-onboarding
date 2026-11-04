@@ -1,4 +1,4 @@
-import { levels } from "@/lib/motion";
+import { levels } from "@/lib/levels";
 
 type BarRingProps = {
   bars?: number;

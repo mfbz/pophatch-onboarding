@@ -10,7 +10,9 @@ import {
 
 type ConnectPlatform = z.infer<typeof ConnectPlatformSchema>;
 
-type FolderProvider = "google-drive" | "onedrive";
+type FolderProvider = z.infer<typeof FolderProviderSchema>;
+
+type Platform = z.infer<typeof PlatformSchema>;
 
 type Artist = z.infer<typeof ArtistSchema>;
 
@@ -31,6 +33,19 @@ const ConnectPlatformSchema = z.enum([
   "youtube",
   "facebook",
   "soundcloud",
+]);
+
+const FolderProviderSchema = z.enum(["google-drive", "onedrive"]);
+
+// Where a pasted link can come from.
+const PlatformSchema = z.enum([
+  "spotify",
+  "instagram",
+  "tiktok",
+  "youtube",
+  "apple-music",
+  "soundcloud",
+  "linktree",
 ]);
 
 const ArtistSchema = z.object({
@@ -64,16 +79,6 @@ const ArtistSchema = z.object({
   ),
 });
 
-const PlatformSchema = z.enum([
-  "spotify",
-  "instagram",
-  "tiktok",
-  "youtube",
-  "apple-music",
-  "soundcloud",
-  "linktree",
-]);
-
 const FoundOnSchema = z.object({
   platform: PlatformSchema,
   detail: z.string(),
@@ -82,13 +87,8 @@ const FoundOnSchema = z.object({
 const ReadLineSchema = z.object({
   mark: z.enum([
     "soundcharts",
-    "instagram",
-    "tiktok",
-    "youtube",
-    "facebook",
-    "soundcloud",
-    "google-drive",
-    "onedrive",
+    ...ConnectPlatformSchema.options,
+    ...FolderProviderSchema.options,
     "files",
   ]),
   label: z.string(),
@@ -157,8 +157,8 @@ async function resolveLink(
   return { status: "found", artist: ArtistSchema.parse(DEMO_ARTIST) };
 }
 
-async function* searchPlatforms(artistId: string): AsyncGenerator<FoundOn> {
-  void artistId;
+// The arguments are the contract a real service would take; the mock answers the same for all.
+async function* searchPlatforms(_artistId: string): AsyncGenerator<FoundOn> {
   for (const found of FOUND_ON) {
     await wait(900);
     yield FoundOnSchema.parse(found);
@@ -180,17 +180,17 @@ async function connectAccount(
   const account = DEMO_ARTIST.accounts.find(
     (candidate) => candidate.platform === platform
   );
+  if (!account) throw new Error(`The demo artist has no ${platform} account`);
   return {
     status: "connected",
-    handle: z.string().parse(account?.handle),
+    handle: account.handle,
     numbers: ACCOUNT_NUMBERS[platform],
   };
 }
 
 async function connectFolder(
-  provider: FolderProvider
+  _provider: FolderProvider
 ): Promise<{ status: "connected" }> {
-  void provider;
   await wait(1200);
   return { status: "connected" };
 }
@@ -224,14 +224,16 @@ function readingPlan(sources: Source[]): ReadingStep[] {
   ];
 }
 
-async function resolveFromAccount(platform: ConnectPlatform): Promise<Artist> {
-  void platform;
+async function resolveFromAccount(_platform: ConnectPlatform): Promise<Artist> {
   await wait(600);
   return ArtistSchema.parse(DEMO_ARTIST);
 }
 
 export {
   ArtistSchema,
+  ConnectPlatformSchema,
+  FolderProviderSchema,
+  PlatformSchema,
   ReadLineSchema,
   FOLDER_NAMES,
   CONNECT_NAMES,
@@ -249,6 +251,7 @@ export type {
   ConnectPlatform,
   FolderProvider,
   FoundOn,
+  Platform,
   ReadingStep,
   ReadLine,
   Source,

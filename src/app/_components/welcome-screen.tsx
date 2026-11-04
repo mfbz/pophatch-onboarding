@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { presetGoal } from "@/app/_lib/goals";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
 import type { OnboardingState } from "@/app/_lib/onboarding-state";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
@@ -16,16 +17,6 @@ type GoalCardProps = {
   goal: NonNullable<OnboardingState["goal"]>;
   cover: string | undefined;
   startOver: () => void;
-};
-
-// Each preset goal as the line PopHatch will plan around.
-const GOAL_LINES: Record<string, string> = {
-  "My next release landing": "Get your next release heard",
-  "More shows, better rooms": "Book more shows, in better rooms",
-  "A bigger fanbase": "Grow the fanbase you already have",
-  "Making money from this": "Make your music pay",
-  "Getting noticed by playlists, press and bookers":
-    "Get in front of playlists, press and bookers",
 };
 
 // The five other finishes the logo flashes through before it lands on pearl, 0.3s apart.
@@ -60,7 +51,7 @@ function GoalCard({ goal, cover, startOver }: GoalCardProps) {
   }, []);
   const line =
     goal.kind === "preset"
-      ? (GOAL_LINES[goal.value] ?? goal.value)
+      ? (presetGoal(goal.value)?.line ?? goal.value)
       : `\u201c${goal.value}\u201d`;
   return (
     <section

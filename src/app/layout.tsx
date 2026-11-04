@@ -7,8 +7,8 @@ import { RouteFocus } from "@/components/route-focus";
 
 import "./globals.css";
 
-// The Stage System's faces (DM Mono for kickers and the record's label), self-hosted by next/font so the page makes no font request at
-// runtime and never shifts when they load.
+// The Stage System's faces (DM Mono for kickers and the record's label), self-hosted by next/font
+// so the page makes no font request at runtime and never shifts when they load.
 const body = DM_Sans({ variable: "--font-body", subsets: ["latin"] });
 const display = Familjen_Grotesk({
   variable: "--font-display-face",

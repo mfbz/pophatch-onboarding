@@ -48,19 +48,19 @@ On Vercel nothing needs setting: a shared link's preview, the canonical link and
 
 ## Layout
 
-| Path                    | What                                                                       |
-| ----------------------- | -------------------------------------------------------------------------- |
-| `src/app/`              | the app: layout, theme (`globals.css`), the onboarding screens             |
-| `src/components/`       | app-wide components: the restyled shadcn ones, the stage, the top bar      |
-| `src/lib/`              | app-wide helpers: `cn`, taught the theme's sizes, shadows and radii        |
-| `public/`               | the brand logos, the demo artist's photo and covers                        |
-| `DESIGN.md`             | the design system as the build reads it: tokens, rules and its Decisions   |
-| `checks/`               | repo-invariant tests and the Git hooks' code                               |
-| `scripts/`              | one-off repo scripts                                                       |
-| `docs/design/reference` | the Stage System design system and the onboarding prototype                |
-| `.agents/skills/`       | the skills coding agents load (Claude Code sees them in `.claude/skills/`) |
-| `.githooks/`            | the guards on every commit                                                 |
-| `.github/`              | CI and the pull request and issue templates                                |
+| Path                    | What                                                                        |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `src/app/`              | the app: layout, theme (`globals.css`), the onboarding screens              |
+| `src/components/`       | app-wide components: the restyled shadcn ones, the stage, the top bar       |
+| `src/lib/`              | app-wide helpers: `cn`, the motion hooks, generated art, the site's address |
+| `public/`               | the brand logos, the demo artist's photo and covers                         |
+| `DESIGN.md`             | the design system as the build reads it: tokens, rules and its Decisions    |
+| `checks/`               | repo-invariant tests and the Git hooks' code                                |
+| `scripts/`              | one-off repo scripts                                                        |
+| `docs/design/reference` | the Stage System design system and the onboarding prototype                 |
+| `.agents/skills/`       | the skills coding agents load (Claude Code sees them in `.claude/skills/`)  |
+| `.githooks/`            | the guards on every commit                                                  |
+| `.github/`              | CI and the pull request and issue templates                                 |
 
 ## Working on it
 

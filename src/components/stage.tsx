@@ -1,9 +1,9 @@
+import { type ReactNode, useId } from "react";
+
 import { cn } from "@/lib/cn";
-import { useId } from "react";
-import type * as React from "react";
 
 type StageProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   rings?: "corner" | "bottom" | "none";
 };
 

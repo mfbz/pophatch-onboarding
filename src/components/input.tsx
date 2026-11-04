@@ -1,9 +1,10 @@
+import type { ComponentProps } from "react";
+
 import { cn } from "@/lib/cn";
-import type * as React from "react";
 
 // The prototype's writing box: a white pill with navy text, 17px (16px on a phone, so it never
 // zooms in). A field that could not be saved keeps its text and shows aria-invalid.
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+function Input({ className, type, ...props }: ComponentProps<"input">) {
   return (
     <input
       type={type}

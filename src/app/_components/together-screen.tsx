@@ -2,10 +2,22 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useId, useState } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useEffectEvent,
+  useId,
+  useState,
+} from "react";
 
 import { ReadingPanel } from "@/app/_components/reading-panel";
-import { type ReadLine, readingPlan, readSources } from "@/app/_lib/mock-api";
+import { GOALS, presetGoal } from "@/app/_lib/goals";
+import {
+  type ReadLine,
+  readingPlan,
+  readSources,
+  type Source,
+} from "@/app/_lib/mock-api";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
 import {
   connectedCount,
@@ -27,38 +39,28 @@ type Goal = OnboardingState["goal"];
 
 type AnswerProps = { phone: boolean };
 
-// Each preset goal, and how PopHatch says it back.
-const GOALS = [
-  { value: "My next release landing", echo: "your next release landing" },
-  { value: "More shows, better rooms", echo: "more shows, better rooms" },
-  { value: "A bigger fanbase", echo: "a bigger fanbase" },
-  { value: "Making money from this", echo: "making money from this" },
-  {
-    value: "Getting noticed by playlists, press and bookers",
-    echo: "getting noticed by playlists, press and bookers",
-  },
-];
-
 const GOAL_LIMIT = 140;
 
 const PHONE = "(max-width: 859px)";
 
 // Reads the connected sources once per set of sources. The reading lives in the flow state, so a
 // finished one stays finished when Next shows this page again (Activity) and "Start over" clears it;
-// a reading cut short starts over from its first line.
-function useReading(enabled: boolean, sourcesKey: string): Reading {
+// a reading cut short starts over from its first line. The sources are a new array on every
+// render, so the effect runs again only when their JSON changes.
+function useReading(sources: Source[]): Reading {
   const { state, dispatch } = useOnboarding();
-  const reading = state.reading?.sources === sourcesKey ? state.reading : null;
+  const key = JSON.stringify(sources);
+  const reading = state.reading?.sources === key ? state.reading : null;
   const finished = reading?.done === true;
-  const sources = connectedSources(state);
+  const lines = useEffectEvent(() => readSources(sources));
 
   useEffect(() => {
-    if (!enabled || finished) return;
+    if (finished) return;
     let cancelled = false;
-    dispatch({ type: "readingStarted", sources: sourcesKey });
+    dispatch({ type: "readingStarted", sources: key });
 
     async function read() {
-      for await (const line of readSources(sources)) {
+      for await (const line of lines()) {
         if (cancelled) return;
         dispatch({ type: "readingLine", line });
       }
@@ -69,18 +71,13 @@ function useReading(enabled: boolean, sourcesKey: string): Reading {
     return () => {
       cancelled = true;
     };
-    // `sourcesKey` stands for `sources`, which is a new array on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, sourcesKey, finished, dispatch]);
+  }, [key, finished, dispatch]);
 
   return { lines: reading?.lines ?? [], done: finished };
 }
 
 function confirmation(goal: NonNullable<Goal>): string {
-  const preset =
-    goal.kind === "preset"
-      ? GOALS.find((option) => option.value === goal.value)
-      : undefined;
+  const preset = goal.kind === "preset" ? presetGoal(goal.value) : undefined;
   return preset
     ? `Got it: ${preset.echo}. I'll build your first plan around it.`
     : "Got it. I'll build your first plan around that.";
@@ -94,7 +91,7 @@ function Answer({ phone }: AnswerProps) {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
   const sources = connectedSources(state);
-  const reading = useReading(true, JSON.stringify(sources));
+  const reading = useReading(sources);
   const plan = readingPlan(sources);
   const goal = state.goal;
   const [text, setText] = useState(() =>

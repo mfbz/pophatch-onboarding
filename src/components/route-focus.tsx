@@ -3,14 +3,14 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
+const INTERACTIONS = ["pointerdown", "keydown", "focusin"] as const;
+
 function visible(element: Element): boolean {
   if (typeof element.checkVisibility === "function") {
     return element.checkVisibility();
   }
   return element.closest('[style*="display: none"]') === null;
 }
-
-const INTERACTIONS = ["pointerdown", "keydown", "focusin"] as const;
 
 // After a move to another step, focus left behind on the page Next just hid (Activity), or on
 // nothing, goes to the new page's heading, so the next Tab starts inside the new step. Safari

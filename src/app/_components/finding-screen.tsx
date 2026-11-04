@@ -2,7 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect, useState } from "react";
+import {
+  type CSSProperties,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 import {
   type FoundOn,
@@ -97,7 +102,6 @@ function FindingScreen() {
     return () => {
       cancelled = true;
     };
-    // The search runs once per link; `found` would restart it on every platform it reports.
   }, [allowed, link, dispatch, router]);
 
   return (
@@ -141,7 +145,7 @@ function FindingScreen() {
                     "--px": `${spot.phone.x}px`,
                     "--py": `${spot.phone.y}px`,
                     "--psize": `${spot.phone.size}px`,
-                  } as React.CSSProperties
+                  } as CSSProperties
                 }
                 className="absolute top-[calc(50%+var(--y))] left-[calc(50%+var(--x))] max-tablet:top-[calc(50%+var(--py))] max-tablet:left-[calc(50%+var(--px))]"
               >

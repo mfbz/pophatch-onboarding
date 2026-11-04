@@ -18,10 +18,11 @@ type ConnectRowProps = {
   connect: () => Promise<void>;
 };
 
-// One account row (DESIGN.md, Account rows): a glass pill with the platform's mark and one state pill. One button carries Connect, Connecting… and Try
-// again, so keyboard focus stays on it while it waits; once connected, focus moves to the line that
-// says so, and every result is announced. The waiting lives here rather than in the flow state, so a
-// reload never leaves a row stuck waiting for an answer that will not come.
+// One account row (DESIGN.md, Account rows): a glass pill with the platform's mark and one state
+// pill. One button carries Connect, Connecting… and Try again, so keyboard focus stays on it while
+// it waits; once connected, focus moves to the line that says so, and every result is announced.
+// The waiting lives here rather than in the flow state, so a reload never leaves a row stuck
+// waiting for an answer that will not come.
 function ConnectRow({
   mark,
   name,

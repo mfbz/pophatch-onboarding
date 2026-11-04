@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { seeded } from "@/lib/motion";
+import { seeded } from "@/lib/levels";
 import { cn } from "@/lib/cn";
 
 type VinylProps = {

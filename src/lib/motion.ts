@@ -11,13 +11,8 @@ import {
 
 const REDUCE = "(prefers-reduced-motion: reduce)";
 
-function noSubscription(): () => void {
-  return () => {};
-}
-
 function subscribeQuery(query: string): (onChange: () => void) => () => void {
   return (onChange) => {
-    if (typeof window.matchMedia !== "function") return () => {};
     const list = window.matchMedia(query);
     list.addEventListener("change", onChange);
     return () => list.removeEventListener("change", onChange);
@@ -25,9 +20,7 @@ function subscribeQuery(query: string): (onChange: () => void) => () => void {
 }
 
 function readQuery(query: string): boolean {
-  return (
-    typeof window.matchMedia === "function" && window.matchMedia(query).matches
-  );
+  return window.matchMedia(query).matches;
 }
 
 // Whether a media query matches now, following it as it changes. The server cannot know, so it
@@ -50,14 +43,9 @@ function useReducedMotion(): boolean {
 function useInView<T extends Element>(): [RefObject<T | null>, boolean] {
   const ref = useRef<T | null>(null);
   const [seen, setSeen] = useState(false);
-  const unsupported = useSyncExternalStore(
-    noSubscription,
-    () => typeof IntersectionObserver !== "function",
-    () => false
-  );
 
   useEffect(() => {
-    if (seen || unsupported) return;
+    if (seen) return;
     const element = ref.current;
     if (!element) return;
     const observer = new IntersectionObserver(
@@ -71,9 +59,9 @@ function useInView<T extends Element>(): [RefObject<T | null>, boolean] {
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, [seen, unsupported]);
+  }, [seen]);
 
-  return [ref, seen || unsupported];
+  return [ref, seen];
 }
 
 // A number that runs to its target with an ease-out, from wherever it stands; under reduced motion
@@ -106,41 +94,4 @@ function useCountUp(target: number, run: boolean, ms = 900): number {
   return reduced ? target : value;
 }
 
-// The mockup's generator (Park–Miller), so generated art matches it bar for bar.
-function seeded(seed: number): () => number {
-  let state = seed;
-  return () => {
-    state = (state * 16807) % 2147483647;
-    return state / 2147483647;
-  };
-}
-
-// A row of bar heights between 0.06 and 1 that looks like a song: two slow waves plus noise.
-// Rounded to three decimals, because sin and exp may differ in the last digit between the server
-// and a browser (Safari's engine does), and the bars are drawn on both.
-function levels(
-  count: number,
-  seed: number,
-  shape?: (x: number, value: number) => number
-): number[] {
-  const random = seeded(seed);
-  return Array.from({ length: count }, (_, index) => {
-    const x = index / count;
-    let value =
-      0.35 +
-      0.25 * Math.sin(x * 9 + seed) +
-      0.15 * Math.sin(x * 23 + seed * 2) +
-      0.25 * random();
-    if (shape) value = shape(x, value);
-    return Math.round(Math.max(0.06, Math.min(1, value)) * 1000) / 1000;
-  });
-}
-
-export {
-  levels,
-  seeded,
-  useCountUp,
-  useInView,
-  useMediaQuery,
-  useReducedMotion,
-};
+export { useCountUp, useInView, useMediaQuery, useReducedMotion };

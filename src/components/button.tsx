@@ -1,11 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/cn";
 import { Slot } from "radix-ui";
-import type * as React from "react";
+import type { ComponentProps } from "react";
+
+import { cn } from "@/lib/cn";
 
 // The Stage System's three buttons (DESIGN.md, Components). Hover changes only the lime (to 90%)
-// or the secondary border (to 100%); pressing shrinks any button to 96%,
-// unless the artist asked for reduced motion.
+// or the secondary border (to 100%); pressing shrinks any button to 96%, unless the artist asked
+// for reduced motion.
 const buttonVariants = cva(
   "inline-flex min-h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-pill text-sm font-bold whitespace-nowrap transition-transform outline-none select-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid active:scale-96 motion-reduce:transition-none motion-reduce:active:scale-100 disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100 max-tablet:min-h-11",
   {
@@ -38,7 +39,7 @@ function Button({
   size = "default",
   asChild = false,
   ...props
-}: React.ComponentProps<"button"> &
+}: ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) {

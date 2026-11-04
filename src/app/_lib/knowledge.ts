@@ -1,15 +1,22 @@
-import { CONNECT_NAMES } from "@/app/_lib/mock-api";
+import {
+  CONNECT_NAMES,
+  CONNECT_PLATFORMS,
+  type ConnectPlatform,
+} from "@/app/_lib/mock-api";
 import type { OnboardingState } from "@/app/_lib/onboarding-state";
 
-type MeterMark = "spotify" | "instagram" | "tiktok" | "youtube" | "facebook";
+type MeterMark = "spotify" | ConnectPlatform;
 
 type Segment = { mark: MeterMark; state: "filled" | "empty" | "failed" };
 
 type Knowledge = { percent: number; segments: Segment[]; line: string };
 
-const ACCOUNTS = ["instagram", "tiktok", "youtube", "facebook"] as const;
+// The accounts that can be connected today; one not ready yet has no segment to fill.
+const ACCOUNTS = CONNECT_PLATFORMS.filter(({ available }) => available).map(
+  ({ platform }) => platform
+);
 
-// What the manager says as the card fills, one line per account connected (0 to 4).
+// What the manager says as the card fills, one line per account connected (none to all).
 const LINES = [
   "Spotify got me started. Each account fills in more.",
   "Good start. Now I can see your fans, not just your listeners.",
@@ -63,7 +70,11 @@ function knowledge(state: OnboardingState): Knowledge {
           ? MANUAL_FIRST_LINE
           : (LINES[connected] ?? "");
 
-  return { percent: filled.length * 20, segments, line };
+  return {
+    percent: Math.round((filled.length / segments.length) * 100),
+    segments,
+    line,
+  };
 }
 
 export { knowledge };

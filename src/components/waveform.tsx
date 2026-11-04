@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-import { levels } from "@/lib/motion";
+import { levels } from "@/lib/levels";
 
 type WaveformProps = {
   bars: number;

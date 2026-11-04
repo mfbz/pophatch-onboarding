@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { EXAMPLE_LINKS, parseArtistLink, type Platform } from "./parse-link";
+import type { Platform } from "@/app/_lib/mock-api";
+
+import { EXAMPLE_LINKS, parseArtistLink } from "./parse-link";
 
 describe("parseArtistLink", () => {
   it.each<[string, Platform, string]>([
