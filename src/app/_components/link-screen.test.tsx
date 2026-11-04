@@ -24,20 +24,23 @@ function saved(): Partial<OnboardingState> {
   ) as Partial<OnboardingState>;
 }
 
-async function renderScreen(notice: "not-me" | "not-found" | null = null) {
+async function renderScreen(
+  notice: "not-me" | "not-found" | null = null
+): Promise<{ container: HTMLElement }> {
   if (notice) {
     sessionStorage.setItem(
       "pophatch-onboarding",
       JSON.stringify({ ...initialState, notice })
     );
   }
-  render(
+  const { container } = render(
     <OnboardingProvider>
       <LinkScreen />
     </OnboardingProvider>
   );
   // The provider reads saved progress after the first render.
   await waitFor(() => expect(saved()).toHaveProperty("path"));
+  return { container };
 }
 
 describe("LinkScreen", () => {
@@ -138,6 +141,53 @@ describe("LinkScreen", () => {
     expect(
       screen.getAllByRole("button", { name: /^Use an? .+ example$/ })
     ).toHaveLength(7);
+  });
+
+  it("shows the platform of the link in the field", async () => {
+    const user = userEvent.setup();
+    const { container } = await renderScreen();
+    expect(container.querySelector('[data-platform="spotify"]')).not.toBeNull();
+    const field = screen.getByRole("textbox", { name: "Your link" });
+    await user.clear(field);
+    await user.type(field, "https://instagram.com/nooradeyemi");
+    expect(
+      container.querySelector(
+        '[data-platform="instagram"] [data-mark="instagram"]'
+      )
+    ).not.toBeNull();
+    await user.clear(field);
+    await user.type(field, "hello");
+    expect(container.querySelector("[data-platform]")).toBeNull();
+  });
+
+  it("presses the chip of the link in the field", async () => {
+    const user = userEvent.setup();
+    await renderScreen();
+    expect(
+      screen.getByRole("button", { name: "Use a Spotify example" })
+    ).toHaveAttribute("aria-pressed", "true");
+    await user.click(
+      screen.getByRole("button", { name: "Use a TikTok example" })
+    );
+    expect(
+      screen.getByRole("button", { name: "Use a TikTok example" })
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", { name: "Use a Spotify example" })
+    ).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("keeps the three promises", async () => {
+    await renderScreen();
+    for (const title of [
+      "Knows the business",
+      "Knows you",
+      "Decides what's next",
+    ]) {
+      expect(
+        screen.getByRole("heading", { level: 2, name: title })
+      ).toBeInTheDocument();
+    }
   });
 
   it("offers the one-by-one path", async () => {
