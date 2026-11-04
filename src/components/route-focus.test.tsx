@@ -1,5 +1,5 @@
 import { act, render } from "@testing-library/react";
-import { Activity } from "react";
+import { Activity, StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { RouteFocus } from "./route-focus";
@@ -43,6 +43,36 @@ describe("RouteFocus", () => {
     render(<Pages at="/" />);
     await frame();
     expect(document.body).toHaveFocus();
+  });
+
+  it("leaves focus alone on the first page when effects run twice", async () => {
+    render(
+      <StrictMode>
+        <Pages at="/" />
+      </StrictMode>
+    );
+    await frame();
+    expect(document.body).toHaveFocus();
+  });
+
+  it("leaves focus alone when a step sends a fresh load to the start", async () => {
+    pathname = "/found";
+    const { rerender } = render(<Pages at="/found" />);
+    pathname = "/";
+    rerender(<Pages at="/" />);
+    await frame();
+    expect(document.body).toHaveFocus();
+  });
+
+  it("moves to the heading after a click that left focus nowhere", async () => {
+    const { rerender, getByRole } = render(<Pages at="/" />);
+    getByRole("button", { name: "Find me" }).dispatchEvent(
+      new Event("pointerdown", { bubbles: true })
+    );
+    pathname = "/found";
+    rerender(<Pages at="/found" />);
+    await frame();
+    expect(getByRole("heading", { name: "Found you." })).toHaveFocus();
   });
 
   it("moves focus left on a hidden page to the new page's heading", async () => {
