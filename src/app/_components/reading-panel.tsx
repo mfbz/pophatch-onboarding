@@ -194,9 +194,16 @@ function ReadingPanel({ plan, lines, done, compact }: ReadingPanelProps) {
           </svg>
           <span
             aria-hidden
-            style={{ width: `${(read / total) * 100}%` }}
-            className="absolute bottom-0 left-0 h-0.5 bg-lime transition-[width] duration-700 ease-stage motion-reduce:transition-none"
-          />
+            className={cn(
+              "absolute inset-x-5 bottom-1.5 h-0.75 overflow-hidden rounded-pill bg-fg/12 transition-opacity delay-700 duration-500 motion-reduce:transition-none",
+              done && "opacity-0"
+            )}
+          >
+            <span
+              style={{ transform: `scaleX(${read / total})` }}
+              className="block h-full origin-left rounded-pill bg-lime transition-transform duration-700 ease-stage motion-reduce:transition-none"
+            />
+          </span>
         </button>
         <p role="status" className="sr-only">
           {live}

@@ -52,7 +52,7 @@ function Releases({ artist }: ArtistProps) {
       aria-label="Releases"
       // The strip scrolls sideways on a phone; focusable so a keyboard can scroll it too.
       tabIndex={0}
-      className="mt-6 grid grid-cols-[1.6fr_repeat(4,1fr)] items-end gap-5.5 rounded-thumb pr-6.5 outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid max-tablet:-mx-4 max-tablet:flex max-tablet:snap-x max-tablet:scroll-px-4 max-tablet:gap-4 max-tablet:overflow-x-auto max-tablet:px-4 max-tablet:pb-2 max-tablet:text-left"
+      className="mt-6 grid grid-cols-[1.6fr_repeat(4,1fr)] items-end gap-5.5 rounded-thumb pr-6.5 outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid max-tablet:-mx-4 max-tablet:flex max-tablet:snap-x max-tablet:scroll-px-4 max-tablet:[scrollbar-width:none] max-tablet:gap-4 max-tablet:overflow-x-auto max-tablet:px-4 max-tablet:pt-1 max-tablet:pb-2 max-tablet:text-left max-tablet:[&::-webkit-scrollbar]:hidden"
     >
       {artist.releases.map((release, index) => {
         const latest = index === 0;
@@ -205,7 +205,7 @@ function FoundScreen() {
         <main className="relative flex flex-1 flex-col justify-center pb-6 max-tablet:items-center max-tablet:pt-2 max-tablet:text-center">
           <div
             aria-hidden
-            className="absolute top-1/2 -left-[300px] size-[760px] -translate-y-1/2 max-desktop:-left-[270px] max-desktop:size-[600px] max-tablet:relative max-tablet:top-0 max-tablet:left-0 max-tablet:mb-6 max-tablet:size-[300px] max-tablet:translate-y-0"
+            className="absolute top-1/2 -left-[300px] size-[760px] -translate-y-1/2 max-desktop:-left-[270px] max-desktop:size-[600px] max-tablet:relative max-tablet:top-0 max-tablet:left-0 max-tablet:mb-6 max-tablet:size-[min(350px,calc(100vw-16px))] max-tablet:translate-y-0"
           >
             <BarRing className="absolute inset-0 size-full overflow-visible" />
             <Vinyl
