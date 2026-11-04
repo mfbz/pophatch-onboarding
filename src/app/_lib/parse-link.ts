@@ -1,11 +1,4 @@
-type Platform =
-  | "spotify"
-  | "instagram"
-  | "tiktok"
-  | "youtube"
-  | "apple-music"
-  | "soundcloud"
-  | "linktree";
+import type { Platform } from "@/app/_lib/mock-api";
 
 type ParsedLink =
   | { ok: true; platform: Platform; url: string }
@@ -91,4 +84,4 @@ function parseArtistLink(input: string): ParsedLink {
 }
 
 export { EXAMPLE_LINKS, PLATFORM_NAMES, parseArtistLink };
-export type { ParsedLink, Platform };
+export type { ParsedLink };

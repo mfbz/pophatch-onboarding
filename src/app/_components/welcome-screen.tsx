@@ -2,15 +2,28 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { presetGoal } from "@/app/_lib/goals";
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
+import type { OnboardingState } from "@/app/_lib/onboarding-state";
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button } from "@/components/button";
 import { Rings, Stage } from "@/components/stage";
 import { TopBar } from "@/components/top-bar";
+import { useReducedMotion } from "@/lib/motion";
+
+type GoalCardProps = {
+  goal: NonNullable<OnboardingState["goal"]>;
+  cover: string | undefined;
+  startOver: () => void;
+};
 
 // The five other finishes the logo flashes through before it lands on pearl, 0.3s apart.
 const FINISHES = ["violet", "blue", "halftone", "chrome", "silver"];
+
+// When the goal card has docked: its 2.6s delay plus the 0.8s dock.
+const DOCKED_AFTER = 3400;
 
 const FLASH_DELAYS = [
   "[animation-delay:0s]",
@@ -20,9 +33,65 @@ const FLASH_DELAYS = [
   "[animation-delay:1.2s]",
 ];
 
+// The goal the first plan is built around, docked at the bottom like a now-playing bar, with the
+// cover of the artist's latest release. A written goal is quoted in the artist's own words. Until
+// it has docked it is inert, so "Start over" can't be reached while it is still invisible. On a
+// phone it sits under the welcome instead of over it, its button on a row of its own.
+function GoalCard({ goal, cover, startOver }: GoalCardProps) {
+  const reduced = useReducedMotion();
+  const [docked, setDocked] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDocked(true), DOCKED_AFTER);
+    // Shown again (Activity), the card docks again from hidden, so it starts out of reach again.
+    return () => {
+      clearTimeout(timer);
+      setDocked(false);
+    };
+  }, []);
+  const line =
+    goal.kind === "preset"
+      ? (presetGoal(goal.value)?.line ?? goal.value)
+      : `\u201c${goal.value}\u201d`;
+  return (
+    <section
+      aria-label="Your goal"
+      inert={!docked && !reduced}
+      className="absolute inset-x-0 bottom-0 mx-auto flex w-[min(880px,100%)] animate-dock items-center gap-4 rounded-[22px] bg-night/65 px-3.5 py-3 text-left ring-1 ring-fg/14 backdrop-blur-lg [animation-delay:2.6s] motion-reduce:animate-none max-tablet:relative max-tablet:mt-10 max-tablet:flex-wrap max-tablet:gap-3 max-tablet:px-3"
+    >
+      {cover && (
+        <Image
+          src={cover}
+          alt=""
+          width={54}
+          height={54}
+          className="size-13.5 shrink-0 rounded-[10px] object-cover max-tablet:size-12"
+        />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="font-mono text-[10.5px] tracking-widest text-lime uppercase">
+          Your goal · next three months
+        </p>
+        <p className="mt-0.5 text-[15px] leading-snug font-bold wrap-break-word text-fg">
+          {line}
+        </p>
+        <p className="text-[13px] text-periwinkle max-tablet:text-xs">
+          Your first plan is built around it.
+        </p>
+      </div>
+      <Button
+        onClick={startOver}
+        className="shrink-0 px-4.5 font-extrabold max-tablet:w-full"
+      >
+        Start over
+      </Button>
+    </section>
+  );
+}
+
 // The arrival, where the app would open: the logo pops in and runs through its finishes once while
-// the rings burst out from it, then it lands on pearl and the welcome and "Start over" rise in.
-// Then everything stays still. Under reduced motion it all simply appears, on pearl.
+// the rings burst out from it, then it lands on pearl, the welcome rises in and the goal docks at
+// the bottom. Then everything stays still. Under reduced motion it all simply appears, on pearl.
 // "Start over" clears the flow so anyone trying it can run it again.
 function WelcomeScreen() {
   const { state, dispatch } = useOnboarding();
@@ -41,7 +110,7 @@ function WelcomeScreen() {
     <Stage rings="none">
       <TopBar />
       {allowed && firstName && (
-        <main className="flex flex-1 flex-col items-center justify-center pb-16 text-center">
+        <main className="relative flex flex-1 flex-col items-center justify-center pb-32 text-center max-tablet:justify-start max-tablet:pt-10 max-tablet:pb-6">
           <div className="relative grid size-110 place-items-center max-tablet:size-72">
             <div className="absolute top-1/2 left-1/2 -z-10 -translate-1/2">
               <div className="animate-rings-in motion-reduce:animate-none">
@@ -79,12 +148,13 @@ function WelcomeScreen() {
           <p className="mt-1 animate-line-in bg-halo px-14 py-3 text-lead text-mist [animation-delay:2.15s] text-halo motion-reduce:animate-none max-tablet:px-4 max-tablet:text-lg">
             Your first plan is on its way.
           </p>
-          <Button
-            onClick={startOver}
-            className="mt-8 min-h-13.5 min-w-60 animate-line-in px-7 text-[17px] font-extrabold [animation-delay:2.4s] motion-reduce:animate-none max-tablet:min-h-12 max-tablet:text-base"
-          >
-            Start over
-          </Button>
+          {state.goal && (
+            <GoalCard
+              goal={state.goal}
+              cover={state.artist?.releases[0]?.cover}
+              startOver={startOver}
+            />
+          )}
         </main>
       )}
     </Stage>

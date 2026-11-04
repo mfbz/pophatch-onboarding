@@ -6,6 +6,7 @@ import {
   connectedCount,
   connectedSources,
   initialState,
+  OnboardingStateSchema,
   type OnboardingAction,
   onboardingReducer,
   stageProgress,
@@ -27,6 +28,24 @@ describe("the onboarding reducer", () => {
     expect(state.artist).toBeNull();
     expect(state.link).toBeNull();
     expect(state.confirmed).toBe(false);
+  });
+
+  it("forgets the one-by-one path and its accounts on Not me", () => {
+    const state = run(
+      { type: "startManual" },
+      {
+        type: "account",
+        platform: "instagram",
+        connection: { status: "connected", handle: "@noor" },
+      },
+      { type: "files", names: ["royalties.csv"] },
+      { type: "found", artist },
+      { type: "rejected" }
+    );
+    expect(state.path).toBe(initialState.path);
+    expect(state.accounts).toEqual({});
+    expect(state.folders).toEqual({});
+    expect(state.files).toEqual([]);
   });
 
   it("explains why the artist is back at the start", () => {
@@ -74,7 +93,11 @@ describe("the onboarding reducer", () => {
   });
 
   it("keeps a finished reading only for the sources it read", () => {
-    const line = { label: "Reading SoundCharts", detail: "11 releases" };
+    const line = {
+      mark: "soundcharts" as const,
+      label: "Reading SoundCharts",
+      detail: "11 releases",
+    };
     const state = run(
       { type: "readingStarted", sources: "a" },
       { type: "readingLine", line },
@@ -163,6 +186,24 @@ describe("stageProgress", () => {
     expect(stageProgress(initialState, "/welcome")).toEqual({
       current: null,
       done: ["find", "confirm", "connect", "enter"],
+    });
+  });
+});
+
+describe("saved progress", () => {
+  it("keeps an account's numbers", () => {
+    const saved = OnboardingStateSchema.parse({
+      ...initialState,
+      accounts: {
+        instagram: {
+          status: "connected",
+          handle: "@nooradeyemi",
+          numbers: "312 posts · 4,120 followers",
+        },
+      },
+    });
+    expect(saved.accounts.instagram).toMatchObject({
+      numbers: "312 posts · 4,120 followers",
     });
   });
 });

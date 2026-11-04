@@ -24,6 +24,11 @@ export default defineConfig(
         "error",
         { checksVoidReturn: { attributes: false } },
       ],
+      // A leading underscore marks an argument a signature needs but the body does not read.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
   { files: ["**/*.{js,cjs,mjs}"], ...tseslint.configs.disableTypeChecked },

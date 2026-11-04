@@ -24,7 +24,9 @@ describe("Stepper", () => {
     expect(confirm).toHaveAttribute("aria-current", "step");
     expect(find).not.toHaveAttribute("aria-current");
     expect(find).toHaveTextContent("✓");
-    expect(within(find!).getByText("done", { exact: false })).toBeTruthy();
+    expect(
+      within(find!).getByRole("link", { name: "Find you, done. Go back" })
+    ).toBeInTheDocument();
     expect(connect).not.toHaveTextContent("✓");
   });
 
@@ -36,6 +38,28 @@ describe("Stepper", () => {
       expect(item).toHaveTextContent("✓");
       expect(item).not.toHaveAttribute("aria-current");
     }
+  });
+
+  it("joins the stages with lines, lit up to the current one", () => {
+    const { container } = render(
+      <Stepper current="connect" done={["find", "confirm"]} />
+    );
+    const lines = Array.from(container.querySelectorAll("[data-line]"));
+    expect(lines.map((line) => line.getAttribute("data-line"))).toEqual([
+      "lit",
+      "lit",
+      "dim",
+    ]);
+  });
+
+  it("lights no line before the stages behind it are done", () => {
+    const { container } = render(<Stepper current="connect" done={[]} />);
+    const lines = Array.from(container.querySelectorAll("[data-line]"));
+    expect(lines.map((line) => line.getAttribute("data-line"))).toEqual([
+      "dim",
+      "dim",
+      "dim",
+    ]);
   });
 
   it("names the current stage and its position for a phone", () => {

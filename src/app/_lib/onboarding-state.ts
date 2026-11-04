@@ -3,7 +3,9 @@ import { z } from "zod";
 import {
   ArtistSchema,
   type ConnectPlatform,
+  ConnectPlatformSchema,
   type FolderProvider,
+  FolderProviderSchema,
   type ReadLine,
   ReadLineSchema,
   type Source,
@@ -36,25 +38,17 @@ type FlowRoute =
   "/" | "/finding" | "/found" | "/connect" | "/together" | "/welcome";
 
 const ConnectionSchema = z.discriminatedUnion("status", [
-  z.object({ status: z.literal("idle") }),
-  z.object({ status: z.literal("connecting") }),
-  z.object({ status: z.literal("connected"), handle: z.string().optional() }),
+  z.object({
+    status: z.literal("connected"),
+    handle: z.string().optional(),
+    numbers: z.string().optional(),
+  }),
   z.object({
     status: z.literal("failed"),
     message: z.string(),
     attempts: z.number(),
   }),
 ]);
-
-const ConnectPlatformKey = z.enum([
-  "instagram",
-  "tiktok",
-  "youtube",
-  "facebook",
-  "soundcloud",
-]);
-
-const FolderProviderKey = z.enum(["google-drive", "onedrive"]);
 
 // Saved progress comes back from sessionStorage, outside the code's control, so it is parsed.
 const OnboardingStateSchema = z.object({
@@ -65,8 +59,8 @@ const OnboardingStateSchema = z.object({
   returns: z.number(),
   artist: ArtistSchema.nullable(),
   confirmed: z.boolean(),
-  accounts: z.partialRecord(ConnectPlatformKey, ConnectionSchema),
-  folders: z.partialRecord(FolderProviderKey, ConnectionSchema),
+  accounts: z.partialRecord(ConnectPlatformSchema, ConnectionSchema),
+  folders: z.partialRecord(FolderProviderSchema, ConnectionSchema),
   files: z.array(z.string()),
   goal: z
     .discriminatedUnion("kind", [
@@ -121,14 +115,8 @@ function onboardingReducer(
     case "confirmed":
       return { ...state, confirmed: true };
     case "rejected":
-      return {
-        ...state,
-        link: null,
-        notice: "not-me",
-        returns: state.returns + 1,
-        artist: null,
-        confirmed: false,
-      };
+      // Not me starts the flow over, whichever path found the artist.
+      return { ...initialState, notice: "not-me", returns: state.returns + 1 };
     case "notFound":
       return {
         ...state,
@@ -177,34 +165,30 @@ function onboardingReducer(
   }
 }
 
+// Object.entries widens its keys to string; the records are keyed by their schema, so the keys
+// are known. Kept in the order the artist connected them, which is the order step 5 reads them.
+function connected<K extends string>(
+  record: Partial<Record<K, Connection>>
+): K[] {
+  return (Object.entries(record) as [K, Connection][])
+    .filter(([, connection]) => connection.status === "connected")
+    .map(([key]) => key);
+}
+
 function connectedSources(state: OnboardingState): Source[] {
-  const accounts = Object.entries(state.accounts).flatMap(
-    ([platform, connection]) =>
-      connection.status === "connected"
-        ? [
-            {
-              kind: "account" as const,
-              platform: ConnectPlatformKey.parse(platform),
-            },
-          ]
-        : []
-  );
-  const folders = Object.entries(state.folders).flatMap(
-    ([provider, connection]) =>
-      connection.status === "connected"
-        ? [
-            {
-              kind: "folder" as const,
-              provider: FolderProviderKey.parse(provider),
-            },
-          ]
-        : []
-  );
-  const files =
-    state.files.length > 0
+  return [
+    ...connected(state.accounts).map((platform): Source => ({
+      kind: "account",
+      platform,
+    })),
+    ...connected(state.folders).map((provider): Source => ({
+      kind: "folder",
+      provider,
+    })),
+    ...(state.files.length > 0
       ? [{ kind: "files" as const, count: state.files.length }]
-      : [];
-  return [...accounts, ...folders, ...files];
+      : []),
+  ];
 }
 
 function connectedCount(state: OnboardingState): number {

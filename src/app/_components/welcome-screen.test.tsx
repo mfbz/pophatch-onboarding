@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Activity } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ArtistSchema } from "@/app/_lib/mock-api";
@@ -45,6 +46,7 @@ const arrived: Partial<OnboardingState> = {
 
 describe("WelcomeScreen", () => {
   afterEach(() => {
+    vi.useRealTimers();
     push.mockClear();
     replace.mockClear();
     sessionStorage.clear();
@@ -67,10 +69,70 @@ describe("WelcomeScreen", () => {
     expect(sources).toContainEqual(expect.stringContaining("logo-pearl"));
   });
 
+  it("the card shows the chosen goal", async () => {
+    renderWith(arrived);
+    const card = await screen.findByRole("region", { name: "Your goal" });
+    expect(card).toHaveTextContent("Your goal · next three months");
+    expect(card).toHaveTextContent("Grow the fanbase you already have");
+    expect(card).toHaveTextContent("Your first plan is built around it.");
+    expect(card.querySelector("img")?.getAttribute("src")).toContain("lantern");
+  });
+
+  it("a written goal is quoted", async () => {
+    renderWith({ ...arrived, goal: { kind: "written", value: "Tour Europe" } });
+    const card = await screen.findByRole("region", { name: "Your goal" });
+    expect(card).toHaveTextContent("\u201cTour Europe\u201d");
+  });
+
+  it("keeps Start over out of reach until the card has docked", async () => {
+    vi.useFakeTimers();
+    renderWith(arrived);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const card = screen.getByRole("region", { name: "Your goal" });
+    expect(card).toHaveAttribute("inert");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3400);
+    });
+    expect(card).not.toHaveAttribute("inert");
+  });
+
+  it("keeps Start over out of reach again when the arrival is shown again", async () => {
+    vi.useFakeTimers();
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, ...arrived })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <WelcomeScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3400);
+    });
+    rerender(tree("hidden"));
+    rerender(tree("visible"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByRole("region", { name: "Your goal" })).toHaveAttribute(
+      "inert"
+    );
+  });
+
   it("starts over from step 1", async () => {
     const user = userEvent.setup();
     renderWith(arrived);
-    await user.click(await screen.findByRole("button", { name: "Start over" }));
+    const card = await screen.findByRole("region", { name: "Your goal" });
+    expect(screen.getAllByRole("button", { name: "Start over" })).toHaveLength(
+      1
+    );
+    await user.click(within(card).getByRole("button", { name: "Start over" }));
     expect(saved()).toEqual({ ...initialState, returns: 1 });
     expect(push).toHaveBeenCalledWith("/");
   });

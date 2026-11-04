@@ -65,9 +65,33 @@ describe("FindingScreen", () => {
       await vi.advanceTimersByTimeAsync(5000);
     });
     expect(log.textContent).toBe(
-      "Found you on Spotify.Found you on Instagram.Found you on YouTube.Found you on TikTok."
+      "Found you on Spotify.Found you on Instagram.Found you on YouTube.Found you on TikTok.That's all of you."
     );
     expect(saved().artist?.name).toBe("Noor Adeyemi");
+    expect(replace).toHaveBeenCalledWith("/found");
+  });
+
+  it("places each platform it finds with its number", async () => {
+    await renderWithLink("https://open.spotify.com/artist/5kZ2nooradeyemi");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1600);
+    });
+    expect(screen.getByText("18.4k listeners")).toBeInTheDocument();
+    expect(
+      document.querySelector('[data-found="spotify"] [data-mark="spotify"]')
+    ).not.toBeNull();
+  });
+
+  it("says that's all of you before moving on", async () => {
+    await renderWithLink("https://open.spotify.com/artist/5kZ2nooradeyemi");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4300);
+    });
+    expect(screen.getByText(/all of you/)).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(800);
+    });
     expect(replace).toHaveBeenCalledWith("/found");
   });
 
@@ -97,7 +121,7 @@ describe("FindingScreen", () => {
       await vi.advanceTimersByTimeAsync(6000);
     });
     expect(screen.getByRole("status").textContent).toBe(
-      "Found you on Spotify.Found you on Instagram.Found you on YouTube.Found you on TikTok."
+      "Found you on Spotify.Found you on Instagram.Found you on YouTube.Found you on TikTok.That's all of you."
     );
   });
 

@@ -33,6 +33,21 @@ const connected: Partial<OnboardingState> = {
   files: ["royalties.csv", "shows.pdf", "statement.pdf"],
 };
 
+const PHONE = "(max-width: 859px)";
+
+function setPhone(phone: boolean) {
+  window.matchMedia = vi.fn((query: string) => ({
+    matches: phone && query === PHONE,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+}
+
 async function renderWith(state: Partial<OnboardingState>) {
   sessionStorage.setItem(
     "pophatch-onboarding",
@@ -53,12 +68,26 @@ async function wait(ms: number) {
 }
 
 function goalField() {
-  return screen.getByRole("textbox", { name: "Or write it in" });
+  return screen.getByRole("textbox", { name: "Or say it in your own words" });
 }
+
+const read: Partial<OnboardingState> = {
+  ...connected,
+  goal: { kind: "preset", value: "More shows, better rooms" },
+  reading: {
+    sources: JSON.stringify([
+      { kind: "account", platform: "instagram" },
+      { kind: "files", count: 3 },
+    ]),
+    lines: [],
+    done: true,
+  },
+};
 
 describe("TogetherScreen", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    setPhone(false);
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -67,7 +96,7 @@ describe("TogetherScreen", () => {
     sessionStorage.clear();
   });
 
-  it("asks one question with five goals to pick from", async () => {
+  it("asks one question, with five goals and a box to write in", async () => {
     await renderWith(connected);
     expect(
       screen.getByRole("heading", {
@@ -75,57 +104,152 @@ describe("TogetherScreen", () => {
         name: "What would make the next three months a win?",
       })
     ).toBeInTheDocument();
+    expect(screen.getByText(/Nice to meet you, Noor\./)).toBeInTheDocument();
     for (const goal of GOALS) {
       expect(screen.getByRole("radio", { name: goal })).toBeInTheDocument();
     }
+    expect(goalField()).toHaveAttribute("maxLength", "140");
+    expect(screen.queryByRole("button", { name: "That's it" })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Pick a goal or write your own" })
+    ).toBeDisabled();
+  });
+
+  it("confirms a picked goal and waits for the reading", async () => {
+    await renderWith(connected);
+    fireEvent.click(
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    );
+    expect(
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    ).toBeChecked();
+    expect(
+      screen.getByText(
+        "Got it: more shows, better rooms. I'll build your first plan around it."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Finishing the reading · \d of 3/ })
+    ).toBeDisabled();
+  });
+
+  it("takes written words as the goal with no extra button, capped at 140", async () => {
+    await renderWith(connected);
+    fireEvent.change(goalField(), { target: { value: "  Tour Europe " } });
+    expect(screen.getByText("14 / 140")).toBeInTheDocument();
+    expect(
+      screen.getByText("Got it. I'll build your first plan around that.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Finishing the reading/ })
+    ).toBeDisabled();
+  });
+
+  it("does not take blank words as a goal", async () => {
+    await renderWith(connected);
+    fireEvent.change(goalField(), { target: { value: "Tour" } });
+    fireEvent.change(goalField(), { target: { value: "   " } });
+    expect(screen.queryByText(/Got it/)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Pick a goal or write your own" })
+    ).toBeDisabled();
   });
 
   it("keeps one goal: a pick clears the text and the text clears the pick", async () => {
     await renderWith(connected);
     fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
-    expect(
-      screen.getByRole("radio", { name: "A bigger fanbase" })
-    ).toBeChecked();
     fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
     expect(
       screen.getByRole("radio", { name: "A bigger fanbase" })
     ).not.toBeChecked();
+    expect(
+      screen.getByText("Got it. I'll build your first plan around that.")
+    ).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole("radio", { name: "More shows, better rooms" })
     );
     expect(goalField()).toHaveValue("");
+    expect(
+      screen.getByText(
+        "Got it: more shows, better rooms. I'll build your first plan around it."
+      )
+    ).toBeInTheDocument();
   });
 
-  it("caps a written goal at 140 characters and shows the count", async () => {
+  it("Enter waits for the reading", async () => {
     await renderWith(connected);
-    expect(goalField()).toHaveAttribute("maxLength", "140");
+    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
+    expect(
+      screen.getByRole("button", { name: /Finishing the reading/ })
+    ).toBeDisabled();
+    await wait(3500);
+    fireEvent.click(screen.getByRole("button", { name: "Enter PopHatch" }));
+    expect(push).toHaveBeenCalledWith("/welcome");
+  });
+
+  it("the Enter key in the box enters, once everything is read", async () => {
+    await renderWith(connected);
     fireEvent.change(goalField(), { target: { value: "Tour Europe" } });
-    expect(screen.getByText("11/140")).toBeInTheDocument();
+    fireEvent.submit(goalField());
+    expect(push).not.toHaveBeenCalled();
+    await wait(3500);
+    fireEvent.submit(goalField());
+    expect(push).toHaveBeenCalledWith("/welcome");
   });
 
-  it("reads SoundCharts, then each connected source as it arrives", async () => {
-    await renderWith(connected);
-    const reading = screen.getByRole("list", { name: "Putting it together" });
-    await wait(1100);
-    expect(reading).toHaveTextContent("Reading SoundCharts");
-    expect(reading).not.toHaveTextContent("Reading Instagram");
-    await wait(2100);
-    expect(reading).toHaveTextContent(
-      "Reading Instagram312 posts, 4,120 followers"
-    );
-    expect(reading).toHaveTextContent("Reading your reports3 files");
+  it("restores the answer after a reload", async () => {
+    await renderWith(read);
+    expect(
+      screen.getByRole("radio", { name: "More shows, better rooms" })
+    ).toBeChecked();
+    expect(
+      screen.getByText(
+        "Got it: more shows, better rooms. I'll build your first plan around it."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Enter PopHatch" })
+    ).toBeEnabled();
   });
 
-  it("enters once a goal is set and the reading is done", async () => {
+  it("restores a written goal into the box", async () => {
+    await renderWith({
+      ...read,
+      goal: { kind: "written", value: "Tour Europe" },
+    });
+    expect(goalField()).toHaveValue("Tour Europe");
+  });
+
+  it("the panel says what it reads now", async () => {
     await renderWith(connected);
     expect(
-      screen.getByRole("button", { name: "Pick a goal to enter" })
-    ).toBeDisabled();
-    fireEvent.click(screen.getByRole("radio", { name: "A bigger fanbase" }));
-    expect(screen.getByRole("button", { name: "Reading…" })).toBeDisabled();
-    await wait(3500);
-    fireEvent.click(screen.getByRole("button", { name: "Enter" }));
-    expect(push).toHaveBeenCalledWith("/welcome");
+      screen.getByText("Reading SoundCharts · 1 of 3")
+    ).toBeInTheDocument();
+    await wait(1100);
+    expect(screen.getByText("Reading Instagram · 2 of 3")).toBeInTheDocument();
+    const rows = screen.getByRole("list", { name: "Sources" });
+    expect(rows).toHaveTextContent(
+      "SoundCharts11 releases, 18 months of history✓ Read"
+    );
+    expect(rows).toHaveTextContent("Your reportsWaiting");
+    await wait(2100);
+    expect(rows).toHaveTextContent("Your reports3 files✓ Read");
+    expect(
+      screen.getByText("Read everything you connected.")
+    ).toBeInTheDocument();
+  });
+
+  it("the compact block folds when done", async () => {
+    setPhone(true);
+    await renderWith(connected);
+    const header = screen.getByRole("button", { name: /Reading SoundCharts/ });
+    expect(header).toHaveAttribute("aria-expanded", "true");
+    await wait(3200);
+    await wait(1300);
+    const folded = screen.getByRole("button", { name: /✓ Read 3 sources/ });
+    expect(folded).toHaveAttribute("aria-expanded", "false");
+    fireEvent.click(folded);
+    expect(folded).toHaveAttribute("aria-expanded", "true");
   });
 
   it("keeps a finished reading when the artist comes back to it", async () => {
@@ -147,10 +271,12 @@ describe("TogetherScreen", () => {
     rerender(tree("hidden"));
     rerender(tree("visible"));
     await wait(1200);
-    expect(screen.getByRole("button", { name: "Enter" })).toBeEnabled();
     expect(
-      screen.getByRole("list", { name: "Putting it together" })
-    ).toHaveTextContent("Reading your reports");
+      screen.getByRole("button", { name: "Enter PopHatch" })
+    ).toBeEnabled();
+    expect(screen.getByRole("list", { name: "Sources" })).toHaveTextContent(
+      "Your reports3 files✓ Read"
+    );
   });
 
   it("sends the artist to the start with nothing connected", async () => {

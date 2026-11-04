@@ -64,11 +64,26 @@ describe("FoundScreen", () => {
     ]) {
       expect(screen.getByRole("img", { name: title })).toBeInTheDocument();
     }
-    expect(
-      screen.getByText(
-        "11 releases · 18,400 monthly listeners · 2,310 followers on Spotify"
-      )
-    ).toBeInTheDocument();
+    expect(screen.getByText("Alt R&B")).toBeInTheDocument();
+    expect(screen.getByText("Latest")).toBeInTheDocument();
+    expect(screen.getByText("Single · 2025 · 412K plays")).toBeInTheDocument();
+  });
+
+  it("ends the numbers at their values", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn((query: string) => ({
+        matches: query.includes("reduce"),
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }))
+    );
+    renderWith(withArtist);
+    expect(await screen.findByText("18,400")).toBeInTheDocument();
+    expect(screen.getByText("2,310")).toBeInTheDocument();
+    expect(screen.getByText("4,120")).toBeInTheDocument();
+    vi.unstubAllGlobals();
   });
 
   it("confirms and moves on to connecting", async () => {

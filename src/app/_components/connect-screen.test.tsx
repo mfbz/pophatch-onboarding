@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { Activity } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArtistSchema } from "@/app/_lib/mock-api";
@@ -133,12 +134,12 @@ describe("ConnectScreen", () => {
 
   it("counts uploaded files and a connected folder", async () => {
     await renderWith(confirmed);
-    fireEvent.change(screen.getByLabelText("Upload files"), {
+    fireEvent.change(screen.getByLabelText("Upload reports"), {
       target: {
         files: [new File(["x"], "royalties-2025.csv", { type: "text/csv" })],
       },
     });
-    fireEvent.change(screen.getByLabelText("Upload files"), {
+    fireEvent.change(screen.getByLabelText("Upload reports"), {
       target: {
         files: [new File(["x"], "shows.pdf", { type: "application/pdf" })],
       },
@@ -182,6 +183,143 @@ describe("ConnectScreen", () => {
     await wait(3000);
     expect(row("TikTok").getByText("@nooradeyemi")).toBeInTheDocument();
     expect(saved().artist?.name).toBe("Noor Adeyemi");
+  });
+
+  it("starts her card at 20% from Spotify on the link path", async () => {
+    await renderWith(confirmed);
+    const meter = screen.getByRole("meter", { name: "How well I know you" });
+    expect(meter).toHaveAttribute("aria-valuenow", "20");
+    expect(
+      screen.getByText("Spotify got me started. Each account fills in more.")
+    ).toBeInTheDocument();
+  });
+
+  it("fills her card as an account connects", async () => {
+    await renderWith(confirmed);
+    fireEvent.click(
+      row("Instagram").getByRole("button", { name: "Connect Instagram" })
+    );
+    await wait(1300);
+    expect(
+      screen.getByRole("meter", { name: "How well I know you" })
+    ).toHaveAttribute("aria-valuenow", "40");
+    expect(
+      screen.getByText(
+        "Good start. Now I can see your fans, not just your listeners."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText("312 posts · 4,120 followers").length
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getByText("Gives me where your fans are, when they're online")
+    ).toBeInTheDocument();
+  });
+
+  it("shows Facebook's failure on her card", async () => {
+    await renderWith(confirmed);
+    fireEvent.click(
+      row("Facebook").getByRole("button", { name: "Connect Facebook" })
+    );
+    await wait(1300);
+    expect(screen.getByText("Didn't answer")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Facebook didn't answer. Try it again whenever you like."
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("starts empty without a name on the one-by-one path", async () => {
+    await renderWith({ path: "manual" });
+    expect(
+      screen.getByRole("meter", { name: "How well I know you" })
+    ).toHaveAttribute("aria-valuenow", "0");
+    expect(screen.queryAllByText("Noor Adeyemi")).toHaveLength(0);
+    fireEvent.click(
+      row("Instagram").getByRole("button", { name: "Connect Instagram" })
+    );
+    await wait(3000);
+    expect(screen.getAllByText("Noor Adeyemi").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("meter", { name: "How well I know you" })
+    ).toHaveAttribute("aria-valuenow", "40");
+  });
+
+  it("keeps her card after a reload", async () => {
+    await renderWith({
+      ...confirmed,
+      accounts: {
+        instagram: { status: "connected", handle: "@nooradeyemi" },
+        tiktok: { status: "connected", handle: "@nooradeyemi" },
+      },
+    });
+    expect(
+      screen.getByRole("meter", { name: "How well I know you" })
+    ).toHaveAttribute("aria-valuenow", "60");
+  });
+
+  it("counts files toward Continue but not on her card", async () => {
+    await renderWith(confirmed);
+    fireEvent.change(screen.getByLabelText("Upload reports"), {
+      target: {
+        files: [new File(["x"], "royalties-2025.csv", { type: "text/csv" })],
+      },
+    });
+    expect(
+      screen.getByRole("meter", { name: "How well I know you" })
+    ).toHaveAttribute("aria-valuenow", "20");
+    expect(
+      screen.getByRole("button", { name: "Continue with 1 connected" })
+    ).toBeEnabled();
+  });
+
+  it("drops an answer that comes back after the artist left the page", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, ...confirmed })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <ConnectScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await wait(0);
+    fireEvent.click(screen.getByRole("button", { name: "Connect Instagram" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Connect Google Drive" })
+    );
+    rerender(tree("hidden"));
+    await wait(3000);
+    expect(saved().accounts).toEqual({});
+    expect(saved().folders).toEqual({});
+  });
+
+  it("keeps the account and the artist together when the artist leaves mid-way", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, path: "manual" })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <ConnectScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await wait(0);
+    fireEvent.click(screen.getByRole("button", { name: "Connect Instagram" }));
+    await wait(1250);
+    rerender(tree("hidden"));
+    await wait(2000);
+    const state = saved();
+    expect(Object.keys(state.accounts ?? {}).length > 0).toBe(
+      state.artist !== null
+    );
   });
 
   it("sends the artist to the start before confirming", async () => {

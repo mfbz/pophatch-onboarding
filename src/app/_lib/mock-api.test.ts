@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   connectAccount,
   connectFolder,
+  readingPlan,
   readSources,
   resolveFromAccount,
   resolveLink,
@@ -43,6 +44,13 @@ describe("the mock API", () => {
       "Slow Water",
       "Early Hours",
     ]);
+    expect(result.artist.genres).toEqual(["Alt R&B", "Neo-soul", "Late-night"]);
+    expect(result.artist.releases[0]).toMatchObject({
+      kind: "Single",
+      year: 2025,
+      plays: "412K plays",
+    });
+    expect(result.artist.stats.instagramFollowers).toBe(4_120);
   });
 
   it("finds no one behind the not-found demo link", async () => {
@@ -52,14 +60,22 @@ describe("the mock API", () => {
     expect(result).toEqual({ status: "not-found" });
   });
 
-  it("finds the artist on four platforms, in order", async () => {
+  it("finds the artist on four platforms, in order, with a number for each", async () => {
     const found = collect(searchPlatforms("noor-adeyemi"));
     expect(await settle(found)).toEqual([
-      "spotify",
-      "instagram",
-      "youtube",
-      "tiktok",
+      { platform: "spotify", detail: "18.4k listeners" },
+      { platform: "instagram", detail: "4,120 followers" },
+      { platform: "youtube", detail: "860 subscribers" },
+      { platform: "tiktok", detail: "1,200 followers" },
     ]);
+  });
+
+  it("returns an account's numbers when it connects", async () => {
+    expect(await settle(connectAccount("instagram", 1))).toEqual({
+      status: "connected",
+      handle: "@nooradeyemi",
+      numbers: "312 posts · 4,120 followers",
+    });
   });
 
   it("fails Facebook once, then connects it", async () => {
@@ -70,6 +86,7 @@ describe("the mock API", () => {
     expect(await settle(connectAccount("facebook", 2))).toEqual({
       status: "connected",
       handle: "Noor Adeyemi",
+      numbers: "1,860 followers",
     });
   });
 
@@ -88,11 +105,31 @@ describe("the mock API", () => {
     );
     expect(await settle(lines)).toEqual([
       {
+        mark: "soundcharts",
         label: "Reading SoundCharts",
         detail: "11 releases, 18 months of history",
       },
-      { label: "Reading Instagram", detail: "312 posts, 4,120 followers" },
-      { label: "Reading your reports", detail: "3 files" },
+      {
+        mark: "instagram",
+        label: "Reading Instagram",
+        detail: "312 posts, 4,120 followers",
+      },
+      { mark: "files", label: "Reading your reports", detail: "3 files" },
+    ]);
+  });
+
+  it("plans the reading before it starts, SoundCharts first", () => {
+    expect(
+      readingPlan([
+        { kind: "account", platform: "instagram" },
+        { kind: "folder", provider: "google-drive" },
+        { kind: "files", count: 3 },
+      ])
+    ).toEqual([
+      { mark: "soundcharts", name: "SoundCharts" },
+      { mark: "instagram", name: "Instagram" },
+      { mark: "google-drive", name: "Google Drive" },
+      { mark: "files", name: "Your reports" },
     ]);
   });
 
