@@ -19,8 +19,8 @@ function Grooves({ id }: { id: string }) {
   const random = seeded(id.length * 97 + 7);
   const dark: number[] = [];
   const light: number[] = [];
-  for (let r = 43.5; r < 97.6; r += 0.7) dark.push(r);
-  for (let r = 43.8; r < 97.6; r += 1.4) light.push(r);
+  for (let r = 48.5; r < 97.6; r += 0.7) dark.push(r);
+  for (let r = 48.8; r < 97.6; r += 1.4) light.push(r);
   return (
     <g fill="none">
       {dark.map((r) => (
@@ -39,7 +39,7 @@ function Grooves({ id }: { id: string }) {
           strokeWidth={0.28}
         />
       ))}
-      {[56, 67, 77, 88].map((r) => (
+      {[59, 69, 79, 89].map((r) => (
         <g key={`g${r}`}>
           <circle r={r} stroke="rgba(0,0,0,.32)" strokeWidth={1.5} />
           <circle
@@ -85,7 +85,7 @@ function Vinyl({
             </radialGradient>
             <path
               id={`label-${id}`}
-              d="M 0,-37.4 a 37.4,37.4 0 1,1 0,74.8 a 37.4,37.4 0 1,1 0,-74.8"
+              d="M 0,-42.6 a 42.6,42.6 0 1,1 0,85.2 a 42.6,42.6 0 1,1 0,-85.2"
             />
           </defs>
           <circle r={100} fill={`url(#vinyl-${id})`} />
@@ -96,12 +96,12 @@ function Vinyl({
             stroke="rgba(255,255,255,.35)"
             strokeWidth={0.6}
           />
-          <circle r={43} fill="none" stroke="rgba(0,0,0,.35)" strokeWidth={1} />
-          <circle r={42.2} className="fill-navy" />
-          <text className="fill-lime font-mono" fontSize={4.2} fontWeight={500}>
+          <circle r={48} fill="none" stroke="rgba(0,0,0,.35)" strokeWidth={1} />
+          <circle r={47.2} className="fill-navy" />
+          <text className="fill-lime font-mono" fontSize={4.6} fontWeight={500}>
             <textPath
               href={`#label-${id}`}
-              textLength={233}
+              textLength={266}
               lengthAdjust="spacing"
             >
               {label + label}
@@ -111,14 +111,14 @@ function Vinyl({
       </div>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-full bg-[conic-gradient(from_205deg,transparent_0_6%,rgb(255_255_255/0.26)_11%,transparent_17%_53%,rgb(255_255_255/0.16)_59%,transparent_65%)] mix-blend-screen [mask:radial-gradient(circle_closest-side,transparent_0_42.4%,#000_42.8%)]"
+        className="pointer-events-none absolute inset-0 rounded-full bg-[conic-gradient(from_205deg,transparent_0_6%,rgb(255_255_255/0.26)_11%,transparent_17%_53%,rgb(255_255_255/0.16)_59%,transparent_65%)] mix-blend-screen [mask:radial-gradient(circle_closest-side,transparent_0_47.4%,#000_47.8%)]"
       />
-      <div className="absolute inset-[33%] overflow-hidden rounded-full shadow-[0_0_0_1px_rgb(212_255_58/0.8)]">
+      <div className="absolute inset-[30%] overflow-hidden rounded-full shadow-[0_0_0_1px_rgb(212_255_58/0.8)]">
         <Image
           src={photo}
           alt=""
           fill
-          sizes="(max-width: 860px) 120px, 280px"
+          sizes="(max-width: 860px) 160px, 320px"
           className="object-cover"
         />
       </div>

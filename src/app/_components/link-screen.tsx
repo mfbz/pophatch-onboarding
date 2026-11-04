@@ -164,7 +164,7 @@ function LinkForm({ notice, children }: LinkFormProps) {
             aria-pressed={recognised === platform}
             aria-label={`Use ${/^[AEIOU]/.test(PLATFORM_NAMES[platform]) ? "an" : "a"} ${PLATFORM_NAMES[platform]} example`}
             onClick={() => fillExample(platform)}
-            className="min-h-0 gap-1.5 border-0 bg-fg/12 py-1 pr-3 pl-1 text-[13px] font-semibold enabled:hover:-translate-y-px enabled:hover:bg-fg/20 aria-pressed:bg-fg aria-pressed:text-navy max-tablet:min-h-11"
+            className="min-h-0 gap-1.5 border-0 bg-fg/12 py-1 pr-3 pl-1 text-[13px] font-semibold enabled:hover:-translate-y-px enabled:hover:bg-fg/20 aria-pressed:bg-fg aria-pressed:text-navy max-tablet:min-h-11 max-tablet:pl-2.75"
           >
             <PlatformMark mark={platform} size={22} />
             {PLATFORM_NAMES[platform]}
