@@ -176,11 +176,11 @@ function Answer({ phone }: AnswerProps) {
               maxLength={GOAL_LIMIT}
               value={text}
               onChange={(event) => write(event.target.value)}
-              className="min-h-12 min-w-0 flex-1 bg-transparent text-[17px] text-navy outline-none placeholder:text-navy/50 max-tablet:text-base"
+              className="min-h-12 min-w-0 flex-1 bg-transparent text-[17px] text-navy outline-none placeholder:text-navy/70 max-tablet:text-base"
             />
             <small
               id={counterId}
-              className="shrink-0 text-xs text-navy/50 tabular-nums max-tablet:hidden"
+              className="shrink-0 text-xs text-navy/70 tabular-nums max-tablet:hidden"
             >
               {text.length} / {GOAL_LIMIT}
             </small>
@@ -217,13 +217,13 @@ function Answer({ phone }: AnswerProps) {
           <Button
             type="submit"
             disabled={!ready}
-            className="relative mt-6 min-h-13.5 min-w-75 overflow-hidden px-7 text-[17px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:mt-5 max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
+            className="relative mt-6 min-h-13.5 min-w-75 overflow-hidden px-7 text-[17px] font-extrabold disabled:bg-fg/12 disabled:text-fg disabled:opacity-100 max-tablet:mt-5 max-tablet:min-h-12 max-tablet:w-full max-tablet:min-w-0 max-tablet:px-5 max-tablet:text-base max-tablet:whitespace-normal"
           >
             {goal !== null && !reading.done && (
               <span
                 aria-hidden
-                style={{ width: `${(read / plan.length) * 100}%` }}
-                className="absolute inset-y-0 left-0 bg-lime/35 transition-[width] duration-800 ease-stage motion-reduce:transition-none"
+                style={{ transform: `scaleX(${read / plan.length})` }}
+                className="absolute inset-0 origin-left bg-lime/35 transition-transform duration-800 ease-stage motion-reduce:transition-none"
               />
             )}
             <span className="relative">

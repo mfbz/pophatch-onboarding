@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -80,6 +80,21 @@ describe("WelcomeScreen", () => {
     renderWith({ ...arrived, goal: { kind: "written", value: "Tour Europe" } });
     const card = await screen.findByRole("region", { name: "Your goal" });
     expect(card).toHaveTextContent("\u201cTour Europe\u201d");
+  });
+
+  it("keeps Start over out of reach until the card has docked", async () => {
+    vi.useFakeTimers();
+    renderWith(arrived);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const card = screen.getByRole("region", { name: "Your goal" });
+    expect(card).toHaveAttribute("inert");
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3400);
+    });
+    expect(card).not.toHaveAttribute("inert");
+    vi.useRealTimers();
   });
 
   it("starts over from step 1", async () => {

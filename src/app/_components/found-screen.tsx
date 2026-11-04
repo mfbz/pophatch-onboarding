@@ -50,13 +50,14 @@ function Releases({ artist }: ArtistProps) {
   return (
     <ul
       aria-label="Releases"
-      className="mt-6 grid grid-cols-[1.6fr_repeat(4,1fr)] items-end gap-5.5 pr-6.5 max-tablet:-mx-4 max-tablet:flex max-tablet:snap-x max-tablet:scroll-px-4 max-tablet:gap-4 max-tablet:overflow-x-auto max-tablet:px-4 max-tablet:pb-2 max-tablet:text-left"
+      // The strip scrolls sideways on a phone; focusable so a keyboard can scroll it too.
+      tabIndex={0}
+      className="mt-6 grid grid-cols-[1.6fr_repeat(4,1fr)] items-end gap-5.5 rounded-thumb pr-6.5 outline-none focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-fg focus-visible:outline-solid max-tablet:-mx-4 max-tablet:flex max-tablet:snap-x max-tablet:scroll-px-4 max-tablet:gap-4 max-tablet:overflow-x-auto max-tablet:px-4 max-tablet:pb-2 max-tablet:text-left"
     >
       {artist.releases.map((release, index) => {
         const latest = index === 0;
         const style: CSSProperties = {
           background: `repeating-radial-gradient(circle, ${release.tint} 0 2px, color-mix(in srgb, ${release.tint} 72%, #000) 2px 4px)`,
-          animationDelay: `${300 + index * 110}ms`,
         };
         return (
           <li
@@ -77,7 +78,7 @@ function Releases({ artist }: ArtistProps) {
                 aria-hidden
                 style={style}
                 className={cn(
-                  "absolute top-[5%] right-0 bottom-[5%] aspect-square rounded-full transition-transform duration-600 ease-stage group-hover:translate-x-[26%] after:absolute after:inset-[36%] after:rounded-full after:bg-navy after:shadow-[0_0_0_2px_rgb(255_255_255/0.2)]",
+                  "absolute top-[5%] right-0 bottom-[5%] aspect-square rounded-full transition-transform duration-600 ease-stage group-hover:translate-x-[26%] after:absolute after:inset-[36%] after:rounded-full after:bg-navy after:shadow-[0_0_0_2px_rgb(255_255_255/0.2)] motion-reduce:transition-none",
                   latest && "translate-x-[26%]"
                 )}
               />
@@ -143,8 +144,8 @@ function Profile({ artist }: ArtistProps) {
           <li
             key={genre}
             className={cn(
-              "rounded-pill px-3 py-1.5 text-[13px] font-bold text-fg",
-              index === 0 ? "bg-pink" : "bg-fg/10"
+              "rounded-pill px-3 py-1.5 text-[13px] font-bold",
+              index === 0 ? "bg-pink text-navy" : "bg-fg/10 text-fg"
             )}
           >
             {genre}

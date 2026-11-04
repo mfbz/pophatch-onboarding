@@ -96,6 +96,13 @@ function ReadingPanel({ plan, lines, done, compact }: ReadingPanelProps) {
   const titleId = useId();
   const rowsId = useId();
   const [open, setOpen] = useState(!done);
+  const [wasDone, setWasDone] = useState(done);
+
+  // A new reading opens the block again, even if the artist or the timer folded the last one.
+  if (wasDone !== done) {
+    setWasDone(done);
+    if (!done) setOpen(true);
+  }
 
   useEffect(() => {
     if (!done) return;
@@ -150,10 +157,7 @@ function ReadingPanel({ plan, lines, done, compact }: ReadingPanelProps) {
           ) : (
             <Spinner />
           )}
-          <span
-            aria-live="polite"
-            className="min-w-0 flex-1 truncate text-[14.5px] font-semibold text-fg"
-          >
+          <span className="min-w-0 flex-1 truncate text-[14.5px] font-semibold text-fg">
             {done ? (
               <>
                 <span className="sr-only">✓</span> Read {total} sources
@@ -191,9 +195,12 @@ function ReadingPanel({ plan, lines, done, compact }: ReadingPanelProps) {
           <span
             aria-hidden
             style={{ width: `${(read / total) * 100}%` }}
-            className="absolute bottom-0 left-0 h-0.5 bg-lime transition-[width] duration-700 ease-stage"
+            className="absolute bottom-0 left-0 h-0.5 bg-lime transition-[width] duration-700 ease-stage motion-reduce:transition-none"
           />
         </button>
+        <p role="status" className="sr-only">
+          {live}
+        </p>
         <div
           id={rowsId}
           hidden={!open}

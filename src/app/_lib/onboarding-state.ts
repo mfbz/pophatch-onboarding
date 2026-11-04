@@ -125,14 +125,8 @@ function onboardingReducer(
     case "confirmed":
       return { ...state, confirmed: true };
     case "rejected":
-      return {
-        ...state,
-        link: null,
-        notice: "not-me",
-        returns: state.returns + 1,
-        artist: null,
-        confirmed: false,
-      };
+      // Not me starts the flow over, whichever path found the artist.
+      return { ...initialState, notice: "not-me", returns: state.returns + 1 };
     case "notFound":
       return {
         ...state,

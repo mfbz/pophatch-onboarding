@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { useOnboarding } from "@/app/_lib/onboarding-provider";
 import type { OnboardingState } from "@/app/_lib/onboarding-state";
@@ -9,6 +10,7 @@ import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button } from "@/components/button";
 import { Rings, Stage } from "@/components/stage";
 import { TopBar } from "@/components/top-bar";
+import { useReducedMotion } from "@/lib/motion";
 
 type GoalCardProps = {
   goal: NonNullable<OnboardingState["goal"]>;
@@ -29,6 +31,9 @@ const GOAL_LINES: Record<string, string> = {
 // The five other finishes the logo flashes through before it lands on pearl, 0.3s apart.
 const FINISHES = ["violet", "blue", "halftone", "chrome", "silver"];
 
+// When the goal card has docked: its 2.6s delay plus the 0.8s dock.
+const DOCKED_AFTER = 3400;
+
 const FLASH_DELAYS = [
   "[animation-delay:0s]",
   "[animation-delay:0.3s]",
@@ -38,8 +43,17 @@ const FLASH_DELAYS = [
 ];
 
 // The goal the first plan is built around, docked at the bottom like a now-playing bar, with the
-// cover of the artist's latest release. A written goal is quoted in the artist's own words.
+// cover of the artist's latest release. A written goal is quoted in the artist's own words. Until
+// it has docked it is inert, so "Start over" can't be reached while it is still invisible. On a
+// phone it sits under the welcome instead of over it, its button on a row of its own.
 function GoalCard({ goal, cover, startOver }: GoalCardProps) {
+  const reduced = useReducedMotion();
+  const [docked, setDocked] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDocked(true), DOCKED_AFTER);
+    return () => clearTimeout(timer);
+  }, []);
   const line =
     goal.kind === "preset"
       ? (GOAL_LINES[goal.value] ?? goal.value)
@@ -47,7 +61,8 @@ function GoalCard({ goal, cover, startOver }: GoalCardProps) {
   return (
     <section
       aria-label="Your goal"
-      className="absolute inset-x-0 bottom-0 mx-auto flex w-[min(880px,100%)] animate-dock items-center gap-4 rounded-[22px] bg-night/65 px-3.5 py-3 text-left ring-1 ring-fg/14 backdrop-blur-lg [animation-delay:2.6s] motion-reduce:animate-none max-tablet:gap-3 max-tablet:px-3"
+      inert={!docked && !reduced}
+      className="absolute inset-x-0 bottom-0 mx-auto flex w-[min(880px,100%)] animate-dock items-center gap-4 rounded-[22px] bg-night/65 px-3.5 py-3 text-left ring-1 ring-fg/14 backdrop-blur-lg [animation-delay:2.6s] motion-reduce:animate-none max-tablet:relative max-tablet:mt-10 max-tablet:flex-wrap max-tablet:gap-3 max-tablet:px-3"
     >
       {cover && (
         <Image
@@ -71,7 +86,7 @@ function GoalCard({ goal, cover, startOver }: GoalCardProps) {
       </div>
       <Button
         onClick={startOver}
-        className="shrink-0 px-4.5 font-extrabold max-tablet:px-4"
+        className="shrink-0 px-4.5 font-extrabold max-tablet:w-full"
       >
         Start over
       </Button>
@@ -100,7 +115,7 @@ function WelcomeScreen() {
     <Stage rings="none">
       <TopBar />
       {allowed && firstName && (
-        <main className="relative flex flex-1 flex-col items-center justify-center pb-32 text-center max-tablet:pb-36">
+        <main className="relative flex flex-1 flex-col items-center justify-center pb-32 text-center max-tablet:justify-start max-tablet:pt-10 max-tablet:pb-6">
           <div className="relative grid size-110 place-items-center max-tablet:size-72">
             <div className="absolute top-1/2 left-1/2 -z-10 -translate-1/2">
               <div className="animate-rings-in motion-reduce:animate-none">

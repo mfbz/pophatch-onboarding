@@ -30,6 +30,24 @@ describe("the onboarding reducer", () => {
     expect(state.confirmed).toBe(false);
   });
 
+  it("forgets the one-by-one path and its accounts on Not me", () => {
+    const state = run(
+      { type: "startManual" },
+      {
+        type: "account",
+        platform: "instagram",
+        connection: { status: "connected", handle: "@noor" },
+      },
+      { type: "files", names: ["royalties.csv"] },
+      { type: "found", artist },
+      { type: "rejected" }
+    );
+    expect(state.path).toBe(initialState.path);
+    expect(state.accounts).toEqual({});
+    expect(state.folders).toEqual({});
+    expect(state.files).toEqual([]);
+  });
+
   it("explains why the artist is back at the start", () => {
     expect(run({ type: "found", artist }, { type: "rejected" }).notice).toBe(
       "not-me"

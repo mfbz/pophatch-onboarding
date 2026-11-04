@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { Activity } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArtistSchema } from "@/app/_lib/mock-api";
@@ -271,6 +272,30 @@ describe("ConnectScreen", () => {
     expect(
       screen.getByRole("button", { name: "Continue with 1 connected" })
     ).toBeEnabled();
+  });
+
+  it("drops an answer that comes back after the artist left the page", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, ...confirmed })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <ConnectScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await wait(0);
+    fireEvent.click(screen.getByRole("button", { name: "Connect Instagram" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Connect Google Drive" })
+    );
+    rerender(tree("hidden"));
+    await wait(3000);
+    expect(saved().accounts).toEqual({});
+    expect(saved().folders).toEqual({});
   });
 
   it("sends the artist to the start before confirming", async () => {

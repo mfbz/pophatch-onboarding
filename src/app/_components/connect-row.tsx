@@ -97,10 +97,7 @@ function ConnectRow({
           </p>
         )}
         {failed && (
-          <p
-            role="status"
-            className="flex items-center gap-1.5 text-[12.5px] text-fg"
-          >
+          <p className="flex items-center gap-1.5 text-[12.5px] text-fg">
             <StatusDot tone="pink" />
             {connection.message}
           </p>

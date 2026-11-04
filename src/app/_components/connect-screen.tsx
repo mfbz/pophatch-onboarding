@@ -33,8 +33,23 @@ const REPORT_TYPES = ".csv,.xlsx,.xls,.pdf,.zip";
 const CHIP =
   "inline-flex min-h-10 items-center gap-2.5 rounded-pill bg-fg/8 py-1.25 pr-3.5 pl-1.25 text-[13.5px] font-bold text-fg ring-1 ring-hair-soft max-tablet:min-h-11";
 
+// True while this page is on screen. Next hides a page it leaves (Activity), which runs its
+// effects' cleanup, so an answer that lands after the artist went back to start over is dropped
+// instead of connecting an account in the new flow.
+function useOnPage() {
+  const onPage = useRef(false);
+  useEffect(() => {
+    onPage.current = true;
+    return () => {
+      onPage.current = false;
+    };
+  }, []);
+  return onPage;
+}
+
 function FolderButton({ provider }: FolderButtonProps) {
   const { state, dispatch } = useOnboarding();
+  const onPage = useOnPage();
   const [pending, setPending] = useState(false);
   const pressedWithFocus = useRef(false);
   const status = useRef<HTMLParagraphElement>(null);
@@ -54,6 +69,7 @@ function FolderButton({ provider }: FolderButtonProps) {
     setPending(true);
     try {
       const result = await connectFolder(provider);
+      if (!onPage.current) return;
       dispatch({ type: "folder", provider, connection: result });
     } finally {
       setPending(false);
@@ -94,6 +110,7 @@ function FolderButton({ provider }: FolderButtonProps) {
 function ConnectScreen() {
   const { state, dispatch } = useOnboarding();
   const router = useRouter();
+  const onPage = useOnPage();
   const allowed = useStepGuard(
     (current) => current.confirmed || current.path === "manual"
   );
@@ -122,6 +139,7 @@ function ConnectScreen() {
     const previous = state.accounts[platform];
     const attempt = previous?.status === "failed" ? previous.attempts + 1 : 1;
     const result = await connectAccount(platform, attempt);
+    if (!onPage.current) return;
     if (result.status === "failed") {
       dispatch({
         type: "account",
@@ -132,7 +150,8 @@ function ConnectScreen() {
     }
     dispatch({ type: "account", platform, connection: result });
     if (state.artist === null) {
-      dispatch({ type: "found", artist: await resolveFromAccount(platform) });
+      const artist = await resolveFromAccount(platform);
+      if (onPage.current) dispatch({ type: "found", artist });
     }
   }
 
@@ -151,7 +170,7 @@ function ConnectScreen() {
                   ? "Connect what you have; one is enough to start."
                   : `PopHatch found these from your ${linkPlatform}. Connect what you have; one is enough to start.`}
               </p>
-              <ul className="mt-6 grid gap-2.5 max-tablet:mt-5 max-tablet:gap-2">
+              <ul className="mt-6 grid grid-cols-1 gap-2.5 max-tablet:mt-5 max-tablet:gap-2">
                 {CONNECT_PLATFORMS.map(({ platform, available }, index) => (
                   <ConnectRow
                     key={platform}
@@ -227,7 +246,7 @@ function ConnectScreen() {
                 <Button
                   disabled={!ready}
                   onClick={() => router.push("/together")}
-                  className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:text-base"
+                  className="min-h-13.5 min-w-75 px-7 text-[17px] font-extrabold max-tablet:min-h-12 max-tablet:w-full max-tablet:min-w-0 max-tablet:px-5 max-tablet:text-base max-tablet:whitespace-normal"
                 >
                   {ready ? (
                     <>

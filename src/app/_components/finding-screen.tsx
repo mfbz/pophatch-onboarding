@@ -36,11 +36,11 @@ type Spot = { x: number; y: number; size: number };
 const SPOTS: { desk: Spot; phone: Spot }[] = [
   {
     desk: { x: -390, y: -150, size: 100 },
-    phone: { x: -112, y: -138, size: 58 },
+    phone: { x: -100, y: -138, size: 58 },
   },
-  { desk: { x: 390, y: -190, size: 76 }, phone: { x: 112, y: -150, size: 48 } },
-  { desk: { x: 400, y: 70, size: 64 }, phone: { x: 120, y: 168, size: 42 } },
-  { desk: { x: -380, y: 110, size: 58 }, phone: { x: -120, y: 172, size: 40 } },
+  { desk: { x: 390, y: -190, size: 76 }, phone: { x: 100, y: -150, size: 48 } },
+  { desk: { x: 400, y: 70, size: 64 }, phone: { x: 96, y: 168, size: 42 } },
+  { desk: { x: -380, y: 110, size: 58 }, phone: { x: -96, y: 172, size: 40 } },
 ];
 
 // How long "That's all of you." stays before "Found you" takes over.
