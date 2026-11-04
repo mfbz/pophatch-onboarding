@@ -218,7 +218,7 @@ The onboarding is the artist's first impression, a stage moment rather than a pr
 
 ### The progress pills go back, never ahead
 
-The top bar keeps the prototype's four pills, no container, joined by short 16px lines as steppers are: solid lime between two stages the artist has reached (the newest one draws in when its page opens), dotted white ahead. Done is white with a white ✓ in a Klein circle, current is lime, upcoming a 50% outline filled with Klein, so the rings never cross a label. The one-by-one path skips the search, so it lights no line before it. A done pill is a link back to its page (Find you → the link, Confirm → "Found you", Connect, Enter → the goal); the current pill and those ahead are plain, because their pages need what the earlier steps collect. On a phone only the current pill shows, with its position ("Confirm · 2 of 4"). The PopHatch logo at top left links back to step 1 and clears nothing.
+The top bar keeps the prototype's four pills, no container, joined by short 8px lines as steppers are: solid lime between two stages the artist has reached (the newest one draws in when its page opens), dotted white ahead. Done is white with a white ✓ in a Klein circle, current is lime, upcoming a 50% outline filled with Klein, so the rings never cross a label. The one-by-one path skips the search, so it lights no line before it. A done pill is a link back to its page (Find you → the link, Confirm → "Found you", Connect, Enter → the goal); the current pill and those ahead are plain, because their pages need what the earlier steps collect. On a phone only the current pill shows, with its position ("Confirm · 2 of 4"). The PopHatch logo at top left links back to step 1 and clears nothing.
 
 ### The logos lose their haze
 

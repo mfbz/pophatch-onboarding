@@ -53,7 +53,7 @@ function Stepper({ current, done }: StepperProps) {
                 aria-hidden
                 data-line={lit ? "lit" : "dim"}
                 className={cn(
-                  "relative mx-1 w-4 max-tablet:hidden",
+                  "relative mx-0.75 w-2 max-tablet:hidden",
                   lit
                     ? "h-0.5 overflow-hidden rounded-pill"
                     : "border-t-2 border-dotted border-fg/45"
