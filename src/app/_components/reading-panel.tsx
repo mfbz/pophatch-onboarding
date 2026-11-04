@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useId, useState } from "react";
 
 import type { ReadLine, ReadingStep } from "@/app/_lib/mock-api";
@@ -219,7 +220,15 @@ function ReadingPanel({ plan, lines, done, compact }: ReadingPanelProps) {
         aria-live="polite"
         className="mt-1 flex items-center gap-2 text-[14.5px] font-semibold text-periwinkle"
       >
-        {done && <i aria-hidden className="size-2 rounded-full bg-lime" />}
+        {done && (
+          <Image
+            src="/brand/logo-pearl.png"
+            alt=""
+            width={20}
+            height={20}
+            className="size-5 animate-pop motion-reduce:animate-none"
+          />
+        )}
         <span className={cn(done && "text-fg")}>{live}</span>
       </p>
       <div className="mt-4 mb-1.5">{segments}</div>

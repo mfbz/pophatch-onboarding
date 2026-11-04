@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useId, useState } from "react";
 
@@ -15,7 +16,6 @@ import {
 import { useStepGuard } from "@/app/_lib/use-step-guard";
 import { Button } from "@/components/button";
 import { Stage } from "@/components/stage";
-import { StatusDot } from "@/components/status-dot";
 import { ToggleGroup, ToggleGroupItem } from "@/components/toggle-group";
 import { TopBar } from "@/components/top-bar";
 import { cn } from "@/lib/cn";
@@ -195,7 +195,13 @@ function Answer({ phone }: AnswerProps) {
               key={`${goal.kind}:${goal.value}`}
               className="flex animate-fade-in items-center gap-2.5 motion-reduce:animate-none"
             >
-              <StatusDot tone="lime" />
+              <Image
+                src="/brand/logo-pearl.png"
+                alt=""
+                width={24}
+                height={24}
+                className="size-6 shrink-0"
+              />
               {confirmation(goal)}
             </span>
           )}
