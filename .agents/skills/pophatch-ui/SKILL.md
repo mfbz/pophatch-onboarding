@@ -24,7 +24,7 @@ The onboarding is the first thing an artist sees of PopHatch. It should feel lik
 
 - Motion carries meaning: something arriving, something found, progress being made. Transform and opacity only; nothing animates layout.
 - Every animation respects `prefers-reduced-motion`: it becomes an instant change or a fade, never just a shorter version of the same movement.
-- Waiting is designed, not a spinner: show what is happening ("Reading Instagram") and what has arrived so far.
+- Waiting is designed, never a bare spinner: show what is happening ("Reading Instagram · 2 of 3") and what has arrived so far.
 
 ## Responsive and phone
 
