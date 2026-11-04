@@ -298,6 +298,30 @@ describe("ConnectScreen", () => {
     expect(saved().folders).toEqual({});
   });
 
+  it("keeps the account and the artist together when the artist leaves mid-way", async () => {
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, path: "manual" })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <ConnectScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await wait(0);
+    fireEvent.click(screen.getByRole("button", { name: "Connect Instagram" }));
+    await wait(1250);
+    rerender(tree("hidden"));
+    await wait(2000);
+    const state = saved();
+    expect(Object.keys(state.accounts ?? {}).length > 0).toBe(
+      state.artist !== null
+    );
+  });
+
   it("sends the artist to the start before confirming", async () => {
     await renderWith({ artist });
     expect(replace).toHaveBeenCalledWith("/");

@@ -139,8 +139,8 @@ function ConnectScreen() {
     const previous = state.accounts[platform];
     const attempt = previous?.status === "failed" ? previous.attempts + 1 : 1;
     const result = await connectAccount(platform, attempt);
-    if (!onPage.current) return;
     if (result.status === "failed") {
+      if (!onPage.current) return;
       dispatch({
         type: "account",
         platform,
@@ -148,11 +148,12 @@ function ConnectScreen() {
       });
       return;
     }
+    // On the one-by-one path the first account also finds the artist; both land together or not
+    // at all, so leaving mid-way never keeps an account without the artist it was meant to find.
+    const artist = state.artist ?? (await resolveFromAccount(platform));
+    if (!onPage.current) return;
     dispatch({ type: "account", platform, connection: result });
-    if (state.artist === null) {
-      const artist = await resolveFromAccount(platform);
-      if (onPage.current) dispatch({ type: "found", artist });
-    }
+    if (state.artist === null) dispatch({ type: "found", artist });
   }
 
   return (

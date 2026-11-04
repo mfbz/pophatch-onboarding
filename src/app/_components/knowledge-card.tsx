@@ -199,7 +199,7 @@ function KnowledgeCard({ state }: KnowledgeCardProps) {
                 <div
                   style={{ "--fill": PLATFORM_COLORS[mark] } as CSSProperties}
                   className={cn(
-                    "h-full w-full origin-left rounded-pill bg-(--fill) transition-transform duration-900 ease-stage motion-reduce:transition-none",
+                    "h-full w-full origin-left bg-(--fill) transition-transform duration-900 ease-stage motion-reduce:transition-none",
                     segment === "filled" ? "scale-x-100" : "scale-x-0"
                   )}
                 />

@@ -52,7 +52,11 @@ function GoalCard({ goal, cover, startOver }: GoalCardProps) {
 
   useEffect(() => {
     const timer = setTimeout(() => setDocked(true), DOCKED_AFTER);
-    return () => clearTimeout(timer);
+    // Shown again (Activity), the card docks again from hidden, so it starts out of reach again.
+    return () => {
+      clearTimeout(timer);
+      setDocked(false);
+    };
   }, []);
   const line =
     goal.kind === "preset"

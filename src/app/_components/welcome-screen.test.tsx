@@ -1,5 +1,6 @@
 import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { Activity } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ArtistSchema } from "@/app/_lib/mock-api";
@@ -45,6 +46,7 @@ const arrived: Partial<OnboardingState> = {
 
 describe("WelcomeScreen", () => {
   afterEach(() => {
+    vi.useRealTimers();
     push.mockClear();
     replace.mockClear();
     sessionStorage.clear();
@@ -94,7 +96,33 @@ describe("WelcomeScreen", () => {
       await vi.advanceTimersByTimeAsync(3400);
     });
     expect(card).not.toHaveAttribute("inert");
-    vi.useRealTimers();
+  });
+
+  it("keeps Start over out of reach again when the arrival is shown again", async () => {
+    vi.useFakeTimers();
+    sessionStorage.setItem(
+      "pophatch-onboarding",
+      JSON.stringify({ ...initialState, ...arrived })
+    );
+    const tree = (mode: "visible" | "hidden") => (
+      <OnboardingProvider>
+        <Activity mode={mode}>
+          <WelcomeScreen />
+        </Activity>
+      </OnboardingProvider>
+    );
+    const { rerender } = render(tree("visible"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(3400);
+    });
+    rerender(tree("hidden"));
+    rerender(tree("visible"));
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    expect(screen.getByRole("region", { name: "Your goal" })).toHaveAttribute(
+      "inert"
+    );
   });
 
   it("starts over from step 1", async () => {
